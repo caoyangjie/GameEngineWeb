@@ -1,7 +1,7 @@
 <template>
   <header class="top-header">
     <!-- 左侧Logo -->
-    <div class="header-logo">
+    <div class="header-logo" @click="handleGoToHome">
       <h1 class="logo-text">{{ t('common.appName') }}</h1>
       <p class="logo-subtitle">{{ t('common.appSubtitle') }}</p>
     </div>
@@ -188,29 +188,45 @@ const handleJourneyClick = () => {
 const handleDepositClick = () => {
   router.goToDeposit()
 }
+
+const handleGoToHome = () => {
+  router.goToHome()
+}
 </script>
 
 <style scoped>
 /* 顶部导航栏 */
 .top-header {
-  position: relative;
-  z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 15px 30px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    transparent 100%
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.85) 50%,
+    rgba(0, 0, 0, 0.75) 100%
   );
   backdrop-filter: blur(10px);
   border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  height: 80px;
+  box-sizing: border-box;
 }
 
 .header-logo {
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
 }
 
 .logo-text {

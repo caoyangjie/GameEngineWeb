@@ -200,7 +200,11 @@
           <span class="sidebar-icon">🎒</span>
           <span class="sidebar-text">{{ t('sidebar.passCardManagement') }}</span>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('midox')">
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.MIDOX }"
+          @click="handleNavigate(ROUTES.MIDOX)"
+        >
           <span class="sidebar-icon midox-icon">M</span>
           <span class="sidebar-text">MIDOX</span>
         </div>
@@ -342,9 +346,8 @@ const handleNavigate = (route) => {
     router.goToTeamOverview()
   } else if (route === ROUTES.PASS_CARD_MANAGEMENT) {
     router.goToPassCardManagement()
-  } else if (route === 'midox') {
-    // 在新标签页打开 MIDOX 页面
-    window.open('https://voyagewest.game/midox/', '_blank')
+  } else if (route === ROUTES.MIDOX || route === 'midox') {
+    router.goToMidox()
   }
   
   // 通知父组件关闭侧边栏

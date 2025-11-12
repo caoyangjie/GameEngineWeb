@@ -338,7 +338,7 @@
 	padding: 40px;
 	max-width: 1400px;
 	margin: 0 auto;
-	margin-top: 60px;
+	padding-top: 100px;
 	min-height: calc(100vh - 150px);
   }
   

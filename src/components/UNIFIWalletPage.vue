@@ -23,11 +23,11 @@
             <div class="price-icon">U</div>
             <div class="price-info">
               <div class="price-item">
-                <span class="price-label">平台价</span>
+                <span class="price-label">{{ t('unifiWallet.platformPrice') }}</span>
                 <span class="price-value">{{ platformPrice }} USD</span>
               </div>
               <div class="price-item">
-                <span class="price-label">市价</span>
+                <span class="price-label">{{ t('unifiWallet.marketPrice') }}</span>
                 <span class="price-value">{{ marketPrice }} USD</span>
               </div>
             </div>
@@ -35,26 +35,26 @@
 
           <!-- 锁仓钱包 -->
           <div class="wallet-panel locked-wallet">
-            <div class="panel-title">锁仓钱包</div>
+            <div class="panel-title">{{ t('unifiWallet.lockedWallet') }}</div>
             <div class="wallet-content">
               <div class="wallet-icon">U</div>
               <div class="wallet-info">
                 <div class="info-row">
-                  <span class="info-label">余额</span>
+                  <span class="info-label">{{ t('unifiWallet.balance') }}</span>
                   <span class="info-value">{{ lockedBalance }} UNIFI</span>
                 </div>
                 <div class="info-row">
-                  <span class="info-label">平台价值</span>
+                  <span class="info-label">{{ t('unifiWallet.platformValue') }}</span>
                   <span class="info-value">{{ lockedPlatformValue }} USD</span>
                 </div>
                 <div class="info-row">
-                  <span class="info-label">市价值</span>
+                  <span class="info-label">{{ t('unifiWallet.marketValue') }}</span>
                   <span class="info-value">{{ lockedMarketValue }} USD</span>
                 </div>
               </div>
             </div>
             <div class="issuance-bar">
-              <span>当前锁仓发行值: {{ lockedIssuanceValue }}%</span>
+              <span>{{ t('unifiWallet.currentLockedIssuanceValue') }}: {{ lockedIssuanceValue }}%</span>
             </div>
           </div>
         </div>
@@ -62,30 +62,30 @@
         <!-- 右侧区域 - UNIFI 钱包 -->
         <div class="right-section">
           <div class="wallet-panel unifi-wallet-panel">
-            <div class="panel-title">UNIFI 钱包</div>
+            <div class="panel-title">{{ t('unifiWallet.unifiWallet') }}</div>
             <div class="wallet-content">
               <div class="wallet-icon">U</div>
               <div class="wallet-info">
                 <div class="info-row">
-                  <span class="info-label">余额</span>
+                  <span class="info-label">{{ t('unifiWallet.balance') }}</span>
                   <span class="info-value">{{ unifiBalance }} UNIFI</span>
                 </div>
                 <div class="info-row">
-                  <span class="info-label">平台价值</span>
+                  <span class="info-label">{{ t('unifiWallet.platformValue') }}</span>
                   <span class="info-value">{{ unifiPlatformValue }} USD</span>
                 </div>
                 <div class="info-row">
-                  <span class="info-label">市价值</span>
+                  <span class="info-label">{{ t('unifiWallet.marketValue') }}</span>
                   <span class="info-value">{{ unifiMarketValue }} USD</span>
                 </div>
               </div>
             </div>
             <div class="release-bar">
-              <span>释放值: {{ releaseValue }}%</span>
+              <span>{{ t('unifiWallet.releaseValue') }}: {{ releaseValue }}%</span>
             </div>
             <div class="wallet-actions">
-              <button class="action-button exchange-btn" @click="handleExchange">兑换</button>
-              <button class="action-button withdraw-btn" @click="handleWithdraw">提款</button>
+              <button class="action-button exchange-btn" @click="handleExchange">{{ t('unifiWallet.exchange') }}</button>
+              <button class="action-button withdraw-btn" @click="handleWithdraw">{{ t('unifiWallet.withdraw') }}</button>
             </div>
           </div>
         </div>
@@ -106,8 +106,10 @@ import { ref } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -145,12 +147,12 @@ const handleGoToDeposit = () => {
 
 const handleExchange = () => {
   console.log('兑换')
-  alert('兑换功能开发中...')
+  alert(t('unifiWallet.exchangeInDevelopment'))
 }
 
 const handleWithdraw = () => {
   console.log('提款')
-  alert('提款功能开发中...')
+  alert(t('unifiWallet.withdrawInDevelopment'))
 }
 </script>
 
@@ -281,7 +283,7 @@ const handleWithdraw = () => {
   padding: 40px;
   max-width: 1400px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 200px;
   min-height: calc(100vh - 150px);
 }
 

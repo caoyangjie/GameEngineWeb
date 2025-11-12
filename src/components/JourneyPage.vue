@@ -20,7 +20,7 @@
         <div class="title-banner">
           <span class="title-icon">💰</span>
           <span class="title-icon">💰</span>
-          <span class="title-text">旅程详情</span>
+          <span class="title-text">{{ t('journey.title') }}</span>
         </div>
       </div>
 
@@ -29,15 +29,15 @@
         <!-- 第一行：当前旅程等级和剩余天数 -->
         <div class="info-row">
           <div class="info-item">
-            <div class="info-label">当前旅程等级</div>
+            <div class="info-label">{{ t('journey.currentJourneyLevel') }}</div>
             <div class="info-value-box">
-              <span class="level-text">银</span>
+              <span class="level-text">{{ currentData.level }}</span>
             </div>
           </div>
           <div class="info-item">
-            <div class="info-label">当前剩余天数</div>
+            <div class="info-label">{{ t('journey.currentRemainingDays') }}</div>
             <div class="info-value-box">
-              <span class="days-text">40天</span>
+              <span class="days-text">{{ currentData.remainingDays }}{{ t('journey.days') }}</span>
             </div>
           </div>
         </div>
@@ -46,38 +46,38 @@
         <div class="financial-row">
           <div class="financial-item">
             <div class="financial-icon">👑</div>
-            <div class="financial-label">本金</div>
-            <div class="financial-value">5,100.000 USDT</div>
+            <div class="financial-label">{{ t('journey.principal') }}</div>
+            <div class="financial-value">{{ formatNumber(currentData.principal) }} USDT</div>
           </div>
           <div class="financial-item">
             <div class="financial-icon">💰</div>
-            <div class="financial-label">当前倍增池</div>
-            <div class="financial-value">7,566.519 USDT</div>
+            <div class="financial-label">{{ t('journey.currentMultiplierPool') }}</div>
+            <div class="financial-value">{{ formatNumber(currentData.multiplierPool) }} USDT</div>
           </div>
           <div class="financial-item">
             <div class="financial-icon vt-icon">VT</div>
-            <div class="financial-label">VT 余额</div>
-            <div class="financial-value">0.000 VT</div>
+            <div class="financial-label">{{ t('journey.vtBalance') }}</div>
+            <div class="financial-value">{{ formatNumber(currentData.vtBalance) }} VT</div>
           </div>
         </div>
 
         <!-- 第三行：金额输入和天数选择 -->
         <div class="input-row">
           <div class="input-group">
-            <label for="amount-input" class="input-label">金额</label>
+            <label for="amount-input" class="input-label">{{ t('journey.amount') }}</label>
             <div class="input-wrapper">
               <input 
                 id="amount-input"
                 type="number" 
                 v-model="journeyData.amount" 
                 class="amount-input"
-                placeholder="请输入金额"
+                :placeholder="t('journey.pleaseEnterAmount')"
               />
-              <button class="max-button" @click="setMaxAmount">最大</button>
+              <button class="max-button" @click="setMaxAmount">{{ t('journey.max') }}</button>
             </div>
           </div>
           <div class="input-group">
-            <div class="input-label">天数</div>
+            <div class="input-label">{{ t('journey.days') }}</div>
             <div class="days-buttons">
               <button 
                 v-for="day in daysOptions" 
@@ -95,13 +95,13 @@
         <!-- 第四行：新倍增池值 -->
         <div class="input-row">
           <div class="input-group full-width">
-            <label for="multiplier-input" class="input-label">新倍增池值</label>
+            <label for="multiplier-input" class="input-label">{{ t('journey.newMultiplierPoolValue') }}</label>
             <input 
               id="multiplier-input"
               type="text" 
               v-model="journeyData.newMultiplierPool" 
               class="multiplier-input"
-              placeholder="新倍增池值"
+              :placeholder="t('journey.newMultiplierPoolValue')"
               readonly
             />
           </div>
@@ -110,10 +110,10 @@
         <!-- 追加旅程按钮 -->
         <div class="action-section">
           <button class="add-journey-button" @click="handleAddJourney">
-            追加旅程
+            {{ t('journey.addJourney') }}
           </button>
           <a href="#" class="details-link" @click.prevent="handleViewDetails">
-            旅程详情页面 >
+            {{ t('journey.journeyDetailsPage') }} >
           </a>
         </div>
       </div>
@@ -133,8 +133,10 @@ import { ref, reactive, computed, watch } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -191,13 +193,17 @@ const setMaxAmount = () => {
   journeyData.amount = currentData.vtBalance > 0 ? currentData.vtBalance.toString() : currentData.principal.toString()
 }
 
+const formatNumber = (num) => {
+  return num.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+}
+
 const handleAddJourney = () => {
   if (!journeyData.amount || parseFloat(journeyData.amount) <= 0) {
-    alert('请输入有效的金额')
+    alert(t('journey.pleaseEnterValidAmount'))
     return
   }
   if (!journeyData.selectedDays) {
-    alert('请选择天数')
+    alert(t('journey.pleaseSelectDays'))
     return
   }
   console.log('追加旅程:', {
@@ -205,7 +211,7 @@ const handleAddJourney = () => {
     days: journeyData.selectedDays,
     newMultiplierPool: journeyData.newMultiplierPool
   })
-  alert('旅程追加成功！')
+  alert(t('journey.journeyAddedSuccessfully'))
   // 重置表单
   journeyData.amount = ''
   journeyData.newMultiplierPool = ''
@@ -344,7 +350,7 @@ const handleViewDetails = () => {
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 100px;
   min-height: calc(100vh - 150px);
 }
 

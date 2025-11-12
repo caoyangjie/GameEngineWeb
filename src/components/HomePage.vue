@@ -72,7 +72,7 @@
 
         <div class="balance-list">
           <!-- 赏金库余额 -->
-          <div class="balance-item">
+          <div class="balance-item" @click="handleGoToVTWallet">
             <div class="balance-icon">🥣</div>
             <div class="balance-info">
               <div class="balance-label">{{ t('home.bountyVaultBalance') }}</div>
@@ -82,7 +82,7 @@
           </div>
 
           <!-- VT 余额 -->
-          <div class="balance-item">
+          <div class="balance-item" @click="handleGoToVTWallet">
             <div class="balance-icon">💰</div>
             <div class="balance-info">
               <div class="balance-label">{{ t('home.vtBalance') }}</div>
@@ -172,6 +172,10 @@ const handleGoToJourney = () => {
 
 const handleGoToDeposit = () => {
   router.goToDeposit()
+}
+
+const handleGoToVTWallet = () => {
+  router.goToVTWallet()
 }
 
 </script>
@@ -306,8 +310,8 @@ const handleGoToDeposit = () => {
   padding: 40px;
   max-width: 1600px;
   margin: 0 auto;
-  margin-top: 60px;
-  min-height: calc(100vh - 150px);
+  padding-top: 100px;
+  min-height: calc(100vh - 80px);
   align-items: center;
 }
 

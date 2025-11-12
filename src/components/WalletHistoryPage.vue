@@ -19,7 +19,7 @@
       <div class="title-section">
         <div class="title-banner">
           <span class="title-icon">💳</span>
-          <span class="title-text">钱包历史</span>
+          <span class="title-text">{{ t('walletHistory.title') }}</span>
         </div>
       </div>
 
@@ -27,7 +27,7 @@
       <div class="filter-section">
         <div class="filter-row">
           <div class="filter-field">
-            <label class="filter-label">开始日期</label>
+            <label class="filter-label">{{ t('walletHistory.startDate') }}</label>
             <div class="filter-input-wrapper">
               <input 
                 type="date" 
@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">结束日期</label>
+            <label class="filter-label">{{ t('walletHistory.endDate') }}</label>
             <div class="filter-input-wrapper">
               <input 
                 type="date" 
@@ -49,44 +49,44 @@
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">交易类型</label>
+            <label class="filter-label">{{ t('walletHistory.transactionType') }}</label>
             <div class="filter-input-wrapper">
               <select v-model="filters.transactionType1" class="filter-input filter-select">
-                <option value="">全部</option>
-                <option value="daily-bounty">每日赏金</option>
-                <option value="unifi-allocation">UNIFI 拨出</option>
-                <option value="journey">旅程</option>
+                <option value="">{{ t('walletHistory.all') }}</option>
+                <option value="daily-bounty">{{ t('walletHistory.dailyBounty') }}</option>
+                <option value="unifi-allocation">{{ t('walletHistory.unifiAllocation') }}</option>
+                <option value="journey">{{ t('walletHistory.journey') }}</option>
               </select>
               <span class="filter-arrow">▼</span>
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">交易类型</label>
+            <label class="filter-label">{{ t('walletHistory.transactionType') }}</label>
             <div class="filter-input-wrapper">
               <select v-model="filters.transactionType2" class="filter-input filter-select">
-                <option value="">全部</option>
-                <option value="recharge">充值</option>
-                <option value="deduct">扣除</option>
+                <option value="">{{ t('walletHistory.all') }}</option>
+                <option value="recharge">{{ t('walletHistory.recharge') }}</option>
+                <option value="deduct">{{ t('walletHistory.deduct') }}</option>
               </select>
               <span class="filter-arrow">▼</span>
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">钱包类型</label>
+            <label class="filter-label">{{ t('walletHistory.walletType') }}</label>
             <div class="filter-input-wrapper">
               <select v-model="filters.walletType" class="filter-input filter-select">
-                <option value="">全部</option>
-                <option value="total-bounty">赏金总额</option>
-                <option value="multiplier-pool">倍增池</option>
-                <option value="locked-wallet">锁仓钱包</option>
-                <option value="released-wallet">释放钱包</option>
+                <option value="">{{ t('walletHistory.all') }}</option>
+                <option value="total-bounty">{{ t('walletHistory.totalBounty') }}</option>
+                <option value="multiplier-pool">{{ t('walletHistory.multiplierPool') }}</option>
+                <option value="locked-wallet">{{ t('walletHistory.lockedWallet') }}</option>
+                <option value="released-wallet">{{ t('walletHistory.releasedWallet') }}</option>
               </select>
               <span class="filter-arrow">▼</span>
             </div>
           </div>
         </div>
         <button class="filter-button" @click="applyFilter">
-          使用筛选
+          {{ t('walletHistory.applyFilter') }}
         </button>
       </div>
 
@@ -94,14 +94,14 @@
       <div class="history-table-section">
         <!-- 表头 -->
         <div class="table-header">
-          <div class="header-cell">日期</div>
-          <div class="header-cell">交易类型</div>
-          <div class="header-cell">钱包类型</div>
-          <div class="header-cell">交易类型</div>
-          <div class="header-cell">金额</div>
-          <div class="header-cell">之前余额</div>
-          <div class="header-cell">之后余额</div>
-          <div class="header-cell">VT 价格</div>
+          <div class="header-cell">{{ t('walletHistory.date') }}</div>
+          <div class="header-cell">{{ t('walletHistory.transactionType') }}</div>
+          <div class="header-cell">{{ t('walletHistory.walletType') }}</div>
+          <div class="header-cell">{{ t('walletHistory.action') }}</div>
+          <div class="header-cell">{{ t('walletHistory.amount') }}</div>
+          <div class="header-cell">{{ t('walletHistory.previousBalance') }}</div>
+          <div class="header-cell">{{ t('walletHistory.currentBalance') }}</div>
+          <div class="header-cell">{{ t('walletHistory.vtPrice') }}</div>
         </div>
 
         <!-- 分隔线 -->
@@ -110,7 +110,7 @@
         <!-- 表格内容 -->
         <div class="table-content">
           <div v-if="paginatedTransactions.length === 0" class="empty-state">
-            <div class="empty-text">暂无数据</div>
+            <div class="empty-text">{{ t('commonStatus.noData') }}</div>
           </div>
           <div v-else class="table-rows">
             <div 
@@ -134,7 +134,7 @@
       <!-- 分页 -->
       <div class="pagination-section" v-if="totalItems > 0">
         <div class="pagination-info">
-          共 {{ totalItems }} 条记录，第 {{ currentPage }} / {{ totalPages }} 页
+          {{ t('pagination.totalRecords', { count: totalItems, current: currentPage, total: totalPages }) }}
         </div>
         <div class="pagination-controls">
           <button 
@@ -142,7 +142,7 @@
             :disabled="currentPage === 1"
             @click="goToPage(currentPage - 1)"
           >
-            上一页
+            {{ t('pagination.previousPage') }}
           </button>
           <div class="pagination-numbers">
             <button
@@ -160,7 +160,7 @@
             :disabled="currentPage === totalPages"
             @click="goToPage(currentPage + 1)"
           >
-            下一页
+            {{ t('pagination.nextPage') }}
           </button>
         </div>
       </div>
@@ -180,8 +180,10 @@ import { ref, reactive, computed } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -381,25 +383,25 @@ const filteredTransactions = computed(() => {
   }
   if (filters.transactionType1) {
     const typeMap = {
-      'daily-bounty': '每日赏金',
-      'unifi-allocation': 'UNIFI 拨出',
-      'journey': '旅程'
+      'daily-bounty': t('walletHistory.dailyBounty'),
+      'unifi-allocation': t('walletHistory.unifiAllocation'),
+      'journey': t('walletHistory.journey')
     }
     result = result.filter(t => t.transactionType === typeMap[filters.transactionType1])
   }
   if (filters.transactionType2) {
     const actionMap = {
-      'recharge': '充值',
-      'deduct': '扣除'
+      'recharge': t('walletHistory.recharge'),
+      'deduct': t('walletHistory.deduct')
     }
     result = result.filter(t => t.action === actionMap[filters.transactionType2])
   }
   if (filters.walletType) {
     const walletMap = {
-      'total-bounty': '赏金总额',
-      'multiplier-pool': '倍增池',
-      'locked-wallet': '锁仓钱包',
-      'released-wallet': '释放钱包'
+      'total-bounty': t('walletHistory.totalBounty'),
+      'multiplier-pool': t('walletHistory.multiplierPool'),
+      'locked-wallet': t('walletHistory.lockedWallet'),
+      'released-wallet': t('walletHistory.releasedWallet')
     }
     result = result.filter(t => t.walletType === walletMap[filters.walletType])
   }
@@ -613,7 +615,7 @@ const formatDateTime = (dateString) => {
   padding: 40px;
   max-width: 1400px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 100px;
   min-height: calc(100vh - 150px);
 }
 

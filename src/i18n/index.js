@@ -6,6 +6,8 @@ import ja from './locales/ja.json'
 import ko from './locales/ko.json'
 import es from './locales/es.json'
 import de from './locales/de.json'
+import vi from './locales/vi.json'
+import th from './locales/th.json'
 
 const messages = {
   'zh-CN': zhCN,
@@ -14,7 +16,9 @@ const messages = {
   'ja': ja,
   'ko': ko,
   'es': es,
-  'de': de
+  'de': de,
+  'vi': vi,
+  'th': th
 }
 
 // 从 localStorage 获取保存的语言设置，默认为简体中文

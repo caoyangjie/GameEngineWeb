@@ -25,6 +25,7 @@
     <UnifiLockHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_LOCK_HISTORY" />
     <TeamOverviewPage v-if="router.currentRoute.value === ROUTES.TEAM_OVERVIEW" />
     <PassCardManagementPage v-if="router.currentRoute.value === ROUTES.PASS_CARD_MANAGEMENT" />
+    <MidoxPage v-if="router.currentRoute.value === ROUTES.MIDOX" />
   </div>
 </template>
 
@@ -54,6 +55,7 @@ import UnifiReleaseHistoryPage from './components/UnifiReleaseHistoryPage.vue'
 import UnifiLockHistoryPage from './components/UnifiLockHistoryPage.vue'
 import TeamOverviewPage from './components/TeamOverviewPage.vue'
 import PassCardManagementPage from './components/PassCardManagementPage.vue'
+import MidoxPage from './components/MidoxPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 
 // 创建路由实例

@@ -21,7 +21,7 @@
         <div class="left-column">
           <!-- 招聘二维码 -->
           <div class="form-group qr-code-group">
-            <div class="form-label">招聘二维码</div>
+            <div class="form-label">{{ t('profile.recruitmentQRCode') }}</div>
             <div class="qr-code-wrapper">
               <div class="qr-code-placeholder">
                 <canvas ref="qrCanvas" class="qr-canvas"></canvas>
@@ -31,7 +31,7 @@
 
           <!-- 招聘链接 -->
           <div class="form-group">
-            <div class="form-label">招聘链接</div>
+            <div class="form-label">{{ t('profile.recruitmentLink') }}</div>
             <div class="input-with-copy">
               <input 
                 type="text" 
@@ -47,7 +47,7 @@
 
           <!-- 当前旅程等级 -->
           <div class="form-group">
-            <div class="form-label">当前旅程等级</div>
+            <div class="form-label">{{ t('profile.currentJourneyLevel') }}</div>
             <div class="input-with-copy">
               <input 
                 type="text" 
@@ -63,7 +63,7 @@
 
           <!-- 玩家 ID -->
           <div class="form-group">
-            <div class="form-label">玩家 ID</div>
+            <div class="form-label">{{ t('profile.playerId') }}</div>
             <div class="input-with-copy">
               <input 
                 type="text" 
@@ -79,12 +79,12 @@
 
           <!-- BEP20地址 -->
           <div class="form-group">
-            <div class="form-label">BEP20地址</div>
+            <div class="form-label">{{ t('profile.bep20Address') }}</div>
             <div class="input-with-copy">
               <input 
                 type="text" 
                 v-model="formData.bep20Address" 
-                placeholder="Enter BEP20 Address"
+                :placeholder="t('profile.enterBep20Address')"
                 class="form-input"
               />
               <button class="copy-btn" @click="copyToClipboard(formData.bep20Address)">
@@ -94,7 +94,7 @@
           </div>
 
           <!-- 提交按钮 -->
-          <button class="submit-btn" @click="handleSubmit">提交</button>
+          <button class="submit-btn" @click="handleSubmit">{{ t('profile.submit') }}</button>
         </div>
 
         <!-- 右列：个人资料部分 -->
@@ -113,7 +113,7 @@
               </div>
             </div> -->
           <div class="form-group qr-code-group">
-            <div class="form-label">招聘二维码</div>
+            <div class="form-label">{{ t('profile.recruitmentQRCode') }}</div>
             <div class="qr-code-wrapper">
               <div class="qr-code-placeholder">
                 <canvas ref="qrCanvas" class="qr-canvas"></canvas>
@@ -123,7 +123,7 @@
 
             <!-- 电子邮箱 -->
             <div class="form-group">
-              <div class="form-label">电子邮箱</div>
+              <div class="form-label">{{ t('profile.email') }}</div>
               <div class="input-with-icon">
                 <span class="input-icon email-icon">✉</span>
                 <input 
@@ -137,7 +137,7 @@
 
             <!-- 登录密码 -->
             <div class="form-group">
-              <div class="form-label">登录密码</div>
+              <div class="form-label">{{ t('profile.loginPassword') }}</div>
               <div class="input-with-icon">
                 <span class="input-icon password-icon">🔒</span>
                 <input 
@@ -157,14 +157,14 @@
 
             <!-- 新密码 -->
             <div class="form-group">
-              <div class="form-label">新密码</div>
+              <div class="form-label">{{ t('profile.newPassword') }}</div>
               <div class="input-with-icon">
                 <span class="input-icon key-icon">🔑</span>
                 <input 
                   :type="showNewPassword ? 'text' : 'password'" 
                   v-model="formData.newPassword" 
                   class="form-input"
-                  placeholder="新密码"
+                  :placeholder="t('profile.newPassword')"
                 />
                 <button 
                   class="toggle-password" 
@@ -177,14 +177,14 @@
 
             <!-- 确认密码 -->
             <div class="form-group">
-              <div class="form-label">确认密码</div>
+              <div class="form-label">{{ t('profile.confirmPassword') }}</div>
               <div class="input-with-icon">
                 <span class="input-icon key-icon">🔑</span>
                 <input 
                   :type="showConfirmPassword ? 'text' : 'password'" 
                   v-model="formData.confirmPassword" 
                   class="form-input"
-                  placeholder="确认密码"
+                  :placeholder="t('profile.confirmPassword')"
                 />
                 <button 
                   class="toggle-password" 
@@ -196,7 +196,7 @@
             </div>
 
             <!-- 保存按钮 -->
-            <button class="save-btn" @click="handleSave">保存</button>
+            <button class="save-btn" @click="handleSave">{{ t('profile.save') }}</button>
           </div>
         </div>
       </div>
@@ -216,8 +216,10 @@ import { ref, reactive, onMounted } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 const showLoginPassword = ref(false)
@@ -263,7 +265,7 @@ const handleGoToDeposit = () => {
 const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text)
-    alert('已复制到剪贴板！')
+    alert(t('profile.copiedToClipboard'))
   } catch (err) {
     // 降级方案
     const textArea = document.createElement('textarea')
@@ -274,9 +276,9 @@ const copyToClipboard = async (text) => {
     textArea.select()
     try {
       document.execCommand('copy')
-      alert('已复制到剪贴板！')
+      alert(t('profile.copiedToClipboard'))
     } catch (err) {
-      alert('复制失败，请手动复制')
+      alert(t('profile.copyFailed'))
     }
     document.body.removeChild(textArea)
   }
@@ -284,31 +286,31 @@ const copyToClipboard = async (text) => {
 
 const handleSubmit = () => {
   if (!formData.bep20Address.trim()) {
-    alert('请输入BEP20地址')
+    alert(t('profile.pleaseEnterBep20Address'))
     return
   }
   console.log('提交BEP20地址:', formData.bep20Address)
-  alert('BEP20地址已提交！')
+  alert(t('profile.bep20AddressSubmitted'))
 }
 
 const handleSavePassword = () => {
   if (!formData.loginPassword) {
-    alert('请输入登录密码')
+    alert(t('profile.pleaseEnterLoginPassword'))
     return
   }
   if (!formData.newPassword) {
-    alert('请输入新密码')
+    alert(t('profile.pleaseEnterNewPassword'))
     return
   }
   if (formData.newPassword !== formData.confirmPassword) {
-    alert('新密码和确认密码不匹配！')
+    alert(t('profile.passwordMismatch'))
     return
   }
   console.log('保存修改密码:', {
     loginPassword: formData.loginPassword,
     newPassword: formData.newPassword
   })
-  alert('密码修改成功！')
+  alert(t('profile.passwordChangedSuccessfully'))
   // 清空密码字段
   formData.loginPassword = ''
   formData.newPassword = ''
@@ -317,7 +319,7 @@ const handleSavePassword = () => {
 
 const handleSave = () => {
   console.log('保存个人资料:', formData)
-  alert('个人资料已保存！')
+  alert(t('profile.profileSaved'))
 }
 
 // 生成二维码
@@ -858,7 +860,7 @@ onMounted(() => {
 
   .profile-main-content {
     padding: 20px 15px;
-    margin-top: 100px;
+    margin-top: 200px;
   }
 }
 </style>

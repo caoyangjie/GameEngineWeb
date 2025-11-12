@@ -17,21 +17,21 @@
     <main class="deposit-main-content">
       <!-- USD 钱包面板 -->
       <div class="wallet-panel">
-        <div class="wallet-title">USD 钱包</div>
+        <div class="wallet-title">{{ t('deposit.usdWallet') }}</div>
         <div class="wallet-balance">
           <div class="balance-icon">💰</div>
           <div class="balance-icon">💰</div>
           <div class="balance-info">
-            <div class="balance-label">USD 余额</div>
+            <div class="balance-label">{{ t('deposit.usdBalance') }}</div>
             <div class="balance-value">{{ usdBalance }} USD</div>
           </div>
         </div>
         <div class="wallet-actions">
           <button class="action-button withdraw-btn" @click="handleWithdraw">
-            提款
+            {{ t('deposit.withdraw') }}
           </button>
           <button class="action-button buy-vt-btn" @click="handleBuyVT">
-            购买VT
+            {{ t('deposit.buyVT') }}
           </button>
         </div>
       </div>
@@ -40,7 +40,7 @@
       <div class="qr-codes-section">
         <!-- BEP20 地址 -->
         <div class="qr-code-item">
-          <div class="qr-label">BEP20地址</div>
+          <div class="qr-label">{{ t('deposit.bep20Address') }}</div>
           <div class="qr-code-wrapper">
             <canvas ref="bep20QrCanvas" class="qr-canvas"></canvas>
           </div>
@@ -54,7 +54,7 @@
 
         <!-- TRC20 地址 -->
         <div class="qr-code-item">
-          <div class="qr-label">TRC20地址</div>
+          <div class="qr-label">{{ t('deposit.trc20Address') }}</div>
           <div class="qr-code-wrapper">
             <canvas ref="trc20QrCanvas" class="qr-canvas"></canvas>
           </div>
@@ -82,8 +82,10 @@ import { ref, reactive, onMounted } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -117,18 +119,18 @@ const handleGoToDeposit = () => {
 
 const handleWithdraw = () => {
   console.log('提款')
-  alert('提款功能开发中...')
+  alert(t('deposit.withdrawInDevelopment'))
 }
 
 const handleBuyVT = () => {
   console.log('购买VT')
-  alert('购买VT功能开发中...')
+  alert(t('deposit.buyVTInDevelopment'))
 }
 
 const copyAddress = async (address) => {
   try {
     await navigator.clipboard.writeText(address)
-    alert('地址已复制到剪贴板！')
+    alert(t('deposit.addressCopied'))
   } catch (err) {
     console.error('复制失败:', err)
     // 降级方案
@@ -138,9 +140,9 @@ const copyAddress = async (address) => {
     textArea.select()
     try {
       document.execCommand('copy')
-      alert('地址已复制到剪贴板！')
+      alert(t('deposit.addressCopied'))
     } catch (e) {
-      alert('复制失败，请手动复制')
+      alert(t('deposit.copyFailed'))
     }
     document.body.removeChild(textArea)
   }
@@ -331,7 +333,7 @@ onMounted(() => {
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 200px;
   min-height: calc(100vh - 150px);
 }
 

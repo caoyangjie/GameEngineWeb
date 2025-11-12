@@ -19,7 +19,7 @@
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">旅程历史</span>
+			<span class="title-text">{{ t('journeyHistory.title') }}</span>
 		  </div>
 		</div>
   
@@ -27,7 +27,7 @@
 		<div class="filter-section">
 		  <div class="filter-row">
 			<div class="filter-field">
-			  <label class="filter-label">开始日期</label>
+			  <label class="filter-label">{{ t('journeyHistory.startDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -38,7 +38,7 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">结束日期</label>
+			  <label class="filter-label">{{ t('journeyHistory.endDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -49,20 +49,20 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">旅程类型</label>
+			  <label class="filter-label">{{ t('journeyHistory.journeyType') }}</label>
 			  <div class="filter-input-wrapper">
 				<select v-model="filters.journeyType" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="new">新旅程</option>
-				  <option value="upgrade">升级旅程</option>
-				  <option value="renewal">续费旅程</option>
+				  <option value="">{{ t('journeyHistory.all') }}</option>
+				  <option value="new">{{ t('journeyHistory.new') }}</option>
+				  <option value="upgrade">{{ t('journeyHistory.upgrade') }}</option>
+				  <option value="renewal">{{ t('journeyHistory.renewal') }}</option>
 				</select>
 				<span class="filter-arrow">▼</span>
 			  </div>
 			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
-			使用筛选
+			{{ t('journeyHistory.applyFilter') }}
 		  </button>
 		</div>
   
@@ -70,12 +70,12 @@
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
-			<div class="header-cell">日期</div>
-			<div class="header-cell">旅程</div>
-			<div class="header-cell">金额</div>
-			<div class="header-cell">旅程价值</div>
-			<div class="header-cell">旅程类型</div>
-			<div class="header-cell">旅程时长</div>
+			<div class="header-cell">{{ t('journeyHistory.date') }}</div>
+			<div class="header-cell">{{ t('journeyHistory.journey') }}</div>
+			<div class="header-cell">{{ t('journeyHistory.amount') }}</div>
+			<div class="header-cell">{{ t('journeyHistory.journeyValue') }}</div>
+			<div class="header-cell">{{ t('journeyHistory.journeyTypeLabel') }}</div>
+			<div class="header-cell">{{ t('journeyHistory.duration') }}</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -84,7 +84,7 @@
 		  <!-- 表格内容 -->
 		  <div class="table-content">
 			<div v-if="paginatedJourneys.length === 0" class="empty-state">
-			  <div class="empty-text">暂无数据</div>
+			  <div class="empty-text">{{ t('commonStatus.noData') }}</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
@@ -106,7 +106,7 @@
 		<!-- 分页 -->
 		<div class="pagination-section" v-if="totalItems > 0">
 		  <div class="pagination-info">
-			共 {{ totalItems }} 条记录，第 {{ currentPage }} / {{ totalPages }} 页
+			{{ t('pagination.totalRecords', { count: totalItems, current: currentPage, total: totalPages }) }}
 		  </div>
 		  <div class="pagination-controls">
 			<button 
@@ -114,7 +114,7 @@
 			  :disabled="currentPage === 1"
 			  @click="goToPage(currentPage - 1)"
 			>
-			  上一页
+			  {{ t('pagination.previousPage') }}
 			</button>
 			<div class="pagination-numbers">
 			  <button
@@ -132,7 +132,7 @@
 			  :disabled="currentPage === totalPages"
 			  @click="goToPage(currentPage + 1)"
 			>
-			  下一页
+			  {{ t('pagination.nextPage') }}
 			</button>
 		  </div>
 		</div>
@@ -149,10 +149,12 @@
   
   <script setup>
   import { ref, reactive, computed } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import TopHeader from './TopHeader.vue'
   import Sidebar from './Sidebar.vue'
   import { useRouter, ROUTES } from '../composables/useRouter.js'
   
+  const { t } = useI18n()
   const router = useRouter()
   
   const sidebarOpen = ref(false)
@@ -380,9 +382,9 @@
   
   const getJourneyTypeText = (type) => {
 	const typeMap = {
-	  'new': '新旅程',
-	  'upgrade': '升级旅程',
-	  'renewal': '续费旅程'
+	  'new': t('journeyHistory.new'),
+	  'upgrade': t('journeyHistory.upgrade'),
+	  'renewal': t('journeyHistory.renewal')
 	}
 	return typeMap[type] || type
   }
@@ -516,7 +518,7 @@
 	padding: 40px;
 	max-width: 1400px;
 	margin: 0 auto;
-	margin-top: 60px;
+	padding-top: 100px;
 	min-height: calc(100vh - 150px);
   }
   

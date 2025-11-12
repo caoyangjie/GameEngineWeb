@@ -18,7 +18,7 @@
       <!-- 标题 -->
       <div class="title-section">
         <div class="title-banner">
-          <span class="title-text">升级赏金详情</span>
+          <span class="title-text">{{ t('upgradeBounty.title') }}</span>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
         <div class="content-row">
           <!-- 左侧：升级等级 -->
           <div class="content-column">
-            <div class="section-label">升级等级</div>
+            <div class="section-label">{{ t('upgradeBounty.upgradeLevel') }}</div>
             <div class="input-group">
               <input 
                 type="text" 
@@ -39,7 +39,7 @@
               />
             </div>
             <div class="input-group">
-              <label for="team-a-current" class="field-label">A队的当前倍增池值</label>
+              <label for="team-a-current" class="field-label">{{ t('upgradeBounty.teamACurrentMultiplierPool') }}</label>
               <input 
                 id="team-a-current"
                 type="text" 
@@ -50,7 +50,7 @@
               />
             </div>
             <div class="input-group">
-              <label for="team-a-max" class="field-label">A队最大倍增池值</label>
+              <label for="team-a-max" class="field-label">{{ t('upgradeBounty.teamAMaxMultiplierPool') }}</label>
               <input 
                 id="team-a-max"
                 type="text" 
@@ -64,7 +64,7 @@
 
           <!-- 右侧：升级赏金 -->
           <div class="content-column">
-            <div class="section-label">升级赏金</div>
+            <div class="section-label">{{ t('upgradeBounty.upgradeBounty') }}</div>
             <div class="input-group">
               <input 
                 type="text" 
@@ -75,7 +75,7 @@
               />
             </div>
             <div class="input-group">
-              <label for="team-b-current" class="field-label">B队当前倍增池值</label>
+              <label for="team-b-current" class="field-label">{{ t('upgradeBounty.teamBCurrentMultiplierPool') }}</label>
               <input 
                 id="team-b-current"
                 type="text" 
@@ -86,7 +86,7 @@
               />
             </div>
             <div class="input-group">
-              <label for="team-b-max" class="field-label">B队最大倍增池值</label>
+              <label for="team-b-max" class="field-label">{{ t('upgradeBounty.teamBMaxMultiplierPool') }}</label>
               <input 
                 id="team-b-max"
                 type="text" 
@@ -101,7 +101,7 @@
 
         <!-- 底部：沉淀倍增池值 -->
         <div class="bottom-section">
-          <div class="field-label">用于赏金计算的倍增池值(沉淀倍增池值)</div>
+          <div class="field-label">{{ t('upgradeBounty.sedimentMultiplierPoolValue') }}</div>
           <div class="sediment-pool-display">
             {{ upgradeData.sedimentPool || '0.000' }}
           </div>
@@ -123,8 +123,10 @@ import { ref, reactive } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -284,7 +286,7 @@ const handleGoToDeposit = () => {
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 100px;
   min-height: calc(100vh - 150px);
 }
 

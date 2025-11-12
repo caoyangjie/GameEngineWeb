@@ -22,7 +22,7 @@
       <div class="title-section">
         <div class="title-banner">
           <span class="title-icon">📜</span>
-          <span class="title-text">任务日志</span>
+          <span class="title-text">{{ t('taskLog.title') }}</span>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
       <div class="filter-section">
         <div class="filter-row">
           <div class="filter-field">
-            <label class="filter-label">开始日期</label>
+            <label class="filter-label">{{ t('taskLog.startDate') }}</label>
             <div class="filter-input-wrapper">
               <input 
                 type="date" 
@@ -41,7 +41,7 @@
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">结束日期</label>
+            <label class="filter-label">{{ t('taskLog.endDate') }}</label>
             <div class="filter-input-wrapper">
               <input 
                 type="date" 
@@ -52,21 +52,21 @@
             </div>
           </div>
           <div class="filter-field">
-            <label class="filter-label">状态</label>
+            <label class="filter-label">{{ t('taskLog.status') }}</label>
             <div class="filter-input-wrapper">
               <select v-model="filters.status" class="filter-input filter-select">
-                <option value="">全部</option>
-                <option value="pending">新任务</option>
-                <option value="completed">已完成</option>
-                <option value="cancelled">已过期</option>
-                <option value="dismissed">已放弃</option>
+                <option value="">{{ t('taskLog.all') }}</option>
+                <option value="pending">{{ t('taskLog.newTask') }}</option>
+                <option value="completed">{{ t('taskLog.completed') }}</option>
+                <option value="cancelled">{{ t('taskLog.expired') }}</option>
+                <option value="dismissed">{{ t('taskLog.dismissed') }}</option>
               </select>
               <span class="filter-arrow">▼</span>
             </div>
           </div>
         </div>
         <button class="filter-button" @click="applyFilter">
-          使用筛选
+          {{ t('taskLog.applyFilter') }}
         </button>
       </div>
 
@@ -74,12 +74,12 @@
       <div class="task-list-section">
         <!-- 表头 -->
         <div class="task-list-header">
-          <div class="header-cell">开始日期</div>
-          <div class="header-cell">任务标题</div>
-          <div class="header-cell">任务天数</div>
-          <div class="header-cell">进度</div>
-          <div class="header-cell">状态</div>
-          <div class="header-cell">奖励</div>
+          <div class="header-cell">{{ t('taskLog.startDate') }}</div>
+          <div class="header-cell">{{ t('taskLog.taskTitle') }}</div>
+          <div class="header-cell">{{ t('taskLog.taskDays') }}</div>
+          <div class="header-cell">{{ t('taskLog.progress') }}</div>
+          <div class="header-cell">{{ t('taskLog.status') }}</div>
+          <div class="header-cell">{{ t('taskLog.reward') }}</div>
         </div>
 
         <!-- 分隔线 -->
@@ -88,7 +88,7 @@
         <!-- 任务列表内容 -->
         <div class="task-list-content">
           <div v-if="filteredTasks.length === 0" class="empty-state">
-            <div class="empty-text">暂无数据</div>
+            <div class="empty-text">{{ t('commonStatus.noData') }}</div>
           </div>
           <div v-else class="task-items">
             <div 
@@ -98,7 +98,7 @@
             >
               <div class="task-cell">{{ formatDate(task.startDate) }}</div>
               <div class="task-cell">{{ task.title }}</div>
-              <div class="task-cell">{{ task.days }}天</div>
+              <div class="task-cell">{{ task.days }}{{ t('taskLog.days') }}</div>
               <div class="task-cell">
                 <div class="progress-bar">
                   <div 
@@ -134,8 +134,10 @@ import { ref, reactive, computed } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -201,9 +203,9 @@ const formatDate = (dateString) => {
 
 const getStatusText = (status) => {
   const statusMap = {
-    pending: '进行中',
-    completed: '已完成',
-    cancelled: '已取消'
+    pending: t('taskLog.inProgress'),
+    completed: t('taskLog.completed'),
+    cancelled: t('taskLog.cancelled')
   }
   return statusMap[status] || status
 }
@@ -367,7 +369,7 @@ const getStatusText = (status) => {
   padding: 40px;
   max-width: 1400px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 100px;
   min-height: calc(100vh - 150px);
 }
 

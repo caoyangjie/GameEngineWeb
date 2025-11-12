@@ -17,9 +17,9 @@
     <main class="vt-wallet-main-content">
       <!-- VT 钱包面板 -->
       <div class="vt-wallet-panel">
-        <div class="wallet-title">VT 钱包</div>
+        <div class="wallet-title">{{ t('vtWallet.vtWallet') }}</div>
         <div class="vt-price-section">
-          <div class="vt-price-label">VT 价格</div>
+          <div class="vt-price-label">{{ t('vtWallet.vtPrice') }}</div>
           <div class="vt-price-value">
             <div class="vt-icon">V</div>
             <span>{{ vtPrice }} USD</span>
@@ -31,35 +31,35 @@
       <div class="treasury-section">
         <!-- 赏金库 -->
         <div class="treasury-panel bounty-treasury">
-          <div class="treasury-title">赏金库</div>
+          <div class="treasury-title">{{ t('vtWallet.bountyTreasury') }}</div>
           <div class="treasury-content">
             <div class="treasury-icon">V</div>
             <div class="treasury-info">
-              <div class="treasury-label">赏金总额</div>
+              <div class="treasury-label">{{ t('vtWallet.bountyTotal') }}</div>
               <div class="treasury-value">{{ bountyTotal }} VT</div>
               <div class="auto-journey-toggle">
-                <span class="toggle-label">自动追加旅程</span>
+                <span class="toggle-label">{{ t('vtWallet.autoAddJourney') }}</span>
                 <label class="switch">
                   <input type="checkbox" v-model="autoAddJourney" />
                   <span class="slider"></span>
                 </label>
-                <span class="toggle-status">{{ autoAddJourney ? '开' : '关' }}</span>
+                <span class="toggle-status">{{ autoAddJourney ? t('vtWallet.on') : t('vtWallet.off') }}</span>
               </div>
             </div>
           </div>
           <div class="treasury-actions">
-            <button class="treasury-button harvest-btn" @click="handleHarvest">收成</button>
-            <button class="treasury-button add-btn" @click="handleAdd">追加</button>
+            <button class="treasury-button harvest-btn" @click="handleHarvest">{{ t('vtWallet.harvest') }}</button>
+            <button class="treasury-button add-btn" @click="handleAdd">{{ t('vtWallet.add') }}</button>
           </div>
         </div>
 
         <!-- 主金库 -->
         <div class="treasury-panel main-treasury">
-          <div class="treasury-title">主金库</div>
+          <div class="treasury-title">{{ t('vtWallet.mainTreasury') }}</div>
           <div class="treasury-content">
             <div class="treasury-icon">V</div>
             <div class="treasury-info">
-              <div class="treasury-label">主钱包</div>
+              <div class="treasury-label">{{ t('vtWallet.mainWallet') }}</div>
               <div class="treasury-value">{{ mainWallet }} VT</div>
               <div class="auto-journey-toggle">
                 <label class="switch">
@@ -68,8 +68,8 @@
             </div>
           </div>
           <div class="treasury-actions">
-            <button class="treasury-button exchange-btn" @click="handleExchange">兑换</button>
-            <button class="treasury-button add-btn" @click="handleAdd">追加</button>
+            <button class="treasury-button exchange-btn" @click="handleExchange">{{ t('vtWallet.exchange') }}</button>
+            <button class="treasury-button add-btn" @click="handleAdd">{{ t('vtWallet.add') }}</button>
           </div>
         </div>
       </div>
@@ -89,8 +89,10 @@ import { ref, reactive } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
@@ -122,17 +124,17 @@ const handleGoToDeposit = () => {
 
 const handleHarvest = () => {
   console.log('收成')
-  alert('收成功能开发中...')
+  alert(t('vtWallet.harvestInDevelopment'))
 }
 
 const handleAdd = () => {
   console.log('追加')
-  alert('追加功能开发中...')
+  alert(t('vtWallet.addInDevelopment'))
 }
 
 const handleExchange = () => {
   console.log('兑换')
-  alert('兑换功能开发中...')
+  alert(t('vtWallet.exchangeInDevelopment'))
 }
 </script>
 
@@ -263,7 +265,7 @@ const handleExchange = () => {
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 60px;
+  padding-top: 200px;
   min-height: calc(100vh - 150px);
 }
 

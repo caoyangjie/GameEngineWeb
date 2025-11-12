@@ -19,7 +19,7 @@
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">MDX购买历史</span>
+			<span class="title-text">{{ t('mdxHistory.title') }}</span>
 		  </div>
 		</div>
   
@@ -27,7 +27,7 @@
 		<div class="filter-section">
 		  <div class="filter-row">
 			<div class="filter-field">
-			  <label class="filter-label">开始日期</label>
+			  <label class="filter-label">{{ t('mdxHistory.startDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -38,7 +38,7 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">结束日期</label>
+			  <label class="filter-label">{{ t('mdxHistory.endDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -50,7 +50,7 @@
 			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
-			使用筛选
+			{{ t('mdxHistory.applyFilter') }}
 		  </button>
 		</div>
   
@@ -58,11 +58,11 @@
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
-			<div class="header-cell">日期</div>
-			<div class="header-cell">MDX数量</div>
-			<div class="header-cell">MDX代币价值</div>
-			<div class="header-cell">金额(美元)</div>
-			<div class="header-cell">地址</div>
+			<div class="header-cell">{{ t('mdxHistory.date') }}</div>
+			<div class="header-cell">{{ t('mdxHistory.mdxAmount') }}</div>
+			<div class="header-cell">{{ t('mdxHistory.mdxTokenValue') }}</div>
+			<div class="header-cell">{{ t('mdxHistory.amount') }}</div>
+			<div class="header-cell">{{ t('mdxHistory.address') }}</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -71,7 +71,7 @@
 		  <!-- 表格内容 -->
 		  <div class="table-content">
 			<div v-if="paginatedDeposits.length === 0" class="empty-state">
-			  <div class="empty-text">暂无数据</div>
+			  <div class="empty-text">{{ t('commonStatus.noData') }}</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
@@ -92,7 +92,7 @@
 		<!-- 分页 -->
 		<div class="pagination-section" v-if="totalItems > 0">
 		  <div class="pagination-info">
-			共 {{ totalItems }} 条记录，第 {{ currentPage }} / {{ totalPages }} 页
+			{{ t('pagination.totalRecords', { count: totalItems, current: currentPage, total: totalPages }) }}
 		  </div>
 		  <div class="pagination-controls">
 			<button 
@@ -100,7 +100,7 @@
 			  :disabled="currentPage === 1"
 			  @click="goToPage(currentPage - 1)"
 			>
-			  上一页
+			  {{ t('pagination.previousPage') }}
 			</button>
 			<div class="pagination-numbers">
 			  <button
@@ -118,7 +118,7 @@
 			  :disabled="currentPage === totalPages"
 			  @click="goToPage(currentPage + 1)"
 			>
-			  下一页
+			  {{ t('pagination.nextPage') }}
 			</button>
 		  </div>
 		</div>
@@ -135,10 +135,12 @@
   
   <script setup>
   import { ref, reactive, computed } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import TopHeader from './TopHeader.vue'
   import Sidebar from './Sidebar.vue'
   import { useRouter, ROUTES } from '../composables/useRouter.js'
   
+  const { t } = useI18n()
   const router = useRouter()
   
   const sidebarOpen = ref(false)
@@ -480,7 +482,7 @@
 	padding: 40px;
 	max-width: 1400px;
 	margin: 0 auto;
-	margin-top: 60px;
+  padding-top: 100px;
 	min-height: calc(100vh - 150px);
   }
   

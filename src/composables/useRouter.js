@@ -29,7 +29,8 @@ export const ROUTES = {
   UNIFI_RELEASE_HISTORY: 'unifi-release-history',
   UNIFI_LOCK_HISTORY: 'unifi-lock-history',
   TEAM_OVERVIEW: 'team-overview',
-  PASS_CARD_MANAGEMENT: 'pass-card-management'
+  PASS_CARD_MANAGEMENT: 'pass-card-management',
+  MIDOX: 'midox'
 }
 
 /**
@@ -126,6 +127,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToPassCardManagement() {
       this.navigate(ROUTES.PASS_CARD_MANAGEMENT)
+    },
+    goToMidox() {
+      this.navigate(ROUTES.MIDOX)
     },
     
     // 登出（跳转到登录页）

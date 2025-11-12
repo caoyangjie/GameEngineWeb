@@ -19,7 +19,7 @@
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">存款历史</span>
+			<span class="title-text">{{ t('depositHistory.title') }}</span>
 		  </div>
 		</div>
   
@@ -27,7 +27,7 @@
 		<div class="filter-section">
 		  <div class="filter-row">
 			<div class="filter-field">
-			  <label class="filter-label">开始日期</label>
+			  <label class="filter-label">{{ t('depositHistory.startDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -38,7 +38,7 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">结束日期</label>
+			  <label class="filter-label">{{ t('depositHistory.endDate') }}</label>
 			  <div class="filter-input-wrapper">
 				<input 
 				  type="date" 
@@ -49,20 +49,20 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">状态</label>
+			  <label class="filter-label">{{ t('depositHistory.status') }}</label>
 			  <div class="filter-input-wrapper">
 				<select v-model="filters.status" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="pending">待处理</option>
-				  <option value="completed">已完成</option>
-				  <option value="failed">失败</option>
+				  <option value="">{{ t('depositHistory.all') }}</option>
+				  <option value="pending">{{ t('depositHistory.pending') }}</option>
+				  <option value="completed">{{ t('depositHistory.completed') }}</option>
+				  <option value="failed">{{ t('depositHistory.failed') }}</option>
 				</select>
 				<span class="filter-arrow">▼</span>
 			  </div>
 			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
-			使用筛选
+			{{ t('depositHistory.applyFilter') }}
 		  </button>
 		</div>
   
@@ -70,10 +70,10 @@
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
-			<div class="header-cell">日期</div>
-			<div class="header-cell">金额</div>
-			<div class="header-cell">USDT 类型</div>
-			<div class="header-cell">状态</div>
+			<div class="header-cell">{{ t('depositHistory.date') }}</div>
+			<div class="header-cell">{{ t('depositHistory.amount') }}</div>
+			<div class="header-cell">{{ t('depositHistory.usdtType') }}</div>
+			<div class="header-cell">{{ t('depositHistory.statusLabel') }}</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -82,7 +82,7 @@
 		  <!-- 表格内容 -->
 		  <div class="table-content">
 			<div v-if="paginatedDeposits.length === 0" class="empty-state">
-			  <div class="empty-text">暂无数据</div>
+			  <div class="empty-text">{{ t('commonStatus.noData') }}</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
@@ -106,7 +106,7 @@
 		<!-- 分页 -->
 		<div class="pagination-section" v-if="totalItems > 0">
 		  <div class="pagination-info">
-			共 {{ totalItems }} 条记录，第 {{ currentPage }} / {{ totalPages }} 页
+			{{ t('pagination.totalRecords', { count: totalItems, current: currentPage, total: totalPages }) }}
 		  </div>
 		  <div class="pagination-controls">
 			<button 
@@ -114,7 +114,7 @@
 			  :disabled="currentPage === 1"
 			  @click="goToPage(currentPage - 1)"
 			>
-			  上一页
+			  {{ t('pagination.previousPage') }}
 			</button>
 			<div class="pagination-numbers">
 			  <button
@@ -132,7 +132,7 @@
 			  :disabled="currentPage === totalPages"
 			  @click="goToPage(currentPage + 1)"
 			>
-			  下一页
+			  {{ t('pagination.nextPage') }}
 			</button>
 		  </div>
 		</div>
@@ -152,8 +152,10 @@
   import TopHeader from './TopHeader.vue'
   import Sidebar from './Sidebar.vue'
   import { useRouter, ROUTES } from '../composables/useRouter.js'
+  import { useI18n } from 'vue-i18n'
   
   const router = useRouter()
+  const { t } = useI18n()
   
   const sidebarOpen = ref(false)
   
@@ -347,9 +349,9 @@
   
   const getStatusText = (status) => {
 	const statusMap = {
-	  'pending': '待处理',
-	  'completed': '已完成',
-	  'failed': '失败'
+	  'pending': t('depositHistory.pending'),
+	  'completed': t('depositHistory.completed'),
+	  'failed': t('depositHistory.failed')
 	}
 	return statusMap[status] || status
   }
@@ -483,7 +485,7 @@
 	padding: 40px;
 	max-width: 1400px;
 	margin: 0 auto;
-	margin-top: 60px;
+  padding-top: 100px;
 	min-height: calc(100vh - 150px);
   }
   
