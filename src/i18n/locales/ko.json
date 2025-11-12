@@ -51,6 +51,28 @@
     "noAccount": "계정이 없으신가요? 등록",
     "simplifiedChinese": "간체 중국어"
   },
+  "register": {
+    "title": "등록",
+    "firstName": "이름",
+    "lastName": "성",
+    "email": "이메일",
+    "recruiterId": "모집자 사용자 ID",
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "verificationCode": "인증 코드",
+    "register": "등록",
+    "hasAccount": "이미 계정이 있으신가요? 로그인",
+    "passwordMismatch": "비밀번호와 확인 비밀번호가 일치하지 않습니다!",
+    "registerSuccess": "등록이 완료되었습니다!"
+  },
+  "forgotPassword": {
+    "title": "비밀번호 찾기",
+    "registeredEmail": "등록된 이메일",
+    "verificationCode": "인증 코드",
+    "requestResetLink": "재설정 링크 요청",
+    "backToLogin": "로그인 페이지로 돌아가기",
+    "resetLinkSent": "재설정 링크가 이메일로 전송되었습니다!"
+  },
   "home": {
     "waitingForTeammate": "팀원을 기다리는 중",
     "silver": "은",

@@ -39,10 +39,26 @@
     </div>
 
     <!-- 语言选择器 -->
-    <div class="language-selector">
-      <span class="language-text">简体中文</span>
-      <span class="chevron">▼</span>
-      <span class="flag">🇨🇳</span>
+    <div class="language-selector-wrapper" @click.stop="toggleLanguageMenu">
+      <div class="language-selector">
+        <span class="language-text">{{ currentLanguage.name }}</span>
+        <span class="chevron" :class="{ open: isLanguageMenuOpen }">▼</span>
+        <span class="flag">{{ currentLanguage.flag }}</span>
+      </div>
+      <!-- 语言下拉菜单 -->
+      <div class="language-menu" v-if="isLanguageMenuOpen" @click.stop>
+        <div 
+          v-for="lang in languages" 
+          :key="lang.code"
+          class="language-option"
+          :class="{ active: currentLocale === lang.code }"
+          @click="changeLanguage(lang.code)"
+        >
+          <span class="language-flag">{{ lang.flag }}</span>
+          <span class="language-name">{{ lang.name }}</span>
+          <span class="language-check" v-if="currentLocale === lang.code">✓</span>
+        </div>
+      </div>
     </div>
 
     <!-- 登录表单 - 南天门 -->
@@ -80,12 +96,12 @@
         <!-- 游戏Logo -->
         <div class="game-logo">
           <div class="logo-glow"></div>
-          <h1 class="logo-text">西域旅</h1>
-          <p class="logo-subtitle">挑战边界 • 超越极限</p>
+          <h1 class="logo-text">{{ t('common.appName') }}</h1>
+          <p class="logo-subtitle">{{ t('common.appSubtitle') }}</p>
         </div>
 
         <!-- 忘记密码标题 -->
-        <h2 class="forgot-title">忘记密码</h2>
+        <h2 class="forgot-title">{{ t('forgotPassword.title') }}</h2>
 
         <!-- 表单 -->
         <form class="login-form" @submit.prevent="handleResetRequest">
@@ -95,7 +111,7 @@
             <input
               type="email"
               v-model="formData.email"
-              placeholder="注册电子邮箱"
+              :placeholder="t('forgotPassword.registeredEmail')"
               class="form-input"
               required
             />
@@ -107,7 +123,7 @@
             <input
               type="text"
               v-model="formData.verificationCode"
-              placeholder="验证码"
+              :placeholder="t('forgotPassword.verificationCode')"
               class="form-input verification-input"
               required
             />
@@ -124,11 +140,11 @@
           </div>
 
           <!-- 请求重置链接按钮 -->
-          <button type="submit" class="login-button">请求重置链接</button>
+          <button type="submit" class="login-button">{{ t('forgotPassword.requestResetLink') }}</button>
 
           <!-- 返回登录页面链接 -->
           <div class="register-link">
-            <a href="#" @click.prevent="goToLogin" class="register-text">返回登录页面</a>
+            <a href="#" @click.prevent="goToLogin" class="register-text">{{ t('forgotPassword.backToLogin') }}</a>
           </div>
         </form>
       </div>
@@ -142,12 +158,60 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
+
+const { locale, t } = useI18n()
 
 const router = useRouter()
 
 const verificationCode = ref('5569')
+const isLanguageMenuOpen = ref(false)
+const currentLocale = computed(() => locale.value)
+
+// 语言列表
+const languages = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
+  { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' }
+]
+
+// 当前语言信息
+const currentLanguage = computed(() => {
+  return languages.find(lang => lang.code === currentLocale.value) || languages[1]
+})
+
+// 切换语言菜单
+const toggleLanguageMenu = () => {
+  isLanguageMenuOpen.value = !isLanguageMenuOpen.value
+}
+
+// 切换语言
+const changeLanguage = (langCode) => {
+  locale.value = langCode
+  localStorage.setItem('locale', langCode)
+  isLanguageMenuOpen.value = false
+}
+
+// 点击外部关闭菜单
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.language-selector-wrapper')) {
+    isLanguageMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 const formData = reactive({
   email: '',
@@ -159,9 +223,9 @@ const refreshVerificationCode = () => {
 }
 
 const handleResetRequest = () => {
-  console.log('重置密码请求:', formData)
+  console.log('Reset password request:', formData)
   // 这里可以添加实际的密码重置逻辑
-  alert('重置链接已发送到您的邮箱！')
+  alert(t('forgotPassword.resetLinkSent'))
 }
 
 const goToLogin = () => {
@@ -682,17 +746,30 @@ const getParticleStyle = (index) => {
 }
 
 /* 语言选择器 */
-.language-selector {
+.language-selector-wrapper {
   position: absolute;
   top: 30px;
   right: 40px;
   z-index: 10;
+}
+
+.language-selector {
   display: flex;
   align-items: center;
   gap: 8px;
   color: white;
   font-size: 14px;
   cursor: pointer;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.language-selector:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 215, 0, 0.6);
 }
 
 .language-text {
@@ -702,10 +779,84 @@ const getParticleStyle = (index) => {
 .chevron {
   font-size: 10px;
   opacity: 0.8;
+  transition: transform 0.3s;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
 }
 
 .flag {
   font-size: 18px;
+}
+
+.language-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.language-option:last-child {
+  border-bottom: none;
+}
+
+.language-option:hover {
+  background: rgba(255, 215, 0, 0.15);
+  padding-left: 18px;
+}
+
+.language-option.active {
+  background: rgba(255, 215, 0, 0.2);
+  border-left: 3px solid #ffd700;
+}
+
+.language-flag {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.language-name {
+  flex: 1;
+  font-size: 14px;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+}
+
+.language-check {
+  color: #ffd700;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
 }
 
 /* 南天门容器 */

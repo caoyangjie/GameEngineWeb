@@ -51,6 +51,28 @@
     "noAccount": "Kein Konto? Registrieren",
     "simplifiedChinese": "Vereinfachtes Chinesisch"
   },
+  "register": {
+    "title": "Registrieren",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "recruiterId": "Rekrutierer Benutzer-ID",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "verificationCode": "Bestätigungscode",
+    "register": "Registrieren",
+    "hasAccount": "Bereits ein Konto? Anmelden",
+    "passwordMismatch": "Passwort und Bestätigungspasswort stimmen nicht überein!",
+    "registerSuccess": "Registrierung erfolgreich!"
+  },
+  "forgotPassword": {
+    "title": "Passwort vergessen",
+    "registeredEmail": "Registrierte E-Mail",
+    "verificationCode": "Bestätigungscode",
+    "requestResetLink": "Reset-Link anfordern",
+    "backToLogin": "Zurück zur Anmeldung",
+    "resetLinkSent": "Der Reset-Link wurde an Ihre E-Mail gesendet!"
+  },
   "home": {
     "waitingForTeammate": "Warte auf Teammitglied",
     "silver": "Silber",

@@ -51,6 +51,28 @@
     "noAccount": "アカウントがない?登録",
     "simplifiedChinese": "簡体字中国語"
   },
+  "register": {
+    "title": "登録",
+    "firstName": "名",
+    "lastName": "姓",
+    "email": "メールアドレス",
+    "recruiterId": "リクルーター ユーザーID",
+    "password": "パスワード",
+    "confirmPassword": "パスワード確認",
+    "verificationCode": "確認コード",
+    "register": "登録",
+    "hasAccount": "アカウントをお持ちですか?ログイン",
+    "passwordMismatch": "パスワードと確認パスワードが一致しません！",
+    "registerSuccess": "登録に成功しました！"
+  },
+  "forgotPassword": {
+    "title": "パスワードを忘れた",
+    "registeredEmail": "登録メールアドレス",
+    "verificationCode": "確認コード",
+    "requestResetLink": "リセットリンクをリクエスト",
+    "backToLogin": "ログインページに戻る",
+    "resetLinkSent": "リセットリンクがメールに送信されました！"
+  },
   "home": {
     "waitingForTeammate": "チームメイトを待っています",
     "silver": "銀",

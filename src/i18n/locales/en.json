@@ -51,6 +51,28 @@
     "noAccount": "No account? Register",
     "simplifiedChinese": "Simplified Chinese"
   },
+  "register": {
+    "title": "Register",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "recruiterId": "Recruiter User ID",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "verificationCode": "Verification Code",
+    "register": "Register",
+    "hasAccount": "Already have an account? Login",
+    "passwordMismatch": "Password and confirm password do not match!",
+    "registerSuccess": "Registration successful!"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "registeredEmail": "Registered Email",
+    "verificationCode": "Verification Code",
+    "requestResetLink": "Request Reset Link",
+    "backToLogin": "Back to Login",
+    "resetLinkSent": "Reset link has been sent to your email!"
+  },
   "home": {
     "waitingForTeammate": "Waiting for teammate",
     "silver": "Silver",

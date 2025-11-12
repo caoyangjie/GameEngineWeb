@@ -51,6 +51,28 @@
     "noAccount": "沒有用戶?註冊",
     "simplifiedChinese": "簡體中文"
   },
+  "register": {
+    "title": "註冊",
+    "firstName": "名字",
+    "lastName": "姓氏",
+    "email": "電子郵箱",
+    "recruiterId": "招聘者用戶ID",
+    "password": "密碼",
+    "confirmPassword": "確認密碼",
+    "verificationCode": "驗證碼",
+    "register": "註冊",
+    "hasAccount": "已有賬戶?登錄",
+    "passwordMismatch": "密碼和確認密碼不匹配！",
+    "registerSuccess": "註冊成功！"
+  },
+  "forgotPassword": {
+    "title": "忘記密碼",
+    "registeredEmail": "註冊電子郵箱",
+    "verificationCode": "驗證碼",
+    "requestResetLink": "請求重置鏈接",
+    "backToLogin": "返回登錄頁面",
+    "resetLinkSent": "重置鏈接已發送到您的郵箱！"
+  },
   "home": {
     "waitingForTeammate": "正在等隊友",
     "silver": "銀",
