@@ -139,86 +139,13 @@
     </div>
 
     <!-- 提款弹窗 -->
-    <div class="modal-overlay" v-if="showWithdrawalModal" @click="showWithdrawalModal = false">
-      <div class="modal-content withdrawal-modal" @click.stop>
-        <div class="modal-header">
-          <h3 class="modal-title">{{ t('withdrawal.title') }}</h3>
-          <button class="modal-close" @click="showWithdrawalModal = false">×</button>
-        </div>
-        <div class="modal-body">
-          <!-- USD余额 -->
-          <div class="form-row">
-            <div class="form-label">{{ t('withdrawal.usdBalance') }}</div>
-            <div class="form-value">{{ usdBalance }} USD</div>
-          </div>
-
-          <!-- 提款金额和提现地址 -->
-          <div class="form-section">
-            <div class="form-section-header">
-              <span class="section-label">{{ t('withdrawal.withdrawalAmount') }}</span>
-            </div>
-            <div class="form-section-content">
-              <CustomNumberInput
-                id="withdrawal-amount"
-                v-model="withdrawalForm.amount"
-                :placeholder="t('withdrawal.amountPlaceholder')"
-                @change="calculateExpectedUSDT"
-              />
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-section-header">
-              <span class="section-label">{{ t('withdrawal.withdrawalAddress') }}</span>
-            </div>
-            <div class="form-section-content">
-              <input
-                id="withdrawal-address"
-                v-model="withdrawalForm.address"
-                type="text"
-                class="amount-input"
-                :placeholder="t('withdrawal.addressPlaceholder')"
-              />
-            </div>
-          </div>
-
-          <!-- 提现类型和应收 USDT -->
-          <div class="form-section">
-            <div class="form-section-header">
-              <span class="section-label">{{ t('withdrawal.withdrawalType') }}</span>
-            </div>
-            <div class="form-section-content">
-              <CustomSelect
-                id="withdrawal-type"
-                v-model="withdrawalForm.type"
-                :options="withdrawalTypeOptions"
-                @change="calculateExpectedUSDT"
-              />
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-section-header">
-              <span class="section-label">{{ t('withdrawal.expectedUSDT') }}</span>
-            </div>
-            <div class="form-section-content">
-              <div class="vt-receivable-value">{{ expectedUSDT }}</div>
-            </div>
-          </div>
-
-          <!-- 提示信息 -->
-          <div class="form-note">
-            <p>{{ t('withdrawal.bep20Note') }}</p>
-          </div>
-
-          <!-- 按钮 -->
-          <div class="modal-buttons">
-            <button class="modal-button cancel" @click="showWithdrawalModal = false">{{ t('buyVT.cancel') }}</button>
-            <button class="modal-button confirm" @click="handleWithdrawalConfirm">{{ t('withdrawal.withdraw') }}</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <WithdrawalModal
+      v-model="showWithdrawalModal"
+      :balance="usdBalance"
+      :balance-label="t('withdrawal.usdBalance')"
+      balance-unit="USD"
+      @confirm="handleWithdrawalConfirm"
+    />
   </div>
 </template>
 
@@ -228,6 +155,7 @@ import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomNumberInput from '../common/CustomNumberInput.vue'
+import WithdrawalModal from '../common/WithdrawalModal.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -249,19 +177,6 @@ const buyVTForm = reactive({
   amount: ''
 })
 
-// 提款表单
-const withdrawalForm = reactive({
-  amount: '',
-  address: '',
-  type: 'normal'
-})
-
-// 提款类型选项
-const withdrawalTypeOptions = computed(() => [
-  { value: 'normal', label: t('withdrawal.normalType') },
-  { value: 'priority', label: t('withdrawal.priorityType') }
-])
-
 // 计算应收VT
 const vtReceivable = computed(() => {
   const amount = parseFloat(buyVTForm.amount) || 0
@@ -270,19 +185,6 @@ const vtReceivable = computed(() => {
   return receivable.toFixed(3)
 })
 
-// 计算应收 USDT
-const expectedUSDT = computed(() => {
-  const amount = parseFloat(withdrawalForm.amount) || 0
-  if (amount <= 0) return '0.00'
-  
-  // 普通类型：无手续费
-  if (withdrawalForm.type === 'normal') {
-    return amount.toFixed(2)
-  }
-  // 优先类型：2%手续费
-  const fee = amount * 0.02
-  return (amount - fee).toFixed(2)
-})
 
 // 地址
 const bep20Address = ref('0xCc3df0Ccdec9D6ADCD3AfD999D1282Bd1939d8cd')
@@ -311,9 +213,6 @@ const handleGoToDeposit = () => {
 
 const handleWithdraw = () => {
   showWithdrawalModal.value = true
-  withdrawalForm.amount = ''
-  withdrawalForm.address = ''
-  withdrawalForm.type = 'normal'
 }
 
 const handleBuyVT = () => {
@@ -354,52 +253,13 @@ const handleBuyVTConfirm = () => {
   buyVTForm.amount = ''
 }
 
-const calculateExpectedUSDT = () => {
-  // 计算逻辑已在 computed 中处理
-  // 当类型改变时，computed 会自动重新计算
-}
-
-const isValidBep20Address = (address) => {
-  // 简单验证 BEP20 地址格式
-  return /^0x[a-fA-F0-9]{40}$/.test(address)
-}
-
-const handleWithdrawalConfirm = () => {
-  // 验证输入
-  if (!withdrawalForm.amount || parseFloat(withdrawalForm.amount) <= 0) {
-    alert(t('withdrawal.pleaseEnterAmount'))
-    return
-  }
-  
-  if (parseFloat(withdrawalForm.amount) > parseFloat(usdBalance.value)) {
-    alert(t('withdrawal.insufficientBalance'))
-    return
-  }
-  
-  if (!withdrawalForm.address) {
-    alert(t('withdrawal.pleaseEnterAddress'))
-    return
-  }
-  
-  if (!isValidBep20Address(withdrawalForm.address)) {
-    alert(t('withdrawal.invalidBep20Address'))
-    return
-  }
-  
+const handleWithdrawalConfirm = (formData) => {
   // 提交提款请求
-  console.log('提款请求:', {
-    amount: withdrawalForm.amount,
-    address: withdrawalForm.address,
-    type: withdrawalForm.type,
-    expectedUSDT: expectedUSDT.value
-  })
+  console.log('提款请求:', formData)
   
   // TODO: 调用实际的提款 API
   alert(t('withdrawal.withdrawalSubmitted'))
   showWithdrawalModal.value = false
-  withdrawalForm.amount = ''
-  withdrawalForm.address = ''
-  withdrawalForm.type = 'normal'
 }
 
 const copyAddress = async (address) => {
@@ -1198,53 +1058,6 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
-/* 提款弹窗样式 - 复用购买VT弹窗样式 */
-.withdrawal-modal {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.95) 0%,
-    rgba(20, 10, 0, 0.95) 100%
-  );
-  border: 2px solid rgba(255, 215, 0, 0.5);
-  border-radius: 15px;
-  padding: 30px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 
-    0 0 50px rgba(255, 215, 0, 0.3),
-    inset 0 0 30px rgba(255, 215, 0, 0.1);
-  animation: slideUp 0.3s ease;
-  position: relative;
-}
-
-/* 装饰性边框角 */
-.withdrawal-modal::before,
-.withdrawal-modal::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 215, 0, 0.6);
-}
-
-.withdrawal-modal::before {
-  top: 10px;
-  left: 10px;
-  border-right: none;
-  border-bottom: none;
-  border-top-left-radius: 5px;
-}
-
-.withdrawal-modal::after {
-  bottom: 10px;
-  right: 10px;
-  border-left: none;
-  border-top: none;
-  border-bottom-right-radius: 5px;
-}
-
 /* 下拉选择框样式 */
 .field-select {
   width: 100%;
@@ -1277,8 +1090,7 @@ onMounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .buy-vt-modal,
-  .withdrawal-modal {
+  .buy-vt-modal {
     padding: 20px;
     width: 95%;
   }

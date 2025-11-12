@@ -147,7 +147,16 @@
     "exchange": "兌換",
     "withdraw": "提款",
     "exchangeInDevelopment": "兌換功能開發中...",
-    "withdrawInDevelopment": "提款功能開發中..."
+    "withdrawInDevelopment": "提款功能開發中...",
+    "unifiBalance": "UNIFI 餘額",
+    "exchangeAmount": "兌換金額",
+    "enterAmount": "輸入金額",
+    "receivableUSD": "應收 USD",
+    "max": "最大",
+    "cancel": "取消",
+    "pleaseEnterAmount": "請輸入有效的兌換金額",
+    "insufficientBalance": "餘額不足",
+    "exchangeSuccess": "兌換成功！"
   },
   "deposit": {
     "usdWallet": "USD 錢包",
@@ -210,7 +219,24 @@
     "exchange": "兌換",
     "harvestInDevelopment": "收成功能開發中...",
     "addInDevelopment": "追加功能開發中...",
-    "exchangeInDevelopment": "兌換功能開發中..."
+    "exchangeInDevelopment": "兌換功能開發中...",
+    "reward": "獎勵",
+    "harvestNotice": "一旦收成,所有賞金將轉移到主金庫",
+    "confirm": "確認",
+    "cancel": "取消",
+    "harvestSuccess": "收成成功！",
+    "bountyVT": "賞金(VT)",
+    "vtAmount": "VT 金額",
+    "enterAmount": "輸入金額",
+    "expectedMultiplierPool": "應獲倍增池",
+    "pleaseEnterAmount": "請輸入有效的VT金額",
+    "addSuccess": "追加成功！",
+    "vtBalance": "VT餘額",
+    "exchangeAmount": "兌換金額",
+    "receivableUSD": "應收 USD",
+    "max": "最大",
+    "insufficientBalance": "餘額不足",
+    "exchangeSuccess": "兌換成功！"
   },
   "profile": {
     "recruitmentQRCode": "招聘二維碼",

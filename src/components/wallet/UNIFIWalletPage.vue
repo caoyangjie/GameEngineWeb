@@ -98,13 +98,67 @@
       active-route="unifi-wallet"
       @close="handleSidebarClose"
     />
+
+    <!-- 兑换模态框 -->
+    <div class="modal-overlay" v-if="showExchangeModal" @click="showExchangeModal = false">
+      <div class="modal-content exchange-modal" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title">{{ t('unifiWallet.exchange') }}</h3>
+          <button class="modal-close" @click="showExchangeModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- UNIFI 余额 -->
+          <div class="form-field">
+            <div class="field-label">{{ t('unifiWallet.unifiBalance') }}</div>
+            <div class="field-value">{{ unifiBalance }}</div>
+          </div>
+
+          <!-- 兑换金额输入 -->
+          <div class="form-field">
+            <div class="field-label-wrapper">
+              <div class="field-label">{{ t('unifiWallet.exchangeAmount') }}</div>
+              <button class="max-button" @click="handleSetMaxAmount">{{ t('unifiWallet.max') }}</button>
+            </div>
+            <div class="field-input-wrapper">
+              <CustomNumberInput
+                v-model="exchangeForm.exchangeAmount"
+                :placeholder="t('unifiWallet.enterAmount')"
+              />
+            </div>
+          </div>
+
+          <!-- 应收 USD -->
+          <div class="form-field">
+            <div class="field-label">{{ t('unifiWallet.receivableUSD') }}</div>
+            <div class="field-value">{{ receivableUSD }}</div>
+          </div>
+
+          <!-- 按钮组 -->
+          <div class="modal-buttons">
+            <button class="modal-button cancel" @click="showExchangeModal = false">{{ t('unifiWallet.cancel') }}</button>
+            <button class="modal-button exchange-action" @click="handleConfirmExchange">{{ t('unifiWallet.exchange') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提款弹窗 -->
+    <WithdrawalModal
+      v-model="showWithdrawalModal"
+      :balance="unifiBalance"
+      :balance-label="t('unifiWallet.unifiBalance')"
+      balance-unit="UNIFI"
+      @confirm="handleWithdrawalConfirm"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomNumberInput from '../common/CustomNumberInput.vue'
+import WithdrawalModal from '../common/WithdrawalModal.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -112,6 +166,8 @@ const router = useRouter()
 const { t } = useI18n()
 
 const sidebarOpen = ref(false)
+const showExchangeModal = ref(false)
+const showWithdrawalModal = ref(false)
 
 // 价格数据
 const platformPrice = ref('0.3000')
@@ -124,10 +180,26 @@ const lockedMarketValue = ref('5,492.013')
 const lockedIssuanceValue = ref('0.050')
 
 // UNIFI 钱包数据
-const unifiBalance = ref('914.888')
+const unifiBalance = ref('926.779')
 const unifiPlatformValue = ref('274.466')
 const unifiMarketValue = ref('8,451.190')
 const releaseValue = ref('2.000')
+
+// 兑换表单数据
+const exchangeForm = reactive({
+  exchangeAmount: ''
+})
+
+// 计算应收USD：兑换金额 * 平台价格
+const receivableUSD = computed(() => {
+  if (!exchangeForm.exchangeAmount || exchangeForm.exchangeAmount === '') {
+    return '0.00000000'
+  }
+  const amount = parseFloat(exchangeForm.exchangeAmount) || 0
+  const price = parseFloat(platformPrice.value) || 0
+  const result = (amount * price).toFixed(8)
+  return result
+})
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -146,13 +218,59 @@ const handleGoToDeposit = () => {
 }
 
 const handleExchange = () => {
-  console.log('兑换')
-  alert(t('unifiWallet.exchangeInDevelopment'))
+  // 重置表单
+  exchangeForm.exchangeAmount = ''
+  showExchangeModal.value = true
+}
+
+const handleSetMaxAmount = () => {
+  // 将兑换金额设置为当前UNIFI余额
+  exchangeForm.exchangeAmount = unifiBalance.value
+}
+
+const handleConfirmExchange = () => {
+  if (!exchangeForm.exchangeAmount || exchangeForm.exchangeAmount === '' || parseFloat(exchangeForm.exchangeAmount) <= 0) {
+    alert(t('unifiWallet.pleaseEnterAmount') || '请输入有效的兑换金额')
+    return
+  }
+  
+  const exchangeAmount = parseFloat(exchangeForm.exchangeAmount)
+  const currentBalance = parseFloat(unifiBalance.value) || 0
+  
+  if (exchangeAmount > currentBalance) {
+    alert(t('unifiWallet.insufficientBalance') || '余额不足')
+    return
+  }
+  
+  // 执行兑换逻辑
+  console.log('确认兑换', {
+    exchangeAmount: exchangeForm.exchangeAmount,
+    receivableUSD: receivableUSD.value,
+    unifiBalance: unifiBalance.value,
+    platformPrice: platformPrice.value
+  })
+  
+  // TODO: 调用API执行兑换操作
+  // 成功后更新数据
+  // unifiBalance.value = (currentBalance - exchangeAmount).toFixed(3)
+  
+  showExchangeModal.value = false
+  exchangeForm.exchangeAmount = ''
+  // 可以显示成功提示
+  alert(t('unifiWallet.exchangeSuccess') || '兑换成功！')
 }
 
 const handleWithdraw = () => {
-  console.log('提款')
-  alert(t('unifiWallet.withdrawInDevelopment'))
+  showWithdrawalModal.value = true
+}
+
+const handleWithdrawalConfirm = (formData) => {
+  // 提交提款请求
+  console.log('提款请求:', formData)
+  
+  // TODO: 调用实际的提款 API
+  alert(t('withdrawal.withdrawalSubmitted') || '提款申请已提交，请等待处理')
+  showWithdrawalModal.value = false
 }
 </script>
 
@@ -528,6 +646,298 @@ const handleWithdraw = () => {
   }
 
   .wallet-actions {
+    flex-direction: column;
+  }
+}
+
+/* 模态框样式 - 参照 MidoxPage.vue */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(20, 10, 0, 0.95) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.modal-title {
+  font-size: 24px;
+  color: #ffd700;
+  text-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.8),
+    0 0 30px rgba(255, 215, 0, 0.6);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #ffd700;
+  font-size: 32px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 兑换模态框表单字段样式 */
+.exchange-modal .form-field {
+  position: relative;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.exchange-modal .form-field::before,
+.exchange-modal .form-field::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.6);
+}
+
+.exchange-modal .form-field::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+}
+
+.exchange-modal .form-field::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4px;
+}
+
+.field-label {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.field-label-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.field-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  text-align: right;
+  flex: 1;
+}
+
+.field-input-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.max-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.6);
+  text-underline-offset: 3px;
+  transition: all 0.3s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.max-button:hover {
+  color: #ffd700;
+  text-decoration-color: rgba(255, 215, 0, 0.9);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid;
+}
+
+.modal-button.exchange-action {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.9) 0%,
+    rgba(255, 140, 0, 0.9) 100%
+  );
+  border-color: rgba(255, 215, 0, 1);
+  color: #ffffff;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 4px 15px rgba(255, 140, 0, 0.4);
+}
+
+.modal-button.exchange-action:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 1) 0%,
+    rgba(255, 165, 0, 1) 100%
+  );
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.9),
+    0 6px 25px rgba(255, 140, 0, 0.6);
+  transform: translateY(-2px);
+}
+
+.modal-button.cancel {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 215, 0, 0.5);
+  color: #ffd700;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.3),
+    inset 0 0 10px rgba(255, 215, 0, 0.05);
+}
+
+.modal-button.cancel:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 
+    0 0 25px rgba(255, 215, 0, 0.5),
+    inset 0 0 15px rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 兑换模态框特殊布局 */
+.exchange-modal .form-field {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.exchange-modal .field-label-wrapper {
+  width: 100%;
+}
+
+.exchange-modal .field-input-wrapper {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.exchange-modal .field-value {
+  text-align: left;
+  width: 100%;
+}
+
+/* 响应式设计 - 兑换弹窗 */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 20px;
+  }
+
+  .exchange-modal .form-field {
+    gap: 8px;
+  }
+
+  .field-label-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .max-button {
+    align-self: flex-end;
+  }
+
+  .modal-buttons {
     flex-direction: column;
   }
 }

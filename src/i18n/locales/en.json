@@ -147,7 +147,16 @@
     "exchange": "Exchange",
     "withdraw": "Withdraw",
     "exchangeInDevelopment": "Exchange feature under development...",
-    "withdrawInDevelopment": "Withdraw feature under development..."
+    "withdrawInDevelopment": "Withdraw feature under development...",
+    "unifiBalance": "UNIFI Balance",
+    "exchangeAmount": "Exchange Amount",
+    "enterAmount": "Enter Amount",
+    "receivableUSD": "Receivable USD",
+    "max": "Max",
+    "cancel": "Cancel",
+    "pleaseEnterAmount": "Please enter a valid exchange amount",
+    "insufficientBalance": "Insufficient balance",
+    "exchangeSuccess": "Exchange successful!"
   },
   "deposit": {
     "usdWallet": "USD Wallet",
@@ -210,7 +219,24 @@
     "exchange": "Exchange",
     "harvestInDevelopment": "Harvest feature under development...",
     "addInDevelopment": "Add feature under development...",
-    "exchangeInDevelopment": "Exchange feature under development..."
+    "exchangeInDevelopment": "Exchange feature under development...",
+    "reward": "Reward",
+    "harvestNotice": "Once harvested, all bounty will be transferred to the main treasury",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "harvestSuccess": "Harvest successful!",
+    "bountyVT": "Bounty (VT)",
+    "vtAmount": "VT Amount",
+    "enterAmount": "Enter Amount",
+    "expectedMultiplierPool": "Expected Multiplier Pool",
+    "pleaseEnterAmount": "Please enter a valid VT amount",
+    "addSuccess": "Add successful!",
+    "vtBalance": "VT Balance",
+    "exchangeAmount": "Exchange Amount",
+    "receivableUSD": "Receivable USD",
+    "max": "Max",
+    "insufficientBalance": "Insufficient balance",
+    "exchangeSuccess": "Exchange successful!"
   },
   "profile": {
     "recruitmentQRCode": "Recruitment QR Code",
