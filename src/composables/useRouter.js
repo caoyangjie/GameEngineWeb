@@ -15,7 +15,13 @@ export const ROUTES = {
   UPGRADE_BOUNTY: 'upgrade-bounty',
   DEPOSIT: 'deposit',
   VT_WALLET: 'vt-wallet',
-  UNIFI_WALLET: 'unifi-wallet'
+  UNIFI_WALLET: 'unifi-wallet',
+  WALLET_HISTORY: 'wallet-history',
+  DEPOSIT_HISTORY: 'deposit-history',
+  WITHDRAWAL_HISTORY: 'withdrawal-history',
+  UNIFI_WITHDRAWAL_HISTORY: 'unifi-withdrawal-history',
+  JOURNEY_HISTORY: 'journey-history',
+  MDX_PURCHASE_RECORD: 'mdx-purchase-record'
 }
 
 /**
@@ -70,6 +76,24 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToUnifiWallet() {
       this.navigate(ROUTES.UNIFI_WALLET)
+    },
+    goToWalletHistory() {
+      this.navigate(ROUTES.WALLET_HISTORY)
+    },
+    goToDepositHistory() {
+      this.navigate(ROUTES.DEPOSIT_HISTORY)
+    },
+    goToWithdrawalHistory() {
+      this.navigate(ROUTES.WITHDRAWAL_HISTORY)
+    },
+    goToUnifiWithdrawalHistory() {
+      this.navigate(ROUTES.UNIFI_WITHDRAWAL_HISTORY)
+    },
+    goToJourneyHistory() {
+      this.navigate(ROUTES.JOURNEY_HISTORY)
+    },
+    goToMdxPurchaseRecord() {
+      this.navigate(ROUTES.MDX_PURCHASE_RECORD)
     },
     
     // 登出（跳转到登录页）

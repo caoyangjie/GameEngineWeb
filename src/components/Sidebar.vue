@@ -71,10 +71,61 @@
             <span class="submenu-text">UNIFI 钱包</span>
           </div>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('vault-history')">
+        <div class="sidebar-item" @click="toggleVaultHistorySubmenu">
           <span class="sidebar-icon">📦</span>
           <span class="sidebar-text">金库历史</span>
-          <span class="sidebar-arrow">→</span>
+          <span class="sidebar-arrow" :class="{ rotated: showVaultHistorySubmenu }">→</span>
+        </div>
+        <!-- 金库历史二级菜单 -->
+        <div v-if="showVaultHistorySubmenu" class="submenu">
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.WALLET_HISTORY }" 
+            @click="handleNavigate(ROUTES.WALLET_HISTORY)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">钱包历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.DEPOSIT_HISTORY }" 
+            @click="handleNavigate(ROUTES.DEPOSIT_HISTORY)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">存款历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.WITHDRAWAL_HISTORY }" 
+            @click="handleNavigate(ROUTES.WITHDRAWAL_HISTORY)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">提款历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.UNIFI_WITHDRAWAL_HISTORY }" 
+            @click="handleNavigate(ROUTES.UNIFI_WITHDRAWAL_HISTORY)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">UNIFI 提现历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.JOURNEY_HISTORY }" 
+            @click="handleNavigate(ROUTES.JOURNEY_HISTORY)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">旅程历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.MDX_PURCHASE_RECORD }" 
+            @click="handleNavigate(ROUTES.MDX_PURCHASE_RECORD)"
+          >
+            <span class="submenu-icon">💳</span>
+            <span class="submenu-text">MDX 购买记录</span>
+          </div>
         </div>
         <div class="sidebar-item" @click="handleNavigate('income-history')">
           <span class="sidebar-icon">🎒</span>
@@ -132,6 +183,7 @@ const router = useRouter()
 
 const showJourneySubmenu = ref(false)
 const showVaultSubmenu = ref(false)
+const showVaultHistorySubmenu = ref(false)
 
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
@@ -140,6 +192,11 @@ watch(() => props.activeRoute, (newRoute) => {
   }
   if (newRoute === ROUTES.DEPOSIT || newRoute === ROUTES.VT_WALLET || newRoute === ROUTES.UNIFI_WALLET) {
     showVaultSubmenu.value = true
+  }
+  if (newRoute === ROUTES.WALLET_HISTORY || newRoute === ROUTES.DEPOSIT_HISTORY || 
+      newRoute === ROUTES.WITHDRAWAL_HISTORY || newRoute === ROUTES.UNIFI_WITHDRAWAL_HISTORY ||
+      newRoute === ROUTES.JOURNEY_HISTORY || newRoute === ROUTES.MDX_PURCHASE_RECORD) {
+    showVaultHistorySubmenu.value = true
   }
 }, { immediate: true })
 
@@ -151,12 +208,21 @@ const toggleVaultSubmenu = () => {
   showVaultSubmenu.value = !showVaultSubmenu.value
 }
 
+const toggleVaultHistorySubmenu = () => {
+  showVaultHistorySubmenu.value = !showVaultHistorySubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
   }
   if (route === ROUTES.DEPOSIT || route === ROUTES.VT_WALLET || route === ROUTES.UNIFI_WALLET) {
     showVaultSubmenu.value = false
+  }
+  if (route === ROUTES.WALLET_HISTORY || route === ROUTES.DEPOSIT_HISTORY || 
+      route === ROUTES.WITHDRAWAL_HISTORY || route === ROUTES.UNIFI_WITHDRAWAL_HISTORY ||
+      route === ROUTES.JOURNEY_HISTORY || route === ROUTES.MDX_PURCHASE_RECORD) {
+    showVaultHistorySubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -176,6 +242,18 @@ const handleNavigate = (route) => {
     router.goToVTWallet()
   } else if (route === ROUTES.UNIFI_WALLET) {
     router.goToUnifiWallet()
+  } else if (route === ROUTES.WALLET_HISTORY) {
+    router.goToWalletHistory()
+  } else if (route === ROUTES.DEPOSIT_HISTORY) {
+    router.goToDepositHistory()
+  } else if (route === ROUTES.WITHDRAWAL_HISTORY) {
+    router.goToWithdrawalHistory()
+  } else if (route === ROUTES.UNIFI_WITHDRAWAL_HISTORY) {
+    router.goToUnifiWithdrawalHistory()
+  } else if (route === ROUTES.JOURNEY_HISTORY) {
+    router.goToJourneyHistory()
+  } else if (route === ROUTES.MDX_PURCHASE_RECORD) {
+    router.goToMdxPurchaseRecord()
   }
   
   // 通知父组件关闭侧边栏

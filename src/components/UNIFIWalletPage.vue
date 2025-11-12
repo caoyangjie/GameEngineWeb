@@ -1,5 +1,5 @@
 <template>
-  <div class="vt-wallet-container">
+  <div class="unifi-wallet-container">
     <!-- 背景层 -->
     <div class="background">
       <div class="sky"></div>
@@ -14,62 +14,79 @@
     <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
 
     <!-- 主要内容区域 -->
-    <main class="vt-wallet-main-content">
-      <!-- VT 钱包面板 -->
-      <div class="vt-wallet-panel">
-        <div class="wallet-title">VT 钱包</div>
-        <div class="vt-price-section">
-          <div class="vt-price-label">VT 价格</div>
-          <div class="vt-price-value">
-            <div class="vt-icon">V</div>
-            <span>{{ vtPrice }} USD</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 赏金库和主金库区域 -->
-      <div class="treasury-section">
-        <!-- 赏金库 -->
-        <div class="treasury-panel bounty-treasury">
-          <div class="treasury-title">赏金库</div>
-          <div class="treasury-content">
-            <div class="treasury-icon">V</div>
-            <div class="treasury-info">
-              <div class="treasury-label">赏金总额</div>
-              <div class="treasury-value">{{ bountyTotal }} VT</div>
-              <div class="auto-journey-toggle">
-                <span class="toggle-label">自动追加旅程</span>
-                <label class="switch">
-                  <input type="checkbox" v-model="autoAddJourney" />
-                  <span class="slider"></span>
-                </label>
-                <span class="toggle-status">{{ autoAddJourney ? '开' : '关' }}</span>
+    <main class="unifi-wallet-main-content">
+      <div class="content-layout">
+        <!-- 左侧区域 -->
+        <div class="left-section">
+          <!-- 价格卡片 -->
+          <div class="price-card">
+            <div class="price-icon">U</div>
+            <div class="price-info">
+              <div class="price-item">
+                <span class="price-label">平台价</span>
+                <span class="price-value">{{ platformPrice }} USD</span>
+              </div>
+              <div class="price-item">
+                <span class="price-label">市价</span>
+                <span class="price-value">{{ marketPrice }} USD</span>
               </div>
             </div>
           </div>
-          <div class="treasury-actions">
-            <button class="treasury-button harvest-btn" @click="handleHarvest">收成</button>
-            <button class="treasury-button add-btn" @click="handleAdd">追加</button>
+
+          <!-- 锁仓钱包 -->
+          <div class="wallet-panel locked-wallet">
+            <div class="panel-title">锁仓钱包</div>
+            <div class="wallet-content">
+              <div class="wallet-icon">U</div>
+              <div class="wallet-info">
+                <div class="info-row">
+                  <span class="info-label">余额</span>
+                  <span class="info-value">{{ lockedBalance }} UNIFI</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">平台价值</span>
+                  <span class="info-value">{{ lockedPlatformValue }} USD</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">市价值</span>
+                  <span class="info-value">{{ lockedMarketValue }} USD</span>
+                </div>
+              </div>
+            </div>
+            <div class="issuance-bar">
+              <span>当前锁仓发行值: {{ lockedIssuanceValue }}%</span>
+            </div>
           </div>
         </div>
 
-        <!-- 主金库 -->
-        <div class="treasury-panel main-treasury">
-          <div class="treasury-title">主金库</div>
-          <div class="treasury-content">
-            <div class="treasury-icon">V</div>
-            <div class="treasury-info">
-              <div class="treasury-label">主钱包</div>
-              <div class="treasury-value">{{ mainWallet }} VT</div>
-              <div class="auto-journey-toggle">
-                <label class="switch">
-                </label>
+        <!-- 右侧区域 - UNIFI 钱包 -->
+        <div class="right-section">
+          <div class="wallet-panel unifi-wallet-panel">
+            <div class="panel-title">UNIFI 钱包</div>
+            <div class="wallet-content">
+              <div class="wallet-icon">U</div>
+              <div class="wallet-info">
+                <div class="info-row">
+                  <span class="info-label">余额</span>
+                  <span class="info-value">{{ unifiBalance }} UNIFI</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">平台价值</span>
+                  <span class="info-value">{{ unifiPlatformValue }} USD</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">市价值</span>
+                  <span class="info-value">{{ unifiMarketValue }} USD</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="treasury-actions">
-            <button class="treasury-button exchange-btn" @click="handleExchange">兑换</button>
-            <button class="treasury-button add-btn" @click="handleAdd">追加</button>
+            <div class="release-bar">
+              <span>释放值: {{ releaseValue }}%</span>
+            </div>
+            <div class="wallet-actions">
+              <button class="action-button exchange-btn" @click="handleExchange">兑换</button>
+              <button class="action-button withdraw-btn" @click="handleWithdraw">提款</button>
+            </div>
           </div>
         </div>
       </div>
@@ -78,14 +95,14 @@
     <!-- 右侧边栏菜单 -->
     <Sidebar 
       :is-open="sidebarOpen" 
-      active-route="vt-wallet"
+      active-route="unifi-wallet"
       @close="handleSidebarClose"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
@@ -94,15 +111,21 @@ const router = useRouter()
 
 const sidebarOpen = ref(false)
 
-// VT 价格
-const vtPrice = ref('1.0200')
+// 价格数据
+const platformPrice = ref('0.3000')
+const marketPrice = ref('9.2374')
 
-// 赏金库数据
-const bountyTotal = ref('578.204')
-const autoAddJourney = ref(false)
+// 锁仓钱包数据
+const lockedBalance = ref('594.541')
+const lockedPlatformValue = ref('178.362')
+const lockedMarketValue = ref('5,492.013')
+const lockedIssuanceValue = ref('0.050')
 
-// 主金库数据
-const mainWallet = ref('0.000')
+// UNIFI 钱包数据
+const unifiBalance = ref('914.888')
+const unifiPlatformValue = ref('274.466')
+const unifiMarketValue = ref('8,451.190')
+const releaseValue = ref('2.000')
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -120,24 +143,19 @@ const handleGoToDeposit = () => {
   router.goToDeposit()
 }
 
-const handleHarvest = () => {
-  console.log('收成')
-  alert('收成功能开发中...')
-}
-
-const handleAdd = () => {
-  console.log('追加')
-  alert('追加功能开发中...')
-}
-
 const handleExchange = () => {
   console.log('兑换')
   alert('兑换功能开发中...')
 }
+
+const handleWithdraw = () => {
+  console.log('提款')
+  alert('提款功能开发中...')
+}
 </script>
 
 <style scoped>
-.vt-wallet-container {
+.unifi-wallet-container {
   position: relative;
   width: 100%;
   height: 100vh;
@@ -257,71 +275,51 @@ const handleExchange = () => {
 }
 
 /* 主要内容区域 */
-.vt-wallet-main-content {
+.unifi-wallet-main-content {
   position: relative;
   z-index: 5;
   padding: 40px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   margin-top: 60px;
   min-height: calc(100vh - 150px);
 }
 
-/* VT 钱包面板 */
-.vt-wallet-panel {
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: stretch;
+}
+
+/* 左侧区域 */
+.left-section {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: 100%;
+}
+
+/* 价格卡片 */
+.price-card {
   background: rgba(0, 0, 0, 0.7);
   border: 2px solid rgba(255, 215, 0, 0.4);
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 40px;
+  padding: 20px;
   backdrop-filter: blur(10px);
   box-shadow: 
     0 0 30px rgba(255, 215, 0, 0.3),
     inset 0 0 30px rgba(255, 215, 0, 0.05);
-  max-width: 840px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.wallet-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffd700;
-  text-align: center;
-  margin-bottom: 30px;
-  text-shadow: 
-    0 0 10px rgba(255, 215, 0, 0.8),
-    2px 2px 4px rgba(0, 0, 0, 0.8);
-  letter-spacing: 2px;
-}
-
-.vt-price-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.vt-price-label {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.vt-price-value {
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-size: 32px;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  gap: 20px;
 }
 
-.vt-icon {
+.price-icon {
   width: 60px;
   height: 60px;
   background: linear-gradient(135deg, #4a90e2 0%, #ffd700 50%, #9b59b6 100%);
-  border-radius: 12px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -330,20 +328,36 @@ const handleExchange = () => {
   color: white;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   box-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+  flex-shrink: 0;
 }
 
-/* 赏金库和主金库区域 */
-.treasury-section {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.treasury-panel {
+.price-info {
   flex: 1;
-  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.price-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* 钱包面板 */
+.wallet-panel {
   background: rgba(0, 0, 0, 0.7);
   border: 2px solid rgba(255, 215, 0, 0.4);
   border-radius: 12px;
@@ -352,9 +366,23 @@ const handleExchange = () => {
   box-shadow: 
     0 0 30px rgba(255, 215, 0, 0.3),
     inset 0 0 30px rgba(255, 215, 0, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
-.treasury-title {
+.locked-wallet {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.unifi-wallet-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
   font-size: 20px;
   font-weight: bold;
   color: #ffd700;
@@ -363,18 +391,18 @@ const handleExchange = () => {
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
-.treasury-content {
+.wallet-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
-.treasury-icon {
+.wallet-icon {
   width: 80px;
   height: 80px;
   background: linear-gradient(135deg, #4a90e2 0%, #ffd700 50%, #9b59b6 100%);
-  border-radius: 16px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -386,94 +414,56 @@ const handleExchange = () => {
   flex-shrink: 0;
 }
 
-.treasury-info {
+.wallet-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
-.treasury-label {
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.treasury-value {
-  font-size: 28px;
+.info-value {
+  font-size: 18px;
   font-weight: bold;
   color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
-.auto-journey-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.toggle-label {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.3);
-  transition: 0.3s;
-  border-radius: 24px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.3s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: rgba(255, 215, 0, 0.8);
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-.toggle-status {
-  font-size: 14px;
+/* 发行值/释放值条 */
+.issuance-bar,
+.release-bar {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 140, 0, 0.3) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  border-radius: 6px;
+  padding: 12px 20px;
+  text-align: center;
+  margin-bottom: 20px;
   color: #ffd700;
   font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
 }
 
-.treasury-actions {
+.release-bar {
+  margin-bottom: 25px;
+}
+
+/* 钱包操作按钮 */
+.wallet-actions {
   display: flex;
   gap: 15px;
 }
 
-.treasury-button {
+.action-button {
   flex: 1;
   padding: 12px 24px;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.4) 0%, rgba(255, 140, 0, 0.4) 100%);
@@ -490,7 +480,7 @@ input:checked + .slider:before {
     inset 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
-.treasury-button:hover {
+.action-button:hover {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
   box-shadow: 
     0 0 30px rgba(255, 215, 0, 0.5),
@@ -500,43 +490,42 @@ input:checked + .slider:before {
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
-  .vt-wallet-main-content {
+  .unifi-wallet-main-content {
     padding: 30px 20px;
   }
 
-  .treasury-section {
-    flex-direction: column;
-    align-items: center;
+  .content-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
 
-  .treasury-panel {
-    width: 100%;
-    max-width: 500px;
+  .left-section {
+    order: 2;
+  }
+
+  .right-section {
+    order: 1;
   }
 }
 
 @media (max-width: 768px) {
-  .vt-wallet-main-content {
+  .unifi-wallet-main-content {
     padding: 20px 15px;
     margin-top: 100px;
   }
 
-  .vt-price-value {
-    font-size: 24px;
-  }
-
-  .vt-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
-  }
-
-  .treasury-content {
+  .price-card {
     flex-direction: column;
     text-align: center;
   }
 
-  .treasury-actions {
+  .wallet-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .wallet-actions {
     flex-direction: column;
   }
 }
