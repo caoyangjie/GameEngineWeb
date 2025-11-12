@@ -100,9 +100,9 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.custom-select-wrapper.is-open {
-  z-index: 9999;
-}
+/* .custom-select-wrapper.is-open { */
+  /* z-index: 9999; */
+/* } */
 
 .custom-select {
   width: 100%;

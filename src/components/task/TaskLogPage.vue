@@ -31,25 +31,15 @@
         <div class="filter-row">
           <div class="filter-field">
             <label class="filter-label">{{ t('taskLog.startDate') }}</label>
-            <div class="filter-input-wrapper">
-              <input 
-                type="date" 
-                v-model="filters.startDate" 
-                class="filter-input"
-              />
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomDatePicker
+              v-model="filters.startDate"
+            />
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('taskLog.endDate') }}</label>
-            <div class="filter-input-wrapper">
-              <input 
-                type="date" 
-                v-model="filters.endDate" 
-                class="filter-input"
-              />
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomDatePicker
+              v-model="filters.endDate"
+            />
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('taskLog.status') }}</label>
@@ -83,6 +73,7 @@
         <!-- 任务列表内容 -->
         <div class="task-list-content">
           <div v-if="filteredTasks.length === 0" class="empty-state">
+			  <div class="empty-icon">🌳</div>
             <div class="empty-text">{{ t('commonStatus.noData') }}</div>
           </div>
           <div v-else class="task-items">
@@ -129,6 +120,7 @@ import { ref, reactive, computed } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
+import CustomDatePicker from '../common/CustomDatePicker.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -542,6 +534,12 @@ const getStatusText = (status) => {
   min-height: 300px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 18px;
+}
+
+.empty-icon {
+	font-size: 48px;
+	margin-bottom: 20px;
+	opacity: 0.6;
 }
 
 .empty-text {

@@ -108,13 +108,11 @@
             </div>
             <div class="form-section-content">
               <div class="amount-input-wrapper">
-                <input
+                <CustomNumberInput
                   id="purchase-amount"
                   v-model="buyVTForm.amount"
-                  type="number"
-                  class="amount-input"
                   :placeholder="t('buyVT.enterAmount')"
-                  @input="calculateVTReceivable"
+                  @change="calculateVTReceivable"
                 />
                 <button class="max-button" @click="setMaxAmount">{{ t('buyVT.max') }}</button>
               </div>
@@ -160,13 +158,11 @@
               <span class="section-label">{{ t('withdrawal.withdrawalAmount') }}</span>
             </div>
             <div class="form-section-content">
-              <input
+              <CustomNumberInput
                 id="withdrawal-amount"
                 v-model="withdrawalForm.amount"
-                type="number"
-                class="amount-input"
                 :placeholder="t('withdrawal.amountPlaceholder')"
-                @input="calculateExpectedUSDT"
+                @change="calculateExpectedUSDT"
               />
             </div>
           </div>
@@ -231,6 +227,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
+import CustomNumberInput from '../common/CustomNumberInput.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 

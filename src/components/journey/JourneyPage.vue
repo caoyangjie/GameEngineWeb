@@ -66,11 +66,9 @@
           <div class="input-group">
             <label for="amount-input" class="input-label">{{ t('journey.amount') }}</label>
             <div class="input-wrapper">
-              <input 
+              <CustomNumberInput 
                 id="amount-input"
-                type="number" 
                 v-model="journeyData.amount" 
-                class="amount-input"
                 :placeholder="t('journey.pleaseEnterAmount')"
               />
               <button class="max-button" @click="setMaxAmount">{{ t('journey.max') }}</button>
@@ -132,6 +130,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomNumberInput from '../common/CustomNumberInput.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 

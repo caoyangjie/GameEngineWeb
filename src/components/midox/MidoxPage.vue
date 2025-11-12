@@ -64,13 +64,10 @@
           </div>
           <div class="form-group">
             <label for="transfer-amount">{{ t('midox.amount') }}</label>
-            <input
+            <CustomNumberInput
               id="transfer-amount"
-              type="number"
               v-model="transferForm.amount"
               :placeholder="t('midox.amount')"
-              class="form-input"
-              required
             />
           </div>
           <div class="form-group">
@@ -103,11 +100,9 @@
           <div class="form-group">
             <label for="harvest-spirit-power">{{ t('midox.spiritPower') }}</label>
             <div class="spirit-power-display">
-              <input
+              <CustomNumberInput
                 id="harvest-spirit-power"
-                type="number"
                 v-model="harvestForm.spiritPower"
-                class="form-input"
                 :placeholder="t('midox.spiritPower')"
               />
             </div>
@@ -185,6 +180,7 @@
 import { ref, reactive } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomNumberInput from '../common/CustomNumberInput.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 

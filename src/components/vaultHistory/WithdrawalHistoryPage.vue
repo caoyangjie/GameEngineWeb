@@ -28,25 +28,15 @@
 		  <div class="filter-row">
 			<div class="filter-field">
 			  <label class="filter-label">{{ t('withdrawalHistory.startDate') }}</label>
-			  <div class="filter-input-wrapper">
-				<input 
-				  type="date" 
-				  v-model="filters.startDate" 
-				  class="filter-input"
-				/>
-				<span class="filter-arrow">▼</span>
-			  </div>
+			  <CustomDatePicker
+				v-model="filters.startDate"
+			  />
 			</div>
 			<div class="filter-field">
 			  <label class="filter-label">{{ t('withdrawalHistory.endDate') }}</label>
-			  <div class="filter-input-wrapper">
-				<input 
-				  type="date" 
-				  v-model="filters.endDate" 
-				  class="filter-input"
-				/>
-				<span class="filter-arrow">▼</span>
-			  </div>
+			  <CustomDatePicker
+				v-model="filters.endDate"
+			  />
 			</div>
 			<div class="filter-field">
 			  <label class="filter-label">{{ t('withdrawalHistory.status') }}</label>
@@ -88,6 +78,7 @@
 		  <!-- 表格内容 -->
 		  <div class="table-content">
 			<div v-if="paginatedWithdrawals.length === 0" class="empty-state">
+			  <div class="empty-icon">🌳</div>
 			  <div class="empty-text">{{ t('commonStatus.noData') }}</div>
 			</div>
 			<div v-else class="table-rows">
@@ -161,6 +152,7 @@
   import TopHeader from '../common/TopHeader.vue'
   import Sidebar from '../common/Sidebar.vue'
   import CustomSelect from '../common/CustomSelect.vue'
+  import CustomDatePicker from '../common/CustomDatePicker.vue'
   import { useRouter, ROUTES } from '../../composables/useRouter.js'
   
   const { t } = useI18n()
@@ -190,7 +182,7 @@
 	{ value: 'priority', label: t('withdrawalHistory.priority') },
 	{ value: 'normal', label: t('withdrawalHistory.normal') }
   ])
-
+  
   // 每页显示数量
   const itemsPerPage = ref(10)
   
@@ -715,6 +707,12 @@
   .empty-state {
 	padding: 60px 20px;
 	text-align: center;
+  }
+ 
+  .empty-icon {
+	font-size: 48px;
+	margin-bottom: 20px;
+	opacity: 0.6;
   }
   
   .empty-text {
