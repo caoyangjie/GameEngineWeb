@@ -253,6 +253,12 @@
     "pleaseSelectDays": "Vui lòng chọn số ngày",
     "journeyAddedSuccessfully": "Hành trình đã được thêm thành công!"
   },
+  "journeyDetails": {
+    "title": "Chi tiết Hành trình",
+    "upgradeDetails": "Chi tiết Nâng cấp",
+    "view": "Xem",
+    "vipCardApplication": "Đăng ký Thẻ VIP"
+  },
   "upgradeBounty": {
     "title": "Chi tiết Tiền thưởng Nâng cấp",
     "upgradeLevel": "Cấp độ Nâng cấp",

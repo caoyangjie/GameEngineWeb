@@ -253,6 +253,12 @@
     "pleaseSelectDays": "일수를 선택하세요",
     "journeyAddedSuccessfully": "여정이 성공적으로 추가되었습니다!"
   },
+  "journeyDetails": {
+    "title": "여정 세부사항",
+    "upgradeDetails": "업그레이드 세부사항",
+    "view": "보기",
+    "vipCardApplication": "VIP 카드 신청"
+  },
   "upgradeBounty": {
     "title": "업그레이드 현상금 세부사항",
     "upgradeLevel": "업그레이드 레벨",

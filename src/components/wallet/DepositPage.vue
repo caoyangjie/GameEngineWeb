@@ -192,10 +192,12 @@
               <span class="section-label">{{ t('withdrawal.withdrawalType') }}</span>
             </div>
             <div class="form-section-content">
-              <select id="withdrawal-type" v-model="withdrawalForm.type" class="field-select" @change="calculateExpectedUSDT">
-                <option value="normal">{{ t('withdrawal.normalType') }}</option>
-                <option value="priority">{{ t('withdrawal.priorityType') }}</option>
-              </select>
+              <CustomSelect
+                id="withdrawal-type"
+                v-model="withdrawalForm.type"
+                :options="withdrawalTypeOptions"
+                @change="calculateExpectedUSDT"
+              />
             </div>
           </div>
 
@@ -228,6 +230,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomSelect from '../common/CustomSelect.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -255,6 +258,12 @@ const withdrawalForm = reactive({
   address: '',
   type: 'normal'
 })
+
+// 提款类型选项
+const withdrawalTypeOptions = computed(() => [
+  { value: 'normal', label: t('withdrawal.normalType') },
+  { value: 'priority', label: t('withdrawal.priorityType') }
+])
 
 // 计算应收VT
 const vtReceivable = computed(() => {
@@ -350,6 +359,7 @@ const handleBuyVTConfirm = () => {
 
 const calculateExpectedUSDT = () => {
   // 计算逻辑已在 computed 中处理
+  // 当类型改变时，computed 会自动重新计算
 }
 
 const isValidBep20Address = (address) => {

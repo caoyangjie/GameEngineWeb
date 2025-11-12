@@ -253,6 +253,12 @@
     "pleaseSelectDays": "Por favor seleccione días",
     "journeyAddedSuccessfully": "¡Viaje agregado exitosamente!"
   },
+  "journeyDetails": {
+    "title": "Detalles del Viaje",
+    "upgradeDetails": "Detalles de Actualización",
+    "view": "Ver",
+    "vipCardApplication": "Solicitud de Tarjeta VIP"
+  },
   "upgradeBounty": {
     "title": "Detalles de Recompensa de Mejora",
     "upgradeLevel": "Nivel de Mejora",

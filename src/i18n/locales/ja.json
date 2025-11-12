@@ -253,6 +253,12 @@
     "pleaseSelectDays": "日数を選択してください",
     "journeyAddedSuccessfully": "旅路が正常に追加されました！"
   },
+  "journeyDetails": {
+    "title": "旅路の詳細",
+    "upgradeDetails": "アップグレードの詳細",
+    "view": "表示",
+    "vipCardApplication": "VIPカード申請"
+  },
   "upgradeBounty": {
     "title": "アップグレード賞金の詳細",
     "upgradeLevel": "アップグレードレベル",

@@ -53,16 +53,11 @@
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('taskLog.status') }}</label>
-            <div class="filter-input-wrapper">
-              <select v-model="filters.status" class="filter-input filter-select">
-                <option value="">{{ t('taskLog.all') }}</option>
-                <option value="pending">{{ t('taskLog.newTask') }}</option>
-                <option value="completed">{{ t('taskLog.completed') }}</option>
-                <option value="cancelled">{{ t('taskLog.expired') }}</option>
-                <option value="dismissed">{{ t('taskLog.dismissed') }}</option>
-              </select>
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomSelect
+              v-model="filters.status"
+              :options="statusOptions"
+              :placeholder="t('taskLog.all')"
+            />
           </div>
         </div>
         <button class="filter-button" @click="applyFilter">
@@ -133,6 +128,7 @@
 import { ref, reactive, computed } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomSelect from '../common/CustomSelect.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -147,6 +143,15 @@ const filters = reactive({
   endDate: '',
   status: ''
 })
+
+// 状态选项
+const statusOptions = computed(() => [
+  { value: '', label: t('taskLog.all') },
+  { value: 'pending', label: t('taskLog.newTask') },
+  { value: 'completed', label: t('taskLog.completed') },
+  { value: 'cancelled', label: t('taskLog.expired') },
+  { value: 'dismissed', label: t('taskLog.dismissed') }
+])
 
 // 任务数据（示例数据，实际应该从API获取）
 const tasks = ref([])

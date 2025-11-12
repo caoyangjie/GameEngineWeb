@@ -7,6 +7,7 @@
     <ProfilePage v-if="router.currentRoute.value === ROUTES.PROFILE" />
     <TaskLogPage v-if="router.currentRoute.value === ROUTES.TASKS" />
     <JourneyPage v-if="router.currentRoute.value === ROUTES.JOURNEY" />
+    <JourneyDetailsPage v-if="router.currentRoute.value === ROUTES.JOURNEY_DETAILS" />
     <UpgradeBountyPage v-if="router.currentRoute.value === ROUTES.UPGRADE_BOUNTY" />
     <DepositPage v-if="router.currentRoute.value === ROUTES.DEPOSIT" />
     <VTWalletPage v-if="router.currentRoute.value === ROUTES.VT_WALLET" />
@@ -26,6 +27,7 @@
     <TeamOverviewPage v-if="router.currentRoute.value === ROUTES.TEAM_OVERVIEW" />
     <PassCardManagementPage v-if="router.currentRoute.value === ROUTES.PASS_CARD_MANAGEMENT" />
     <MidoxPage v-if="router.currentRoute.value === ROUTES.MIDOX" />
+    <VipCardApplicationPage v-if="router.currentRoute.value === ROUTES.VIP_CARD_APPLICATION" />
   </div>
 </template>
 
@@ -37,6 +39,7 @@ import HomePage from './components/home/HomePage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import TaskLogPage from './components/task/TaskLogPage.vue'
 import JourneyPage from './components/journey/JourneyPage.vue'
+import JourneyDetailsPage from './components/journey/JourneyDetailsPage.vue'
 import UpgradeBountyPage from './components/journey/UpgradeBountyPage.vue'
 import DepositPage from './components/wallet/DepositPage.vue'
 import VTWalletPage from './components/wallet/VTWalletPage.vue'
@@ -56,6 +59,7 @@ import UnifiLockHistoryPage from './components/incomeHistory/UnifiLockHistoryPag
 import TeamOverviewPage from './components/team/TeamOverviewPage.vue'
 import PassCardManagementPage from './components/passCard/PassCardManagementPage.vue'
 import MidoxPage from './components/midox/MidoxPage.vue'
+import VipCardApplicationPage from './components/vipCard/VipCardApplicationPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 
 // 创建路由实例

@@ -12,6 +12,7 @@ export const ROUTES = {
   PROFILE: 'profile',
   TASKS: 'tasks',
   JOURNEY: 'journey',
+  JOURNEY_DETAILS: 'journey-details',
   UPGRADE_BOUNTY: 'upgrade-bounty',
   DEPOSIT: 'deposit',
   WITHDRAWAL: 'withdrawal',
@@ -31,7 +32,8 @@ export const ROUTES = {
   UNIFI_LOCK_HISTORY: 'unifi-lock-history',
   TEAM_OVERVIEW: 'team-overview',
   PASS_CARD_MANAGEMENT: 'pass-card-management',
-  MIDOX: 'midox'
+  MIDOX: 'midox',
+  VIP_CARD_APPLICATION: 'vip-card-application'
 }
 
 /**
@@ -74,6 +76,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToJourney() {
       this.navigate(ROUTES.JOURNEY)
+    },
+    goToJourneyDetails() {
+      this.navigate(ROUTES.JOURNEY_DETAILS)
     },
     goToUpgradeBounty() {
       this.navigate(ROUTES.UPGRADE_BOUNTY)
@@ -134,6 +139,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToMidox() {
       this.navigate(ROUTES.MIDOX)
+    },
+    goToVipCardApplication() {
+      this.navigate(ROUTES.VIP_CARD_APPLICATION)
     },
     
     // 登出（跳转到登录页）

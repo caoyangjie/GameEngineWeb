@@ -253,6 +253,12 @@
     "pleaseSelectDays": "Bitte Tage auswählen",
     "journeyAddedSuccessfully": "Reise erfolgreich hinzugefügt!"
   },
+  "journeyDetails": {
+    "title": "Reisedetails",
+    "upgradeDetails": "Upgrade-Details",
+    "view": "Anzeigen",
+    "vipCardApplication": "VIP-Kartenantrag"
+  },
   "upgradeBounty": {
     "title": "Upgrade-Prämie Details",
     "upgradeLevel": "Upgrade-Level",

@@ -253,6 +253,12 @@
     "pleaseSelectDays": "กรุณาเลือกจำนวนวัน",
     "journeyAddedSuccessfully": "เพิ่มการเดินทางสำเร็จ!"
   },
+  "journeyDetails": {
+    "title": "รายละเอียดการเดินทาง",
+    "upgradeDetails": "รายละเอียดการอัปเกรด",
+    "view": "ดู",
+    "vipCardApplication": "สมัครบัตร VIP"
+  },
   "upgradeBounty": {
     "title": "รายละเอียดรางวัลอัปเกรด",
     "upgradeLevel": "ระดับอัปเกรด",

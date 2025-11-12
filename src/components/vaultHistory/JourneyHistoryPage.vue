@@ -50,15 +50,11 @@
 			</div>
 			<div class="filter-field">
 			  <label class="filter-label">{{ t('journeyHistory.journeyType') }}</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.journeyType" class="filter-input filter-select">
-				  <option value="">{{ t('journeyHistory.all') }}</option>
-				  <option value="new">{{ t('journeyHistory.new') }}</option>
-				  <option value="upgrade">{{ t('journeyHistory.upgrade') }}</option>
-				  <option value="renewal">{{ t('journeyHistory.renewal') }}</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
+			  <CustomSelect
+				v-model="filters.journeyType"
+				:options="journeyTypeOptions"
+				:placeholder="t('journeyHistory.all')"
+			  />
 			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
@@ -152,6 +148,7 @@
   import { useI18n } from 'vue-i18n'
   import TopHeader from '../common/TopHeader.vue'
   import Sidebar from '../common/Sidebar.vue'
+  import CustomSelect from '../common/CustomSelect.vue'
   import { useRouter, ROUTES } from '../../composables/useRouter.js'
   
   const { t } = useI18n()
@@ -165,6 +162,14 @@
 	endDate: '',
 	journeyType: ''
   })
+
+  // 旅程类型选项
+  const journeyTypeOptions = computed(() => [
+	{ value: '', label: t('journeyHistory.all') },
+	{ value: 'new', label: t('journeyHistory.new') },
+	{ value: 'upgrade', label: t('journeyHistory.upgrade') },
+	{ value: 'renewal', label: t('journeyHistory.renewal') }
+  ])
   
   // 每页显示数量
   const itemsPerPage = ref(10)

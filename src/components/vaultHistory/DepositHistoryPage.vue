@@ -50,15 +50,11 @@
 			</div>
 			<div class="filter-field">
 			  <label class="filter-label">{{ t('depositHistory.status') }}</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.status" class="filter-input filter-select">
-				  <option value="">{{ t('depositHistory.all') }}</option>
-				  <option value="pending">{{ t('depositHistory.pending') }}</option>
-				  <option value="completed">{{ t('depositHistory.completed') }}</option>
-				  <option value="failed">{{ t('depositHistory.failed') }}</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
+			  <CustomSelect
+				v-model="filters.status"
+				:options="statusOptions"
+				:placeholder="t('depositHistory.all')"
+			  />
 			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
@@ -151,6 +147,7 @@
   import { ref, reactive, computed } from 'vue'
   import TopHeader from '../common/TopHeader.vue'
   import Sidebar from '../common/Sidebar.vue'
+  import CustomSelect from '../common/CustomSelect.vue'
   import { useRouter, ROUTES } from '../../composables/useRouter.js'
   import { useI18n } from 'vue-i18n'
   
@@ -165,6 +162,14 @@
 	endDate: '',
 	status: ''
   })
+
+  // 状态选项
+  const statusOptions = computed(() => [
+	{ value: '', label: t('depositHistory.all') },
+	{ value: 'pending', label: t('depositHistory.pending') },
+	{ value: 'completed', label: t('depositHistory.completed') },
+	{ value: 'failed', label: t('depositHistory.failed') }
+  ])
   
   // 每页显示数量
   const itemsPerPage = ref(10)

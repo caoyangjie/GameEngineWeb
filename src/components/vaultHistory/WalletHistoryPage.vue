@@ -50,39 +50,27 @@
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('walletHistory.transactionType') }}</label>
-            <div class="filter-input-wrapper">
-              <select v-model="filters.transactionType1" class="filter-input filter-select">
-                <option value="">{{ t('walletHistory.all') }}</option>
-                <option value="daily-bounty">{{ t('walletHistory.dailyBounty') }}</option>
-                <option value="unifi-allocation">{{ t('walletHistory.unifiAllocation') }}</option>
-                <option value="journey">{{ t('walletHistory.journey') }}</option>
-              </select>
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomSelect
+              v-model="filters.transactionType1"
+              :options="transactionType1Options"
+              :placeholder="t('walletHistory.all')"
+            />
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('walletHistory.transactionType') }}</label>
-            <div class="filter-input-wrapper">
-              <select v-model="filters.transactionType2" class="filter-input filter-select">
-                <option value="">{{ t('walletHistory.all') }}</option>
-                <option value="recharge">{{ t('walletHistory.recharge') }}</option>
-                <option value="deduct">{{ t('walletHistory.deduct') }}</option>
-              </select>
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomSelect
+              v-model="filters.transactionType2"
+              :options="transactionType2Options"
+              :placeholder="t('walletHistory.all')"
+            />
           </div>
           <div class="filter-field">
             <label class="filter-label">{{ t('walletHistory.walletType') }}</label>
-            <div class="filter-input-wrapper">
-              <select v-model="filters.walletType" class="filter-input filter-select">
-                <option value="">{{ t('walletHistory.all') }}</option>
-                <option value="total-bounty">{{ t('walletHistory.totalBounty') }}</option>
-                <option value="multiplier-pool">{{ t('walletHistory.multiplierPool') }}</option>
-                <option value="locked-wallet">{{ t('walletHistory.lockedWallet') }}</option>
-                <option value="released-wallet">{{ t('walletHistory.releasedWallet') }}</option>
-              </select>
-              <span class="filter-arrow">▼</span>
-            </div>
+            <CustomSelect
+              v-model="filters.walletType"
+              :options="walletTypeOptions"
+              :placeholder="t('walletHistory.all')"
+            />
           </div>
         </div>
         <button class="filter-button" @click="applyFilter">
@@ -179,6 +167,7 @@
 import { ref, reactive, computed } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import CustomSelect from '../common/CustomSelect.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 
@@ -195,6 +184,30 @@ const filters = reactive({
   transactionType2: '',
   walletType: ''
 })
+
+// 交易类型1选项
+const transactionType1Options = computed(() => [
+  { value: '', label: t('walletHistory.all') },
+  { value: 'daily-bounty', label: t('walletHistory.dailyBounty') },
+  { value: 'unifi-allocation', label: t('walletHistory.unifiAllocation') },
+  { value: 'journey', label: t('walletHistory.journey') }
+])
+
+// 交易类型2选项
+const transactionType2Options = computed(() => [
+  { value: '', label: t('walletHistory.all') },
+  { value: 'recharge', label: t('walletHistory.recharge') },
+  { value: 'deduct', label: t('walletHistory.deduct') }
+])
+
+// 钱包类型选项
+const walletTypeOptions = computed(() => [
+  { value: '', label: t('walletHistory.all') },
+  { value: 'total-bounty', label: t('walletHistory.totalBounty') },
+  { value: 'multiplier-pool', label: t('walletHistory.multiplierPool') },
+  { value: 'locked-wallet', label: t('walletHistory.lockedWallet') },
+  { value: 'released-wallet', label: t('walletHistory.releasedWallet') }
+])
 
 // 每页显示数量
 const itemsPerPage = ref(10)

@@ -1,5 +1,5 @@
 <template>
-  <div class="journey-container">
+  <div class="journey-details-container">
     <!-- 背景层 -->
     <div class="background">
       <div class="sky"></div>
@@ -14,13 +14,13 @@
     <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
 
     <!-- 主要内容区域 -->
-    <main class="journey-main-content">
+    <main class="journey-details-main-content">
       <!-- 标题 -->
       <div class="title-section">
         <div class="title-banner">
           <span class="title-icon">💰</span>
           <span class="title-icon">💰</span>
-          <span class="title-text">{{ t('journey.title') }}</span>
+          <span class="title-text">{{ t('journeyDetails.title') }}</span>
         </div>
       </div>
 
@@ -61,60 +61,24 @@
           </div>
         </div>
 
-        <!-- 第三行：金额输入和天数选择 -->
-        <div class="input-row">
-          <div class="input-group">
-            <label for="amount-input" class="input-label">{{ t('journey.amount') }}</label>
-            <div class="input-wrapper">
-              <input 
-                id="amount-input"
-                type="number" 
-                v-model="journeyData.amount" 
-                class="amount-input"
-                :placeholder="t('journey.pleaseEnterAmount')"
-              />
-              <button class="max-button" @click="setMaxAmount">{{ t('journey.max') }}</button>
-            </div>
-          </div>
-          <div class="input-group">
-            <div class="input-label">{{ t('journey.days') }}</div>
-            <div class="days-buttons">
-              <button 
-                v-for="day in daysOptions" 
-                :key="day"
-                class="day-button"
-                :class="{ active: journeyData.selectedDays === day }"
-                @click="journeyData.selectedDays = day"
-              >
-                {{ day }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 第四行：新倍增池值 -->
-        <div class="input-row">
-          <div class="input-group full-width">
-            <label for="multiplier-input" class="input-label">{{ t('journey.newMultiplierPoolValue') }}</label>
-            <input 
-              id="multiplier-input"
-              type="text" 
-              v-model="journeyData.newMultiplierPool" 
-              class="multiplier-input"
-              :placeholder="t('journey.newMultiplierPoolValue')"
-              readonly
-            />
-          </div>
-        </div>
-
-        <!-- 追加旅程按钮 -->
+        <!-- 操作按钮 -->
         <div class="action-section">
           <button class="add-journey-button" @click="handleAddJourney">
             {{ t('journey.addJourney') }}
           </button>
-          <a href="#" class="details-link" @click.prevent="handleViewDetails">
-            {{ t('journey.journeyDetailsPage') }} >
-          </a>
+          <button class="vip-card-button" @click="handleVipCardApplication">
+            {{ t('journeyDetails.vipCardApplication') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 升级详情面板 -->
+      <div class="upgrade-details-panel">
+        <div class="panel-title">{{ t('journeyDetails.upgradeDetails') }}</div>
+        <div class="view-button-wrapper">
+          <button class="view-button" @click="handleView">
+            {{ t('journeyDetails.view') }}
+          </button>
         </div>
       </div>
     </main>
@@ -129,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
@@ -140,16 +104,6 @@ const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 
-// 旅程数据
-const journeyData = reactive({
-  amount: '',
-  selectedDays: 150,
-  newMultiplierPool: ''
-})
-
-// 天数选项
-const daysOptions = [30, 60, 90, 120, 150]
-
 // 当前数据（示例数据，实际应该从API获取）
 const currentData = reactive({
   level: '银',
@@ -159,38 +113,20 @@ const currentData = reactive({
   vtBalance: 0.000
 })
 
-// 计算新倍增池值
-watch([() => journeyData.amount, () => journeyData.selectedDays], () => {
-  if (journeyData.amount && journeyData.selectedDays) {
-    // 简单的计算逻辑，实际应该根据业务规则计算
-    const amount = parseFloat(journeyData.amount) || 0
-    const multiplier = currentData.multiplierPool + amount
-    journeyData.newMultiplierPool = multiplier.toFixed(3) + ' USDT'
-  } else {
-    journeyData.newMultiplierPool = ''
-  }
-})
-
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
 
-// Sidebar 现在直接使用 router，只需要处理关闭事件
 const handleSidebarClose = () => {
   toggleSidebar()
 }
 
 const handleGoToJourney = () => {
-  // 已经在旅程详情页面，无需跳转
+  router.goToJourney()
 }
 
 const handleGoToDeposit = () => {
   router.goToDeposit()
-}
-
-const setMaxAmount = () => {
-  // 设置最大金额（示例：使用VT余额或本金）
-  journeyData.amount = currentData.vtBalance > 0 ? currentData.vtBalance.toString() : currentData.principal.toString()
 }
 
 const formatNumber = (num) => {
@@ -198,32 +134,20 @@ const formatNumber = (num) => {
 }
 
 const handleAddJourney = () => {
-  if (!journeyData.amount || parseFloat(journeyData.amount) <= 0) {
-    alert(t('journey.pleaseEnterValidAmount'))
-    return
-  }
-  if (!journeyData.selectedDays) {
-    alert(t('journey.pleaseSelectDays'))
-    return
-  }
-  console.log('追加旅程:', {
-    amount: journeyData.amount,
-    days: journeyData.selectedDays,
-    newMultiplierPool: journeyData.newMultiplierPool
-  })
-  alert(t('journey.journeyAddedSuccessfully'))
-  // 重置表单
-  journeyData.amount = ''
-  journeyData.newMultiplierPool = ''
+  router.goToJourney()
 }
 
-const handleViewDetails = () => {
-  router.goToJourneyDetails()
+const handleVipCardApplication = () => {
+  router.goToVipCardApplication()
+}
+
+const handleView = () => {
+  router.goToUpgradeBounty()
 }
 </script>
 
 <style scoped>
-.journey-container {
+.journey-details-container {
   position: relative;
   width: 100%;
   height: 100vh;
@@ -343,7 +267,7 @@ const handleViewDetails = () => {
 }
 
 /* 主要内容区域 */
-.journey-main-content {
+.journey-details-main-content {
   position: relative;
   z-index: 5;
   padding: 40px;
@@ -398,6 +322,7 @@ const handleViewDetails = () => {
   box-shadow: 
     0 0 30px rgba(255, 215, 0, 0.3),
     inset 0 0 30px rgba(255, 215, 0, 0.05);
+  margin-bottom: 30px;
 }
 
 /* 第一行：旅程等级和剩余天数 */
@@ -491,114 +416,70 @@ const handleViewDetails = () => {
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
-/* 第三行：输入和天数选择 */
-.input-row {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 25px;
-}
-
-.input-group {
-  flex: 1;
-}
-
-.input-group.full-width {
-  flex: 1;
-}
-
-.input-label {
-  display: block;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.input-wrapper {
-  display: flex;
-  gap: 10px;
-}
-
-.amount-input,
-.multiplier-input {
-  flex: 1;
-  padding: 12px 15px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  color: white;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s;
-}
-
-.amount-input:focus,
-.multiplier-input:focus {
-  border-color: rgba(255, 215, 0, 0.6);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-}
-
-.amount-input::placeholder,
-.multiplier-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.max-button {
-  padding: 12px 20px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 140, 0, 0.3) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.5);
-  border-radius: 6px;
-  color: #ffd700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.max-button:hover {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.5) 0%, rgba(255, 140, 0, 0.5) 100%);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-}
-
-.days-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.day-button {
-  flex: 1;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.day-button:hover {
-  background: rgba(255, 215, 0, 0.1);
-  border-color: rgba(255, 215, 0, 0.5);
-}
-
-.day-button.active {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 140, 0, 0.3) 100%);
-  border: 2px solid rgba(255, 215, 0, 0.8);
-  color: #ffd700;
-  font-weight: bold;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-}
-
 /* 操作区域 */
 .action-section {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+  gap: 20px;
   margin-top: 30px;
 }
 
-.add-journey-button {
+.add-journey-button,
+.vip-card-button {
+  flex: 1;
+  padding: 15px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.4) 0%, rgba(255, 140, 0, 0.4) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.8);
+  border-radius: 8px;
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.3),
+    inset 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.add-journey-button:hover,
+.vip-card-button:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.5),
+    inset 0 0 20px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 升级详情面板 */
+.upgrade-details-panel {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 12px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.05);
+}
+
+.panel-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.view-button-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.view-button {
   width: 100%;
   max-width: 400px;
   padding: 15px;
@@ -616,7 +497,7 @@ const handleViewDetails = () => {
     inset 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
-.add-journey-button:hover {
+.view-button:hover {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
   box-shadow: 
     0 0 30px rgba(255, 215, 0, 0.5),
@@ -624,35 +505,19 @@ const handleViewDetails = () => {
   transform: translateY(-2px);
 }
 
-.details-link {
-  color: rgba(255, 215, 0, 0.8);
-  font-size: 14px;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.details-link:hover {
-  color: #ffd700;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-}
-
 /* 响应式设计 */
 @media (max-width: 1200px) {
-  .journey-main-content {
+  .journey-details-main-content {
     padding: 30px 20px;
   }
 
   .financial-row {
     flex-direction: column;
   }
-
-  .input-row {
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 768px) {
-  .journey-main-content {
+  .journey-details-main-content {
     padding: 20px 15px;
     margin-top: 100px;
   }
@@ -662,12 +527,8 @@ const handleViewDetails = () => {
     gap: 20px;
   }
 
-  .days-buttons {
-    flex-wrap: wrap;
-  }
-
-  .day-button {
-    min-width: calc(50% - 5px);
+  .action-section {
+    flex-direction: column;
   }
 }
 </style>
