@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "入金",
+    "journey": "旅路",
+    "welcome": "『西域の旅』へようこそ！",
+    "newUserBonus": "新規ユーザー登録で100コイン進呈",
+    "dailyCheckIn": "毎日チェックインで豊富な報酬獲得",
+    "mainQuest": "メインクエストを完了して新しいキャラクターをアンロック",
+    "limitedEvent": "期間限定イベント：経験値2倍ボーナス実施中",
+    "vipPrivileges": "VIP会員は専用特典を享受",
+    "teamDungeon": "チームダンジョン間もなく開始",
+    "appName": "西域の旅",
+    "appSubtitle": "境界に挑戦 • 限界を超える"
+  },
+  "sidebar": {
+    "backToHome": "ホームに戻る",
+    "profile": "プロフィール",
+    "taskLog": "タスクログ",
+    "journeyDetails": "旅路の詳細",
+    "journey": "旅路",
+    "upgradeBounty": "アップグレード賞金",
+    "tokenVault": "トークン庫",
+    "usdWallet": "USD ウォレット",
+    "vtWallet": "VT ウォレット",
+    "unifiWallet": "UNIFI ウォレット",
+    "vaultHistory": "庫の履歴",
+    "walletHistory": "ウォレット履歴",
+    "depositHistory": "入金履歴",
+    "withdrawalHistory": "出金履歴",
+    "unifiWithdrawalHistory": "UNIFI 出金履歴",
+    "journeyHistory": "旅路履歴",
+    "mdxPurchaseHistory": "MDX 購入記録",
+    "incomeHistory": "収入履歴",
+    "dailyBountyHistory": "毎日賞金履歴",
+    "teamBountyHistory": "チーム賞金履歴",
+    "recruitmentBountyHistory": "募集賞金履歴",
+    "upgradeBountyHistory": "アップグレード賞金履歴",
+    "unifiReleaseHistory": "UNIFI リリース履歴",
+    "unifiLockHistory": "UNIFI ロック履歴",
+    "teamOverview": "チーム概要",
+    "passCardManagement": "PASSカード/クーポン管理",
+    "logout": "ログアウト",
+    "simplifiedChinese": "簡体字中国語"
+  },
+  "login": {
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "verificationCode": "確認コード",
+    "forgotPassword": "パスワードを忘れた?",
+    "login": "ログイン",
+    "noAccount": "アカウントがない?登録",
+    "simplifiedChinese": "簡体字中国語"
+  },
+  "home": {
+    "waitingForTeammate": "チームメイトを待っています",
+    "silver": "銀",
+    "days": "日",
+    "bountyVaultBalance": "賞金庫残高",
+    "vtBalance": "VT 残高",
+    "lifetimeCommunityBounty": "生涯コミュニティ賞金",
+    "multiplierPool": "マルチプライヤープール"
+  },
+  "passCard": {
+    "title": "PASSカード/クーポン履歴",
+    "type": "タイプ",
+    "couponCode": "クーポンコード",
+    "effect": "効果",
+    "status": "ステータス",
+    "user": "ユーザー",
+    "usageDate": "使用日",
+    "noData": "データなし",
+    "totalRecords": "合計 {count} 件の記録、{current} / {total} ページ",
+    "previousPage": "前へ",
+    "nextPage": "次へ"
+  },
+  "pagination": {
+    "previousPage": "前へ",
+    "nextPage": "次へ",
+    "totalRecords": "合計 {count} 件の記録、{current} / {total} ページ"
+  },
+  "commonStatus": {
+    "noData": "データなし",
+    "loading": "読み込み中...",
+    "error": "エラー"
+  }
+}

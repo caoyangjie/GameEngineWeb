@@ -40,7 +40,7 @@
 
     <!-- 语言选择器 -->
     <div class="language-selector">
-      <span class="language-text">简体中文</span>
+      <span class="language-text">{{ t('login.simplifiedChinese') }}</span>
       <span class="chevron">▼</span>
       <span class="flag">🇨🇳</span>
     </div>
@@ -80,8 +80,8 @@
         <!-- 游戏Logo -->
         <div class="game-logo">
           <div class="logo-glow"></div>
-          <h1 class="logo-text">西域旅</h1>
-          <p class="logo-subtitle">挑战边界 • 超越极限</p>
+          <h1 class="logo-text">{{ t('common.appName') }}</h1>
+          <p class="logo-subtitle">{{ t('common.appSubtitle') }}</p>
         </div>
 
         <!-- 表单 -->
@@ -92,7 +92,7 @@
           <input
             type="email"
             v-model="formData.email"
-            placeholder="电子邮箱"
+            :placeholder="t('login.email')"
             class="form-input"
             required
           />
@@ -104,7 +104,7 @@
           <input
             :type="showPassword ? 'text' : 'password'"
             v-model="formData.password"
-            placeholder="密码"
+            :placeholder="t('login.password')"
             class="form-input"
             required
           />
@@ -123,7 +123,7 @@
           <input
             type="text"
             v-model="formData.verificationCode"
-            placeholder="验证码"
+            :placeholder="t('login.verificationCode')"
             class="form-input verification-input"
             required
           />
@@ -141,15 +141,15 @@
 
         <!-- 忘记密码 -->
         <div class="forgot-password">
-          <a href="#" @click.prevent="goToForgot" class="forgot-link">忘记密码?</a>
+          <a href="#" @click.prevent="goToForgot" class="forgot-link">{{ t('login.forgotPassword') }}</a>
         </div>
 
         <!-- 登录按钮 -->
-        <button type="submit" class="login-button">登录</button>
+        <button type="submit" class="login-button">{{ t('login.login') }}</button>
 
         <!-- 注册链接 -->
         <div class="register-link">
-          <a href="#" @click.prevent="goToRegister" class="register-text">没有用户?注册</a>
+          <a href="#" @click.prevent="goToRegister" class="register-text">{{ t('login.noAccount') }}</a>
         </div>
       </form>
       </div>
@@ -165,6 +165,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 

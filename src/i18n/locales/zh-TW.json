@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "存款",
+    "journey": "旅程",
+    "welcome": "歡迎來到《西域之旅》!",
+    "newUserBonus": "新用戶註冊即送100金幣",
+    "dailyCheckIn": "每日簽到可獲得豐厚獎勵",
+    "mainQuest": "完成主線任務解鎖新角色",
+    "limitedEvent": "限時活動：雙倍經驗加成中",
+    "vipPrivileges": "VIP會員享受專屬特權",
+    "teamDungeon": "團隊副本即將開啟",
+    "appName": "西域旅",
+    "appSubtitle": "挑戰邊界 • 超越極限"
+  },
+  "sidebar": {
+    "backToHome": "返回首頁",
+    "profile": "個人資料",
+    "taskLog": "任務日誌",
+    "journeyDetails": "旅程詳情",
+    "journey": "旅程",
+    "upgradeBounty": "升級賞金",
+    "tokenVault": "代幣庫",
+    "usdWallet": "USD 錢包",
+    "vtWallet": "VT 錢包",
+    "unifiWallet": "UNIFI 錢包",
+    "vaultHistory": "金庫歷史",
+    "walletHistory": "錢包歷史",
+    "depositHistory": "存款歷史",
+    "withdrawalHistory": "提款歷史",
+    "unifiWithdrawalHistory": "UNIFI 提現歷史",
+    "journeyHistory": "旅程歷史",
+    "mdxPurchaseHistory": "MDX 購買記錄",
+    "incomeHistory": "收入歷史",
+    "dailyBountyHistory": "每日賞金歷史",
+    "teamBountyHistory": "團隊賞金歷史",
+    "recruitmentBountyHistory": "招聘賞金歷史",
+    "upgradeBountyHistory": "升級賞金歷史",
+    "unifiReleaseHistory": "UNIFI 釋放歷史",
+    "unifiLockHistory": "UNIFI 鎖倉歷史",
+    "teamOverview": "團隊詳情",
+    "passCardManagement": "PASS卡/優惠卷管理",
+    "logout": "登出",
+    "simplifiedChinese": "簡體中文"
+  },
+  "login": {
+    "email": "電子郵箱",
+    "password": "密碼",
+    "verificationCode": "驗證碼",
+    "forgotPassword": "忘記密碼?",
+    "login": "登錄",
+    "noAccount": "沒有用戶?註冊",
+    "simplifiedChinese": "簡體中文"
+  },
+  "home": {
+    "waitingForTeammate": "正在等隊友",
+    "silver": "銀",
+    "days": "天",
+    "bountyVaultBalance": "賞金庫餘額",
+    "vtBalance": "VT 餘額",
+    "lifetimeCommunityBounty": "終生社群賞金",
+    "multiplierPool": "倍增池"
+  },
+  "passCard": {
+    "title": "PASS卡/優惠卷歷史",
+    "type": "類型",
+    "couponCode": "優惠碼",
+    "effect": "效果",
+    "status": "狀態",
+    "user": "用戶",
+    "usageDate": "使用日期",
+    "noData": "暫無數據",
+    "totalRecords": "共 {count} 條記錄，第 {current} / {total} 頁",
+    "previousPage": "上一頁",
+    "nextPage": "下一頁"
+  },
+  "pagination": {
+    "previousPage": "上一頁",
+    "nextPage": "下一頁",
+    "totalRecords": "共 {count} 條記錄，第 {current} / {total} 頁"
+  },
+  "commonStatus": {
+    "noData": "暫無數據",
+    "loading": "加載中...",
+    "error": "錯誤"
+  }
+}

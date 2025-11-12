@@ -5,19 +5,19 @@
       <div class="sidebar-content">
         <div class="sidebar-item" :class="{ active: activeRoute === 'home' }" @click="handleNavigate('home')">
           <span class="sidebar-icon">🏯</span>
-          <span class="sidebar-text">返回首页</span>
+          <span class="sidebar-text">{{ t('sidebar.backToHome') }}</span>
         </div>
         <div class="sidebar-item" :class="{ active: activeRoute === 'profile' }" @click="handleNavigate('profile')">
           <span class="sidebar-icon">👤</span>
-          <span class="sidebar-text">个人资料</span>
+          <span class="sidebar-text">{{ t('sidebar.profile') }}</span>
         </div>
         <div class="sidebar-item" :class="{ active: activeRoute === 'tasks' }" @click="handleNavigate('tasks')">
           <span class="sidebar-icon">📜</span>
-          <span class="sidebar-text">任务日志</span>
+          <span class="sidebar-text">{{ t('sidebar.taskLog') }}</span>
         </div>
         <div class="sidebar-item" @click="toggleJourneySubmenu">
           <span class="sidebar-icon">💰</span>
-          <span class="sidebar-text">旅程详情</span>
+          <span class="sidebar-text">{{ t('sidebar.journeyDetails') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showJourneySubmenu }">→</span>
         </div>
         <!-- 旅程详情二级菜单 -->
@@ -28,7 +28,7 @@
             @click="handleNavigate('journey')"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">旅程</span>
+            <span class="submenu-text">{{ t('sidebar.journey') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -36,12 +36,12 @@
             @click="handleNavigate('upgrade-bounty')"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">升级赏金</span>
+            <span class="submenu-text">{{ t('sidebar.upgradeBounty') }}</span>
           </div>
         </div>
         <div class="sidebar-item" @click="toggleVaultSubmenu">
           <span class="sidebar-icon">💰</span>
-          <span class="sidebar-text">代币库</span>
+          <span class="sidebar-text">{{ t('sidebar.tokenVault') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showVaultSubmenu }">→</span>
         </div>
         <!-- 代币库二级菜单 -->
@@ -52,7 +52,7 @@
             @click="handleNavigate(ROUTES.DEPOSIT)"
           >
             <span class="submenu-icon">💵</span>
-            <span class="submenu-text">USD 钱包</span>
+            <span class="submenu-text">{{ t('sidebar.usdWallet') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -60,7 +60,7 @@
             @click="handleNavigate(ROUTES.VT_WALLET)"
           >
             <span class="submenu-icon">💎</span>
-            <span class="submenu-text">VT 钱包</span>
+            <span class="submenu-text">{{ t('sidebar.vtWallet') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -68,12 +68,12 @@
             @click="handleNavigate(ROUTES.UNIFI_WALLET)"
           >
             <span class="submenu-icon">🔷</span>
-            <span class="submenu-text">UNIFI 钱包</span>
+            <span class="submenu-text">{{ t('sidebar.unifiWallet') }}</span>
           </div>
         </div>
         <div class="sidebar-item" @click="toggleVaultHistorySubmenu">
           <span class="sidebar-icon">📦</span>
-          <span class="sidebar-text">金库历史</span>
+          <span class="sidebar-text">{{ t('sidebar.vaultHistory') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showVaultHistorySubmenu }">→</span>
         </div>
         <!-- 金库历史二级菜单 -->
@@ -84,7 +84,7 @@
             @click="handleNavigate(ROUTES.WALLET_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">钱包历史</span>
+            <span class="submenu-text">{{ t('sidebar.walletHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -92,7 +92,7 @@
             @click="handleNavigate(ROUTES.DEPOSIT_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">存款历史</span>
+            <span class="submenu-text">{{ t('sidebar.depositHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -100,7 +100,7 @@
             @click="handleNavigate(ROUTES.WITHDRAWAL_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">提款历史</span>
+            <span class="submenu-text">{{ t('sidebar.withdrawalHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -108,7 +108,7 @@
             @click="handleNavigate(ROUTES.UNIFI_WITHDRAWAL_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">UNIFI 提现历史</span>
+            <span class="submenu-text">{{ t('sidebar.unifiWithdrawalHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -116,7 +116,7 @@
             @click="handleNavigate(ROUTES.JOURNEY_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">旅程历史</span>
+            <span class="submenu-text">{{ t('sidebar.journeyHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -124,12 +124,12 @@
             @click="handleNavigate(ROUTES.MDX_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
-            <span class="submenu-text">MDX 购买记录</span>
+            <span class="submenu-text">{{ t('sidebar.mdxPurchaseHistory') }}</span>
           </div>
         </div>
         <div class="sidebar-item" @click="toggleIncomeHistorySubmenu">
           <span class="sidebar-icon">🎒</span>
-          <span class="sidebar-text">收入历史</span>
+          <span class="sidebar-text">{{ t('sidebar.incomeHistory') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showIncomeHistorySubmenu }">→</span>
         </div>
         <!-- 收入历史二级菜单 -->
@@ -140,7 +140,7 @@
             @click="handleNavigate(ROUTES.DAILY_BOUNTY_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">每日赏金历史</span>
+            <span class="submenu-text">{{ t('sidebar.dailyBountyHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -148,7 +148,7 @@
             @click="handleNavigate(ROUTES.TEAM_BOUNTY_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">团队赏金历史</span>
+            <span class="submenu-text">{{ t('sidebar.teamBountyHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -156,7 +156,7 @@
             @click="handleNavigate(ROUTES.RECRUITMENT_BOUNTY_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">招聘赏金历史</span>
+            <span class="submenu-text">{{ t('sidebar.recruitmentBountyHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -164,7 +164,7 @@
             @click="handleNavigate(ROUTES.UPGRADE_BOUNTY_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">升级赏金历史</span>
+            <span class="submenu-text">{{ t('sidebar.upgradeBountyHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -172,7 +172,7 @@
             @click="handleNavigate(ROUTES.UNIFI_RELEASE_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">UNIFI 释放历史</span>
+            <span class="submenu-text">{{ t('sidebar.unifiReleaseHistory') }}</span>
           </div>
           <div 
             class="submenu-item" 
@@ -180,7 +180,7 @@
             @click="handleNavigate(ROUTES.UNIFI_LOCK_HISTORY)"
           >
             <span class="submenu-icon">💰</span>
-            <span class="submenu-text">UNIFI 锁仓历史</span>
+            <span class="submenu-text">{{ t('sidebar.unifiLockHistory') }}</span>
           </div>
         </div>
         <div 
@@ -189,7 +189,7 @@
           @click="handleNavigate(ROUTES.TEAM_OVERVIEW)"
         >
           <span class="sidebar-icon">👥</span>
-          <span class="sidebar-text">团队详情</span>
+          <span class="sidebar-text">{{ t('sidebar.teamOverview') }}</span>
           <span class="sidebar-arrow">→</span>
         </div>
         <div 
@@ -198,20 +198,15 @@
           @click="handleNavigate(ROUTES.PASS_CARD_MANAGEMENT)"
         >
           <span class="sidebar-icon">🎒</span>
-          <span class="sidebar-text">PASS卡/优惠卷管理</span>
+          <span class="sidebar-text">{{ t('sidebar.passCardManagement') }}</span>
         </div>
         <div class="sidebar-item" @click="handleNavigate('midox')">
           <span class="sidebar-icon midox-icon">M</span>
           <span class="sidebar-text">MIDOX</span>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('language')">
-          <span class="sidebar-icon">🇨🇳</span>
-          <span class="sidebar-text">简体中文</span>
-          <span class="sidebar-arrow">→</span>
-        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
-          <span class="sidebar-text">登出</span>
+          <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
         </div>
       </div>
     </aside>
@@ -224,6 +219,9 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: {
@@ -344,6 +342,9 @@ const handleNavigate = (route) => {
     router.goToTeamOverview()
   } else if (route === ROUTES.PASS_CARD_MANAGEMENT) {
     router.goToPassCardManagement()
+  } else if (route === 'midox') {
+    // 在新标签页打开 MIDOX 页面
+    window.open('https://voyagewest.game/midox/', '_blank')
   }
   
   // 通知父组件关闭侧边栏

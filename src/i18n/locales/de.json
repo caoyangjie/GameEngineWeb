@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "Einzahlung",
+    "journey": "Reise",
+    "welcome": "Willkommen bei Reise nach Westen!",
+    "newUserBonus": "Neue Benutzer erhalten 100 Münzen",
+    "dailyCheckIn": "Tägliche Anmeldung bringt großzügige Belohnungen",
+    "mainQuest": "Hauptquests abschließen, um neue Charaktere freizuschalten",
+    "limitedEvent": "Zeitlich begrenztes Event: Doppelte EXP-Boni aktiv",
+    "vipPrivileges": "VIP-Mitglieder genießen exklusive Privilegien",
+    "teamDungeon": "Team-Dungeon wird bald eröffnet",
+    "appName": "Reise nach Westen",
+    "appSubtitle": "Grenzen Herausfordern • Über Grenzen Hinaus"
+  },
+  "sidebar": {
+    "backToHome": "Zurück zur Startseite",
+    "profile": "Profil",
+    "taskLog": "Aufgabenprotokoll",
+    "journeyDetails": "Reisedetails",
+    "journey": "Reise",
+    "upgradeBounty": "Upgrade-Prämie",
+    "tokenVault": "Token-Tresor",
+    "usdWallet": "USD-Wallet",
+    "vtWallet": "VT-Wallet",
+    "unifiWallet": "UNIFI-Wallet",
+    "vaultHistory": "Tresor-Verlauf",
+    "walletHistory": "Wallet-Verlauf",
+    "depositHistory": "Einzahlungsverlauf",
+    "withdrawalHistory": "Auszahlungsverlauf",
+    "unifiWithdrawalHistory": "UNIFI-Auszahlungsverlauf",
+    "journeyHistory": "Reiseverlauf",
+    "mdxPurchaseHistory": "MDX-Kaufverlauf",
+    "incomeHistory": "Einkommensverlauf",
+    "dailyBountyHistory": "Täglicher Prämienverlauf",
+    "teamBountyHistory": "Team-Prämienverlauf",
+    "recruitmentBountyHistory": "Rekrutierungs-Prämienverlauf",
+    "upgradeBountyHistory": "Upgrade-Prämienverlauf",
+    "unifiReleaseHistory": "UNIFI-Freigabeverlauf",
+    "unifiLockHistory": "UNIFI-Sperrverlauf",
+    "teamOverview": "Team-Übersicht",
+    "passCardManagement": "PASS-Karte/Gutschein-Verwaltung",
+    "logout": "Abmelden",
+    "simplifiedChinese": "Vereinfachtes Chinesisch"
+  },
+  "login": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "verificationCode": "Bestätigungscode",
+    "forgotPassword": "Passwort vergessen?",
+    "login": "Anmelden",
+    "noAccount": "Kein Konto? Registrieren",
+    "simplifiedChinese": "Vereinfachtes Chinesisch"
+  },
+  "home": {
+    "waitingForTeammate": "Warte auf Teammitglied",
+    "silver": "Silber",
+    "days": "Tage",
+    "bountyVaultBalance": "Prämien-Tresor-Guthaben",
+    "vtBalance": "VT-Guthaben",
+    "lifetimeCommunityBounty": "Lebenslange Community-Prämie",
+    "multiplierPool": "Multiplikator-Pool"
+  },
+  "passCard": {
+    "title": "PASS-Karte/Gutschein-Verlauf",
+    "type": "Typ",
+    "couponCode": "Gutscheincode",
+    "effect": "Effekt",
+    "status": "Status",
+    "user": "Benutzer",
+    "usageDate": "Verwendungsdatum",
+    "noData": "Keine Daten",
+    "totalRecords": "Gesamt {count} Datensätze, Seite {current} / {total}",
+    "previousPage": "Zurück",
+    "nextPage": "Weiter"
+  },
+  "pagination": {
+    "previousPage": "Zurück",
+    "nextPage": "Weiter",
+    "totalRecords": "Gesamt {count} Datensätze, Seite {current} / {total}"
+  },
+  "commonStatus": {
+    "noData": "Keine Daten",
+    "loading": "Lädt...",
+    "error": "Fehler"
+  }
+}

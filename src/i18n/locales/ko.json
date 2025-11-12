@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "입금",
+    "journey": "여정",
+    "welcome": "《서역 여행》에 오신 것을 환영합니다!",
+    "newUserBonus": "신규 사용자 등록 시 100코인 지급",
+    "dailyCheckIn": "매일 체크인으로 풍부한 보상 획득",
+    "mainQuest": "메인 퀘스트 완료로 새 캐릭터 해제",
+    "limitedEvent": "한정 이벤트: 경험치 2배 보너스 진행 중",
+    "vipPrivileges": "VIP 회원 전용 특권 제공",
+    "teamDungeon": "팀 던전 곧 오픈",
+    "appName": "서역 여행",
+    "appSubtitle": "경계에 도전 • 한계를 초월"
+  },
+  "sidebar": {
+    "backToHome": "홈으로 돌아가기",
+    "profile": "프로필",
+    "taskLog": "작업 로그",
+    "journeyDetails": "여정 세부사항",
+    "journey": "여정",
+    "upgradeBounty": "업그레이드 현상금",
+    "tokenVault": "토큰 금고",
+    "usdWallet": "USD 지갑",
+    "vtWallet": "VT 지갑",
+    "unifiWallet": "UNIFI 지갑",
+    "vaultHistory": "금고 기록",
+    "walletHistory": "지갑 기록",
+    "depositHistory": "입금 기록",
+    "withdrawalHistory": "출금 기록",
+    "unifiWithdrawalHistory": "UNIFI 출금 기록",
+    "journeyHistory": "여정 기록",
+    "mdxPurchaseHistory": "MDX 구매 기록",
+    "incomeHistory": "수입 기록",
+    "dailyBountyHistory": "일일 현상금 기록",
+    "teamBountyHistory": "팀 현상금 기록",
+    "recruitmentBountyHistory": "모집 현상금 기록",
+    "upgradeBountyHistory": "업그레이드 현상금 기록",
+    "unifiReleaseHistory": "UNIFI 출시 기록",
+    "unifiLockHistory": "UNIFI 잠금 기록",
+    "teamOverview": "팀 개요",
+    "passCardManagement": "PASS 카드/쿠폰 관리",
+    "logout": "로그아웃",
+    "simplifiedChinese": "간체 중국어"
+  },
+  "login": {
+    "email": "이메일",
+    "password": "비밀번호",
+    "verificationCode": "인증 코드",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "login": "로그인",
+    "noAccount": "계정이 없으신가요? 등록",
+    "simplifiedChinese": "간체 중국어"
+  },
+  "home": {
+    "waitingForTeammate": "팀원을 기다리는 중",
+    "silver": "은",
+    "days": "일",
+    "bountyVaultBalance": "현상금 금고 잔액",
+    "vtBalance": "VT 잔액",
+    "lifetimeCommunityBounty": "평생 커뮤니티 현상금",
+    "multiplierPool": "배수 풀"
+  },
+  "passCard": {
+    "title": "PASS 카드/쿠폰 기록",
+    "type": "유형",
+    "couponCode": "쿠폰 코드",
+    "effect": "효과",
+    "status": "상태",
+    "user": "사용자",
+    "usageDate": "사용 날짜",
+    "noData": "데이터 없음",
+    "totalRecords": "총 {count}개 기록, {current} / {total} 페이지",
+    "previousPage": "이전",
+    "nextPage": "다음"
+  },
+  "pagination": {
+    "previousPage": "이전",
+    "nextPage": "다음",
+    "totalRecords": "총 {count}개 기록, {current} / {total} 페이지"
+  },
+  "commonStatus": {
+    "noData": "데이터 없음",
+    "loading": "로딩 중...",
+    "error": "오류"
+  }
+}

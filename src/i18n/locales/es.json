@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "Depósito",
+    "journey": "Viaje",
+    "welcome": "¡Bienvenido a Viaje al Oeste!",
+    "newUserBonus": "Los nuevos usuarios reciben 100 monedas",
+    "dailyCheckIn": "Recompensas disponibles al iniciar sesión diariamente",
+    "mainQuest": "Completa las misiones principales para desbloquear nuevos personajes",
+    "limitedEvent": "Evento limitado: Bonificación de EXP doble activa",
+    "vipPrivileges": "Los miembros VIP disfrutan de privilegios exclusivos",
+    "teamDungeon": "La mazmorra de equipo se abrirá pronto",
+    "appName": "Viaje al Oeste",
+    "appSubtitle": "Desafiar Límites • Más Allá de los Límites"
+  },
+  "sidebar": {
+    "backToHome": "Volver al Inicio",
+    "profile": "Perfil",
+    "taskLog": "Registro de Tareas",
+    "journeyDetails": "Detalles del Viaje",
+    "journey": "Viaje",
+    "upgradeBounty": "Recompensa de Mejora",
+    "tokenVault": "Bóveda de Tokens",
+    "usdWallet": "Billetera USD",
+    "vtWallet": "Billetera VT",
+    "unifiWallet": "Billetera UNIFI",
+    "vaultHistory": "Historial de Bóveda",
+    "walletHistory": "Historial de Billetera",
+    "depositHistory": "Historial de Depósitos",
+    "withdrawalHistory": "Historial de Retiros",
+    "unifiWithdrawalHistory": "Historial de Retiros UNIFI",
+    "journeyHistory": "Historial de Viaje",
+    "mdxPurchaseHistory": "Historial de Compras MDX",
+    "incomeHistory": "Historial de Ingresos",
+    "dailyBountyHistory": "Historial de Recompensas Diarias",
+    "teamBountyHistory": "Historial de Recompensas de Equipo",
+    "recruitmentBountyHistory": "Historial de Recompensas de Reclutamiento",
+    "upgradeBountyHistory": "Historial de Recompensas de Mejora",
+    "unifiReleaseHistory": "Historial de Liberación UNIFI",
+    "unifiLockHistory": "Historial de Bloqueo UNIFI",
+    "teamOverview": "Resumen del Equipo",
+    "passCardManagement": "Gestión de Tarjetas PASS/Cupones",
+    "logout": "Cerrar Sesión",
+    "simplifiedChinese": "Chino Simplificado"
+  },
+  "login": {
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "verificationCode": "Código de Verificación",
+    "forgotPassword": "¿Olvidaste tu Contraseña?",
+    "login": "Iniciar Sesión",
+    "noAccount": "¿No tienes cuenta? Regístrate",
+    "simplifiedChinese": "Chino Simplificado"
+  },
+  "home": {
+    "waitingForTeammate": "Esperando compañero",
+    "silver": "Plata",
+    "days": "días",
+    "bountyVaultBalance": "Saldo de Bóveda de Recompensas",
+    "vtBalance": "Saldo VT",
+    "lifetimeCommunityBounty": "Recompensa de Comunidad de por Vida",
+    "multiplierPool": "Grupo Multiplicador"
+  },
+  "passCard": {
+    "title": "Historial de Tarjetas PASS/Cupones",
+    "type": "Tipo",
+    "couponCode": "Código de Cupón",
+    "effect": "Efecto",
+    "status": "Estado",
+    "user": "Usuario",
+    "usageDate": "Fecha de Uso",
+    "noData": "Sin datos",
+    "totalRecords": "Total {count} registros, Página {current} / {total}",
+    "previousPage": "Anterior",
+    "nextPage": "Siguiente"
+  },
+  "pagination": {
+    "previousPage": "Anterior",
+    "nextPage": "Siguiente",
+    "totalRecords": "Total {count} registros, Página {current} / {total}"
+  },
+  "commonStatus": {
+    "noData": "Sin datos",
+    "loading": "Cargando...",
+    "error": "Error"
+  }
+}

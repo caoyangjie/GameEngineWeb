@@ -1,0 +1,86 @@
+{
+  "common": {
+    "deposit": "Deposit",
+    "journey": "Journey",
+    "welcome": "Welcome to Journey to the West!",
+    "newUserBonus": "New users get 100 coins",
+    "dailyCheckIn": "Daily check-in rewards available",
+    "mainQuest": "Complete main quests to unlock new characters",
+    "limitedEvent": "Limited event: Double EXP bonus active",
+    "vipPrivileges": "VIP members enjoy exclusive privileges",
+    "teamDungeon": "Team dungeon opening soon",
+    "appName": "Journey to the West",
+    "appSubtitle": "Challenge Boundaries • Beyond Limits"
+  },
+  "sidebar": {
+    "backToHome": "Back to Home",
+    "profile": "Profile",
+    "taskLog": "Task Log",
+    "journeyDetails": "Journey Details",
+    "journey": "Journey",
+    "upgradeBounty": "Upgrade Bounty",
+    "tokenVault": "Token Vault",
+    "usdWallet": "USD Wallet",
+    "vtWallet": "VT Wallet",
+    "unifiWallet": "UNIFI Wallet",
+    "vaultHistory": "Vault History",
+    "walletHistory": "Wallet History",
+    "depositHistory": "Deposit History",
+    "withdrawalHistory": "Withdrawal History",
+    "unifiWithdrawalHistory": "UNIFI Withdrawal History",
+    "journeyHistory": "Journey History",
+    "mdxPurchaseHistory": "MDX Purchase History",
+    "incomeHistory": "Income History",
+    "dailyBountyHistory": "Daily Bounty History",
+    "teamBountyHistory": "Team Bounty History",
+    "recruitmentBountyHistory": "Recruitment Bounty History",
+    "upgradeBountyHistory": "Upgrade Bounty History",
+    "unifiReleaseHistory": "UNIFI Release History",
+    "unifiLockHistory": "UNIFI Lock History",
+    "teamOverview": "Team Overview",
+    "passCardManagement": "PASS Card/Coupon Management",
+    "logout": "Logout",
+    "simplifiedChinese": "Simplified Chinese"
+  },
+  "login": {
+    "email": "Email",
+    "password": "Password",
+    "verificationCode": "Verification Code",
+    "forgotPassword": "Forgot Password?",
+    "login": "Login",
+    "noAccount": "No account? Register",
+    "simplifiedChinese": "Simplified Chinese"
+  },
+  "home": {
+    "waitingForTeammate": "Waiting for teammate",
+    "silver": "Silver",
+    "days": "days",
+    "bountyVaultBalance": "Bounty Vault Balance",
+    "vtBalance": "VT Balance",
+    "lifetimeCommunityBounty": "Lifetime Community Bounty",
+    "multiplierPool": "Multiplier Pool"
+  },
+  "passCard": {
+    "title": "PASS Card/Coupon History",
+    "type": "Type",
+    "couponCode": "Coupon Code",
+    "effect": "Effect",
+    "status": "Status",
+    "user": "User",
+    "usageDate": "Usage Date",
+    "noData": "No data",
+    "totalRecords": "Total {count} records, Page {current} / {total}",
+    "previousPage": "Previous",
+    "nextPage": "Next"
+  },
+  "pagination": {
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "totalRecords": "Total {count} records, Page {current} / {total}"
+  },
+  "commonStatus": {
+    "noData": "No data",
+    "loading": "Loading...",
+    "error": "Error"
+  }
+}

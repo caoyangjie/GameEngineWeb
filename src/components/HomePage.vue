@@ -26,7 +26,7 @@
               class="character-image"
               @error="handleImageError('piggy')"
             />
-            <div class="character-status-text waiting">正在等队友</div>
+            <div class="character-status-text waiting">{{ t('home.waitingForTeammate') }}</div>
           </div>
         </div>
 
@@ -41,7 +41,7 @@
             />
             <div class="character-status-text active">
               <span class="status-icon">🥈</span>
-              <span class="status-text">银 - 150天</span>
+              <span class="status-text">{{ t('home.silver') }} - 150{{ t('home.days') }}</span>
             </div>
           </div>
         </div>
@@ -55,7 +55,7 @@
               class="character-image"
               @error="handleImageError('monk')"
             />
-            <div class="character-status-text waiting">正在等队友</div>
+            <div class="character-status-text waiting">{{ t('home.waitingForTeammate') }}</div>
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@
           <div class="balance-item">
             <div class="balance-icon">🥣</div>
             <div class="balance-info">
-              <div class="balance-label">赏金库余额</div>
+              <div class="balance-label">{{ t('home.bountyVaultBalance') }}</div>
               <div class="balance-value">567.060</div>
             </div>
             <div class="balance-arrow">→</div>
@@ -85,7 +85,7 @@
           <div class="balance-item">
             <div class="balance-icon">💰</div>
             <div class="balance-info">
-              <div class="balance-label">VT 余额</div>
+              <div class="balance-label">{{ t('home.vtBalance') }}</div>
               <div class="balance-value">0.000</div>
             </div>
             <div class="balance-arrow">→</div>
@@ -95,7 +95,7 @@
           <div class="balance-item">
             <div class="balance-icon">🏆</div>
             <div class="balance-info">
-              <div class="balance-label">终生社群赏金</div>
+              <div class="balance-label">{{ t('home.lifetimeCommunityBounty') }}</div>
               <div class="balance-value">0.000</div>
             </div>
             <div class="balance-arrow">→</div>
@@ -105,7 +105,7 @@
           <div class="balance-item highlight">
             <div class="balance-icon">🎒</div>
             <div class="balance-info">
-              <div class="balance-label">倍增池</div>
+              <div class="balance-label">{{ t('home.multiplierPool') }}</div>
               <div class="balance-value">7,566.519</div>
             </div>
             <div class="balance-arrow">→</div>
@@ -128,6 +128,9 @@ import { ref, reactive } from 'vue'
 import TopHeader from './TopHeader.vue'
 import Sidebar from './Sidebar.vue'
 import { useRouter, ROUTES } from '../composables/useRouter.js'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 
