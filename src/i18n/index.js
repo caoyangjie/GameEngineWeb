@@ -8,8 +8,8 @@ import es from './locales/es.json'
 import de from './locales/de.json'
 
 const messages = {
-  'en': en,
   'zh-CN': zhCN,
+  'en': en,
   'zh-TW': zhTW,
   'ja': ja,
   'ko': ko,

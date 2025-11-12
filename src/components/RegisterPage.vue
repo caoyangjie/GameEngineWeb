@@ -247,8 +247,8 @@ const currentLocale = computed(() => locale.value)
 
 // 语言列表
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
   { code: 'ko', name: '한국어', flag: '🇰🇷' },
@@ -346,11 +346,11 @@ const getParticleStyle = (index) => {
 
 /* 背景层 */
 .background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   z-index: 1;
 }
 
@@ -953,8 +953,33 @@ const getParticleStyle = (index) => {
   transform: translate(-50%, -50%);
   z-index: 5;
   width: 550px;
-  min-height: 750px;
+  max-width: 90%;
+  max-height: calc(100vh - 40px);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 215, 0, 0.5) rgba(0, 0, 0, 0.3);
+}
+
+.south-heaven-gate::-webkit-scrollbar {
+  width: 8px;
+}
+
+.south-heaven-gate::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.south-heaven-gate::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.south-heaven-gate::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 /* 门楣 */
@@ -1658,6 +1683,8 @@ const getParticleStyle = (index) => {
   .south-heaven-gate {
     width: 90%;
     max-width: 450px;
+    max-height: calc(100vh - 40px);
+    margin: 20px auto;
   }
 
   .login-form-container {

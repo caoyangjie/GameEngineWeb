@@ -124,8 +124,8 @@ const currentLocale = computed(() => locale.value)
 
 // 语言列表
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
   { code: 'ko', name: '한국어', flag: '🇰🇷' },
