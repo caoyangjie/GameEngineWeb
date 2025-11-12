@@ -129,6 +129,10 @@ import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+// 导入角色图片
+import piggyImage from '../../images/Pigsy-Grey.png'
+import monkeyImage from '../../images/Monkey-King-Stronger.png'
+import monkImage from '../../images/Sandy-Grey.png'
 
 const { t } = useI18n()
 
@@ -136,13 +140,11 @@ const router = useRouter()
 
 const sidebarOpen = ref(false)
 
-// 角色图片URL - 使用公开的图片资源
-// 注意：这些是示例URL，您可以根据需要替换为实际的西游记角色图片
-// 建议：将图片保存到项目的 public/images 目录，然后使用 /images/文件名.jpg 的方式引用
+// 角色图片 - 使用本地图片资源
 const characterImages = reactive({
-  piggy: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=600&fit=crop&q=80&auto=format',
-  monkey: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=400&h=600&fit=crop&q=80&auto=format',
-  monk: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=600&fit=crop&q=80&auto=format'
+  piggy: piggyImage,
+  monkey: monkeyImage,
+  monk: monkImage
 })
 
 // 备用图片URL（如果主图片加载失败，使用占位符）
