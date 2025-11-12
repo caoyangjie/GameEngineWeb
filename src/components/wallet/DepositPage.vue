@@ -74,11 +74,158 @@
       active-route="deposit"
       @close="handleSidebarClose"
     />
+
+    <!-- 购买VT弹窗 -->
+    <div class="modal-overlay" v-if="showBuyVTModal" @click="showBuyVTModal = false">
+      <div class="modal-content buy-vt-modal" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title">{{ t('buyVT.title') }}</h3>
+          <button class="modal-close" @click="showBuyVTModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- USD余额 -->
+          <div class="form-row">
+            <div class="form-label">{{ t('buyVT.usdBalance') }}</div>
+            <div class="form-value">{{ usdBalance }}</div>
+          </div>
+
+          <!-- VT价格 -->
+          <div class="vt-price-section">
+            <div class="vt-price-icon">
+              <div class="coin-icon blue">V</div>
+              <div class="coin-icon yellow">●</div>
+            </div>
+            <div class="vt-price-info">
+              <span class="vt-price-label">{{ t('buyVT.vtPrice') }}</span>
+              <span class="vt-price-value">{{ vtPrice }} USD</span>
+            </div>
+          </div>
+
+          <!-- 购买金额 -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('buyVT.purchaseAmount') }}</span>
+            </div>
+            <div class="form-section-content">
+              <div class="amount-input-wrapper">
+                <input
+                  id="purchase-amount"
+                  v-model="buyVTForm.amount"
+                  type="number"
+                  class="amount-input"
+                  :placeholder="t('buyVT.enterAmount')"
+                  @input="calculateVTReceivable"
+                />
+                <button class="max-button" @click="setMaxAmount">{{ t('buyVT.max') }}</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 应收VT -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('buyVT.vtReceivable') }}</span>
+            </div>
+            <div class="form-section-content">
+              <div class="vt-receivable-value">{{ vtReceivable }}</div>
+            </div>
+          </div>
+
+          <!-- 按钮 -->
+          <div class="modal-buttons">
+            <button class="modal-button cancel" @click="showBuyVTModal = false">{{ t('buyVT.cancel') }}</button>
+            <button class="modal-button confirm" @click="handleBuyVTConfirm">{{ t('buyVT.confirm') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提款弹窗 -->
+    <div class="modal-overlay" v-if="showWithdrawalModal" @click="showWithdrawalModal = false">
+      <div class="modal-content withdrawal-modal" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title">{{ t('withdrawal.title') }}</h3>
+          <button class="modal-close" @click="showWithdrawalModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- USD余额 -->
+          <div class="form-row">
+            <div class="form-label">{{ t('withdrawal.usdBalance') }}</div>
+            <div class="form-value">{{ usdBalance }} USD</div>
+          </div>
+
+          <!-- 提款金额和提现地址 -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('withdrawal.withdrawalAmount') }}</span>
+            </div>
+            <div class="form-section-content">
+              <input
+                id="withdrawal-amount"
+                v-model="withdrawalForm.amount"
+                type="number"
+                class="amount-input"
+                :placeholder="t('withdrawal.amountPlaceholder')"
+                @input="calculateExpectedUSDT"
+              />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('withdrawal.withdrawalAddress') }}</span>
+            </div>
+            <div class="form-section-content">
+              <input
+                id="withdrawal-address"
+                v-model="withdrawalForm.address"
+                type="text"
+                class="amount-input"
+                :placeholder="t('withdrawal.addressPlaceholder')"
+              />
+            </div>
+          </div>
+
+          <!-- 提现类型和应收 USDT -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('withdrawal.withdrawalType') }}</span>
+            </div>
+            <div class="form-section-content">
+              <select id="withdrawal-type" v-model="withdrawalForm.type" class="field-select" @change="calculateExpectedUSDT">
+                <option value="normal">{{ t('withdrawal.normalType') }}</option>
+                <option value="priority">{{ t('withdrawal.priorityType') }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">
+              <span class="section-label">{{ t('withdrawal.expectedUSDT') }}</span>
+            </div>
+            <div class="form-section-content">
+              <div class="vt-receivable-value">{{ expectedUSDT }}</div>
+            </div>
+          </div>
+
+          <!-- 提示信息 -->
+          <div class="form-note">
+            <p>{{ t('withdrawal.bep20Note') }}</p>
+          </div>
+
+          <!-- 按钮 -->
+          <div class="modal-buttons">
+            <button class="modal-button cancel" @click="showWithdrawalModal = false">{{ t('buyVT.cancel') }}</button>
+            <button class="modal-button confirm" @click="handleWithdrawalConfirm">{{ t('withdrawal.withdraw') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
@@ -88,9 +235,48 @@ const router = useRouter()
 const { t } = useI18n()
 
 const sidebarOpen = ref(false)
+const showBuyVTModal = ref(false)
+const showWithdrawalModal = ref(false)
 
 // USD 余额
 const usdBalance = ref('8.711')
+
+// VT价格
+const vtPrice = ref('1.0200')
+
+// 购买VT表单
+const buyVTForm = reactive({
+  amount: ''
+})
+
+// 提款表单
+const withdrawalForm = reactive({
+  amount: '',
+  address: '',
+  type: 'normal'
+})
+
+// 计算应收VT
+const vtReceivable = computed(() => {
+  const amount = parseFloat(buyVTForm.amount) || 0
+  if (amount <= 0) return '0.000'
+  const receivable = amount / parseFloat(vtPrice.value)
+  return receivable.toFixed(3)
+})
+
+// 计算应收 USDT
+const expectedUSDT = computed(() => {
+  const amount = parseFloat(withdrawalForm.amount) || 0
+  if (amount <= 0) return '0.00'
+  
+  // 普通类型：无手续费
+  if (withdrawalForm.type === 'normal') {
+    return amount.toFixed(2)
+  }
+  // 优先类型：2%手续费
+  const fee = amount * 0.02
+  return (amount - fee).toFixed(2)
+})
 
 // 地址
 const bep20Address = ref('0xCc3df0Ccdec9D6ADCD3AfD999D1282Bd1939d8cd')
@@ -118,13 +304,95 @@ const handleGoToDeposit = () => {
 }
 
 const handleWithdraw = () => {
-  console.log('提款')
-  alert(t('deposit.withdrawInDevelopment'))
+  showWithdrawalModal.value = true
+  withdrawalForm.amount = ''
+  withdrawalForm.address = ''
+  withdrawalForm.type = 'normal'
 }
 
 const handleBuyVT = () => {
-  console.log('购买VT')
-  alert(t('deposit.buyVTInDevelopment'))
+  showBuyVTModal.value = true
+  buyVTForm.amount = ''
+}
+
+const calculateVTReceivable = () => {
+  // 计算逻辑已在 computed 中处理
+}
+
+const setMaxAmount = () => {
+  buyVTForm.amount = usdBalance.value
+}
+
+const handleBuyVTConfirm = () => {
+  // 验证输入
+  if (!buyVTForm.amount || parseFloat(buyVTForm.amount) <= 0) {
+    alert(t('buyVT.pleaseEnterAmount'))
+    return
+  }
+  
+  if (parseFloat(buyVTForm.amount) > parseFloat(usdBalance.value)) {
+    alert(t('buyVT.insufficientBalance'))
+    return
+  }
+  
+  // 提交购买请求
+  console.log('购买VT请求:', {
+    amount: buyVTForm.amount,
+    vtReceivable: vtReceivable.value,
+    vtPrice: vtPrice.value
+  })
+  
+  // TODO: 调用实际的购买 API
+  alert(t('buyVT.purchaseSuccess'))
+  showBuyVTModal.value = false
+  buyVTForm.amount = ''
+}
+
+const calculateExpectedUSDT = () => {
+  // 计算逻辑已在 computed 中处理
+}
+
+const isValidBep20Address = (address) => {
+  // 简单验证 BEP20 地址格式
+  return /^0x[a-fA-F0-9]{40}$/.test(address)
+}
+
+const handleWithdrawalConfirm = () => {
+  // 验证输入
+  if (!withdrawalForm.amount || parseFloat(withdrawalForm.amount) <= 0) {
+    alert(t('withdrawal.pleaseEnterAmount'))
+    return
+  }
+  
+  if (parseFloat(withdrawalForm.amount) > parseFloat(usdBalance.value)) {
+    alert(t('withdrawal.insufficientBalance'))
+    return
+  }
+  
+  if (!withdrawalForm.address) {
+    alert(t('withdrawal.pleaseEnterAddress'))
+    return
+  }
+  
+  if (!isValidBep20Address(withdrawalForm.address)) {
+    alert(t('withdrawal.invalidBep20Address'))
+    return
+  }
+  
+  // 提交提款请求
+  console.log('提款请求:', {
+    amount: withdrawalForm.amount,
+    address: withdrawalForm.address,
+    type: withdrawalForm.type,
+    expectedUSDT: expectedUSDT.value
+  })
+  
+  // TODO: 调用实际的提款 API
+  alert(t('withdrawal.withdrawalSubmitted'))
+  showWithdrawalModal.value = false
+  withdrawalForm.amount = ''
+  withdrawalForm.address = ''
+  withdrawalForm.type = 'normal'
 }
 
 const copyAddress = async (address) => {
@@ -555,6 +823,469 @@ onMounted(() => {
 
   .action-button {
     max-width: 100%;
+  }
+}
+
+/* 购买VT弹窗样式 - 参考MidoxPage.vue */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.buy-vt-modal {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(20, 10, 0, 0.95) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.1);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+/* 装饰性边框角 */
+.buy-vt-modal::before,
+.buy-vt-modal::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 215, 0, 0.6);
+}
+
+.buy-vt-modal::before {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 5px;
+}
+
+.buy-vt-modal::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 5px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.modal-title {
+  font-size: 24px;
+  color: #ffd700;
+  text-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.8),
+    0 0 30px rgba(255, 215, 0, 0.6);
+  font-weight: bold;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #ffd700;
+  font-size: 32px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.form-label {
+  font-size: 16px;
+  color: rgba(255, 215, 0, 0.9);
+  font-weight: 500;
+}
+
+.form-value {
+  font-size: 18px;
+  color: #ffd700;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* VT价格区域 */
+.vt-price-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.vt-price-icon {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.coin-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.coin-icon.blue {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  z-index: 2;
+  margin-right: -8px;
+}
+
+.coin-icon.yellow {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #1a0a2e;
+  z-index: 1;
+}
+
+.vt-price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.vt-price-label {
+  font-size: 14px;
+  color: rgba(255, 215, 0, 0.8);
+}
+
+.vt-price-value {
+  font-size: 20px;
+  color: #ffa500;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.6);
+}
+
+/* 表单区域（带金色边框） */
+.form-section {
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 8px;
+  padding: 15px;
+  background: rgba(255, 215, 0, 0.05);
+  margin: 10px 0;
+}
+
+.form-section-header {
+  margin-bottom: 10px;
+}
+
+.section-label {
+  font-size: 16px;
+  color: rgba(255, 215, 0, 0.9);
+  font-weight: 500;
+}
+
+.form-section-content {
+  display: flex;
+  align-items: center;
+}
+
+.amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.amount-input {
+  flex: 1;
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.amount-input:focus {
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.amount-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.max-button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.4) 0%, rgba(255, 140, 0, 0.4) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  border-radius: 6px;
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+  box-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.2),
+    inset 0 0 10px rgba(255, 215, 0, 0.1);
+}
+
+.max-button:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.4),
+    inset 0 0 15px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.vt-receivable-value {
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: #ffa500;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.6);
+  width: 100%;
+}
+
+/* 按钮区域 */
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 15px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.modal-button.confirm {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.9) 0%,
+    rgba(255, 140, 0, 0.9) 100%
+  );
+  border-color: rgba(255, 215, 0, 1);
+  color: #1a0a2e;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.4),
+    0 2px 10px rgba(255, 140, 0, 0.3);
+}
+
+.modal-button.confirm:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 1) 0%,
+    rgba(255, 165, 0, 1) 100%
+  );
+  box-shadow: 
+    0 0 25px rgba(255, 215, 0, 0.6),
+    0 4px 15px rgba(255, 140, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.modal-button.cancel {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 100, 100, 0.9) 0%,
+    rgba(70, 70, 70, 0.9) 100%
+  );
+  border-color: rgba(150, 150, 150, 1);
+  color: white;
+  box-shadow: 
+    0 0 10px rgba(100, 100, 100, 0.3),
+    0 2px 8px rgba(70, 70, 70, 0.2);
+}
+
+.modal-button.cancel:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(120, 120, 120, 1) 0%,
+    rgba(90, 90, 90, 1) 100%
+  );
+  box-shadow: 
+    0 0 15px rgba(120, 120, 120, 0.4),
+    0 4px 12px rgba(90, 90, 90, 0.3);
+  transform: translateY(-2px);
+}
+
+/* 提款弹窗样式 - 复用购买VT弹窗样式 */
+.withdrawal-modal {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(20, 10, 0, 0.95) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.1);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+/* 装饰性边框角 */
+.withdrawal-modal::before,
+.withdrawal-modal::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 215, 0, 0.6);
+}
+
+.withdrawal-modal::before {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 5px;
+}
+
+.withdrawal-modal::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 5px;
+}
+
+/* 下拉选择框样式 */
+.field-select {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+  outline: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffd700' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+.field-select:focus {
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.field-select option {
+  background: #1a0a2e;
+  color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .buy-vt-modal,
+  .withdrawal-modal {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .amount-input-wrapper {
+    flex-direction: column;
+  }
+
+  .max-button {
+    width: 100%;
   }
 }
 </style>

@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "出金機能開発中...",
     "buyVTInDevelopment": "VT購入機能開発中..."
   },
+  "buyVT": {
+    "title": "VT購入",
+    "usdBalance": "USD残高:",
+    "vtPrice": "VT 価格",
+    "purchaseAmount": "購入金額",
+    "enterAmount": "金額を入力",
+    "max": "最大",
+    "vtReceivable": "受取予定VT",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "pleaseEnterAmount": "購入金額を入力してください",
+    "insufficientBalance": "残高不足",
+    "purchaseSuccess": "購入成功！",
+    "purchaseFailed": "購入に失敗しました。もう一度お試しください"
+  },
   "vtWallet": {
     "vtWallet": "VT ウォレット",
     "vtPrice": "VT 価格",
@@ -437,5 +452,24 @@
     "unifiPrice": "UNIFI 価格",
     "percentage": "パーセンテージ",
     "purchaseValue": "購入価値"
+  },
+  "withdrawal": {
+    "title": "出金",
+    "usdBalance": "USD残高",
+    "withdrawalAmount": "出金額",
+    "withdrawalAddress": "出金アドレス",
+    "withdrawalType": "出金タイプ",
+    "expectedUSDT": "受取予定 USDT",
+    "amountPlaceholder": "金額",
+    "addressPlaceholder": "出金アドレス",
+    "normalType": "通常 - 5営業日以内に受領、手数料0%",
+    "priorityType": "優先 - 1営業日以内に受領、手数料2%",
+    "bep20Note": "注: BEP20アドレスのみ受け付けます",
+    "withdraw": "出金",
+    "pleaseEnterAmount": "出金額を入力してください",
+    "insufficientBalance": "残高不足",
+    "pleaseEnterAddress": "出金アドレスを入力してください",
+    "invalidBep20Address": "無効な BEP20 アドレス",
+    "withdrawalSubmitted": "出金申請が送信されました。処理をお待ちください"
   }
 }

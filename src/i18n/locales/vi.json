@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "Tính năng rút tiền đang phát triển...",
     "buyVTInDevelopment": "Tính năng mua VT đang phát triển..."
   },
+  "buyVT": {
+    "title": "Mua VT",
+    "usdBalance": "Số dư USD:",
+    "vtPrice": "Giá VT",
+    "purchaseAmount": "Số tiền Mua",
+    "enterAmount": "Nhập Số tiền",
+    "max": "Tối đa",
+    "vtReceivable": "VT Dự kiến Nhận",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "pleaseEnterAmount": "Vui lòng nhập số tiền mua",
+    "insufficientBalance": "Số dư không đủ",
+    "purchaseSuccess": "Mua thành công!",
+    "purchaseFailed": "Mua thất bại, vui lòng thử lại"
+  },
   "vtWallet": {
     "vtWallet": "Ví VT",
     "vtPrice": "Giá VT",
@@ -437,6 +452,24 @@
     "unifiPrice": "Giá UNIFI",
     "percentage": "Phần trăm",
     "purchaseValue": "Giá trị Mua"
+  },
+  "withdrawal": {
+    "title": "Rút tiền",
+    "usdBalance": "Số dư USD",
+    "withdrawalAmount": "Số tiền Rút",
+    "withdrawalAddress": "Địa chỉ Rút tiền",
+    "withdrawalType": "Loại Rút tiền",
+    "expectedUSDT": "USDT Dự kiến Nhận",
+    "amountPlaceholder": "Số tiền",
+    "addressPlaceholder": "Địa chỉ Rút tiền",
+    "normalType": "Thường - Nhận trong vòng 5 ngày làm việc, phí xử lý 0%",
+    "priorityType": "Ưu tiên - Nhận trong vòng 1 ngày làm việc, phí xử lý 2%",
+    "bep20Note": "Lưu ý: Chỉ chấp nhận địa chỉ BEP20",
+    "withdraw": "Rút tiền",
+    "pleaseEnterAmount": "Vui lòng nhập số tiền rút",
+    "insufficientBalance": "Số dư không đủ",
+    "pleaseEnterAddress": "Vui lòng nhập địa chỉ rút tiền",
+    "invalidBep20Address": "Địa chỉ BEP20 không hợp lệ",
+    "withdrawalSubmitted": "Yêu cầu rút tiền đã được gửi, vui lòng chờ xử lý"
   }
 }
-

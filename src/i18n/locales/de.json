@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "Abhebungsfunktion in Entwicklung...",
     "buyVTInDevelopment": "VT-Kauffunktion in Entwicklung..."
   },
+  "buyVT": {
+    "title": "VT kaufen",
+    "usdBalance": "USD Guthaben:",
+    "vtPrice": "VT Preis",
+    "purchaseAmount": "Kaufbetrag",
+    "enterAmount": "Betrag eingeben",
+    "max": "Max",
+    "vtReceivable": "Erwartetes VT",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "pleaseEnterAmount": "Bitte geben Sie den Kaufbetrag ein",
+    "insufficientBalance": "Unzureichendes Guthaben",
+    "purchaseSuccess": "Kauf erfolgreich!",
+    "purchaseFailed": "Kauf fehlgeschlagen, bitte versuchen Sie es erneut"
+  },
   "vtWallet": {
     "vtWallet": "VT Wallet",
     "vtPrice": "VT Preis",
@@ -437,5 +452,24 @@
     "unifiPrice": "UNIFI Preis",
     "percentage": "Prozentsatz",
     "purchaseValue": "Kaufwert"
+  },
+  "withdrawal": {
+    "title": "Abheben",
+    "usdBalance": "USD Guthaben",
+    "withdrawalAmount": "Abhebungsbetrag",
+    "withdrawalAddress": "Abhebungsadresse",
+    "withdrawalType": "Abhebungstyp",
+    "expectedUSDT": "Erwartetes USDT",
+    "amountPlaceholder": "Betrag",
+    "addressPlaceholder": "Abhebungsadresse",
+    "normalType": "Normal - Innerhalb von 5 Werktagen erhalten, Bearbeitungsgebühr 0%",
+    "priorityType": "Priorität - Innerhalb von 1 Werktag erhalten, Bearbeitungsgebühr 2%",
+    "bep20Note": "Hinweis: Nur BEP20-Adressen werden akzeptiert",
+    "withdraw": "Abheben",
+    "pleaseEnterAmount": "Bitte geben Sie den Abhebungsbetrag ein",
+    "insufficientBalance": "Unzureichendes Guthaben",
+    "pleaseEnterAddress": "Bitte geben Sie die Abhebungsadresse ein",
+    "invalidBep20Address": "Ungültige BEP20-Adresse",
+    "withdrawalSubmitted": "Abhebungsanfrage wurde übermittelt, bitte warten Sie auf die Bearbeitung"
   }
 }

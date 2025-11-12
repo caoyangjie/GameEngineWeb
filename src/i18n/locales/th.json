@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "ฟีเจอร์ถอนเงินกำลังพัฒนา...",
     "buyVTInDevelopment": "ฟีเจอร์ซื้อ VT กำลังพัฒนา..."
   },
+  "buyVT": {
+    "title": "ซื้อ VT",
+    "usdBalance": "ยอดคงเหลือ USD:",
+    "vtPrice": "ราคา VT",
+    "purchaseAmount": "จำนวนเงินที่ซื้อ",
+    "enterAmount": "ใส่จำนวนเงิน",
+    "max": "สูงสุด",
+    "vtReceivable": "VT ที่คาดหวัง",
+    "confirm": "ยืนยัน",
+    "cancel": "ยกเลิก",
+    "pleaseEnterAmount": "กรุณาใส่จำนวนเงินที่ซื้อ",
+    "insufficientBalance": "ยอดคงเหลือไม่เพียงพอ",
+    "purchaseSuccess": "ซื้อสำเร็จ!",
+    "purchaseFailed": "ซื้อล้มเหลว กรุณาลองอีกครั้ง"
+  },
   "vtWallet": {
     "vtWallet": "กระเป๋าเงิน VT",
     "vtPrice": "ราคา VT",
@@ -437,6 +452,24 @@
     "unifiPrice": "ราคา UNIFI",
     "percentage": "เปอร์เซ็นต์",
     "purchaseValue": "มูลค่าการซื้อ"
+  },
+  "withdrawal": {
+    "title": "ถอนเงิน",
+    "usdBalance": "ยอดคงเหลือ USD",
+    "withdrawalAmount": "จำนวนเงินที่ถอน",
+    "withdrawalAddress": "ที่อยู่ถอนเงิน",
+    "withdrawalType": "ประเภทการถอน",
+    "expectedUSDT": "USDT ที่คาดหวัง",
+    "amountPlaceholder": "จำนวนเงิน",
+    "addressPlaceholder": "ที่อยู่ถอนเงิน",
+    "normalType": "ปกติ - รับภายใน 5 วันทำการ ค่าธรรมเนียม 0%",
+    "priorityType": "เร่งด่วน - รับภายใน 1 วันทำการ ค่าธรรมเนียม 2%",
+    "bep20Note": "หมายเหตุ: รับเฉพาะที่อยู่ BEP20",
+    "withdraw": "ถอนเงิน",
+    "pleaseEnterAmount": "กรุณาใส่จำนวนเงินที่ถอน",
+    "insufficientBalance": "ยอดคงเหลือไม่เพียงพอ",
+    "pleaseEnterAddress": "กรุณาใส่ที่อยู่ถอนเงิน",
+    "invalidBep20Address": "ที่อยู่ BEP20 ไม่ถูกต้อง",
+    "withdrawalSubmitted": "คำขอถอนเงินถูกส่งแล้ว กรุณารอการประมวลผล"
   }
 }
-

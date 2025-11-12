@@ -14,6 +14,7 @@ export const ROUTES = {
   JOURNEY: 'journey',
   UPGRADE_BOUNTY: 'upgrade-bounty',
   DEPOSIT: 'deposit',
+  WITHDRAWAL: 'withdrawal',
   VT_WALLET: 'vt-wallet',
   UNIFI_WALLET: 'unifi-wallet',
   WALLET_HISTORY: 'wallet-history',
@@ -79,6 +80,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToDeposit() {
       this.navigate(ROUTES.DEPOSIT)
+    },
+    goToWithdrawal() {
+      this.navigate(ROUTES.WITHDRAWAL)
     },
     goToVTWallet() {
       this.navigate(ROUTES.VT_WALLET)

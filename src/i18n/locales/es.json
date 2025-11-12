@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "Función de retiro en desarrollo...",
     "buyVTInDevelopment": "Función de compra VT en desarrollo..."
   },
+  "buyVT": {
+    "title": "Comprar VT",
+    "usdBalance": "Saldo USD:",
+    "vtPrice": "Precio VT",
+    "purchaseAmount": "Cantidad de Compra",
+    "enterAmount": "Ingresar Cantidad",
+    "max": "Máximo",
+    "vtReceivable": "VT a Recibir",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "pleaseEnterAmount": "Por favor ingrese la cantidad de compra",
+    "insufficientBalance": "Saldo insuficiente",
+    "purchaseSuccess": "¡Compra exitosa!",
+    "purchaseFailed": "Compra fallida, por favor intente de nuevo"
+  },
   "vtWallet": {
     "vtWallet": "Billetera VT",
     "vtPrice": "Precio VT",
@@ -437,5 +452,24 @@
     "unifiPrice": "Precio UNIFI",
     "percentage": "Porcentaje",
     "purchaseValue": "Valor de Compra"
+  },
+  "withdrawal": {
+    "title": "Retirar",
+    "usdBalance": "Saldo USD",
+    "withdrawalAmount": "Cantidad de Retiro",
+    "withdrawalAddress": "Dirección de Retiro",
+    "withdrawalType": "Tipo de Retiro",
+    "expectedUSDT": "USDT Esperado",
+    "amountPlaceholder": "Cantidad",
+    "addressPlaceholder": "Dirección de Retiro",
+    "normalType": "Normal - Recibido en 5 días hábiles, tarifa de manejo 0%",
+    "priorityType": "Prioridad - Recibido en 1 día hábil, tarifa de manejo 2%",
+    "bep20Note": "Nota: Solo se aceptan direcciones BEP20",
+    "withdraw": "Retirar",
+    "pleaseEnterAmount": "Por favor ingrese la cantidad de retiro",
+    "insufficientBalance": "Saldo insuficiente",
+    "pleaseEnterAddress": "Por favor ingrese la dirección de retiro",
+    "invalidBep20Address": "Dirección BEP20 inválida",
+    "withdrawalSubmitted": "Solicitud de retiro enviada, por favor espere el procesamiento"
   }
 }

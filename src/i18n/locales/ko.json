@@ -161,6 +161,21 @@
     "withdrawInDevelopment": "출금 기능 개발 중...",
     "buyVTInDevelopment": "VT 구매 기능 개발 중..."
   },
+  "buyVT": {
+    "title": "VT 구매",
+    "usdBalance": "USD 잔액:",
+    "vtPrice": "VT 가격",
+    "purchaseAmount": "구매 금액",
+    "enterAmount": "금액 입력",
+    "max": "최대",
+    "vtReceivable": "수령 예정 VT",
+    "confirm": "확인",
+    "cancel": "취소",
+    "pleaseEnterAmount": "구매 금액을 입력하세요",
+    "insufficientBalance": "잔액 부족",
+    "purchaseSuccess": "구매 성공!",
+    "purchaseFailed": "구매 실패, 다시 시도하세요"
+  },
   "vtWallet": {
     "vtWallet": "VT 지갑",
     "vtPrice": "VT 가격",
@@ -437,5 +452,24 @@
     "unifiPrice": "UNIFI 가격",
     "percentage": "퍼센트",
     "purchaseValue": "구매 가치"
+  },
+  "withdrawal": {
+    "title": "출금",
+    "usdBalance": "USD 잔액",
+    "withdrawalAmount": "출금 금액",
+    "withdrawalAddress": "출금 주소",
+    "withdrawalType": "출금 유형",
+    "expectedUSDT": "수령 예정 USDT",
+    "amountPlaceholder": "금액",
+    "addressPlaceholder": "출금 주소",
+    "normalType": "일반 - 5영업일 이내 수령, 수수료 0%",
+    "priorityType": "우선 - 1영업일 이내 수령, 수수료 2%",
+    "bep20Note": "참고: BEP20 주소만 허용됩니다",
+    "withdraw": "출금",
+    "pleaseEnterAmount": "출금 금액을 입력하세요",
+    "insufficientBalance": "잔액 부족",
+    "pleaseEnterAddress": "출금 주소를 입력하세요",
+    "invalidBep20Address": "유효하지 않은 BEP20 주소",
+    "withdrawalSubmitted": "출금 신청이 제출되었습니다. 처리 대기 중입니다"
   }
 }
