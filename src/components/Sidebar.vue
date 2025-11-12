@@ -192,8 +192,12 @@
           <span class="sidebar-text">团队详情</span>
           <span class="sidebar-arrow">→</span>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('pass')">
-          <span class="sidebar-icon">%</span>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.PASS_CARD_MANAGEMENT }" 
+          @click="handleNavigate(ROUTES.PASS_CARD_MANAGEMENT)"
+        >
+          <span class="sidebar-icon">🎒</span>
           <span class="sidebar-text">PASS卡/优惠卷管理</span>
         </div>
         <div class="sidebar-item" @click="handleNavigate('midox')">
@@ -338,6 +342,8 @@ const handleNavigate = (route) => {
     router.goToUnifiLockHistory()
   } else if (route === ROUTES.TEAM_OVERVIEW) {
     router.goToTeamOverview()
+  } else if (route === ROUTES.PASS_CARD_MANAGEMENT) {
+    router.goToPassCardManagement()
   }
   
   // 通知父组件关闭侧边栏

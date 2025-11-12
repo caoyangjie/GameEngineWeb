@@ -24,6 +24,7 @@
     <UnifiReleaseHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_RELEASE_HISTORY" />
     <UnifiLockHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_LOCK_HISTORY" />
     <TeamOverviewPage v-if="router.currentRoute.value === ROUTES.TEAM_OVERVIEW" />
+    <PassCardManagementPage v-if="router.currentRoute.value === ROUTES.PASS_CARD_MANAGEMENT" />
   </div>
 </template>
 
@@ -52,6 +53,7 @@ import UpgradeBountyHistoryPage from './components/UpgradeBountyHistoryPage.vue'
 import UnifiReleaseHistoryPage from './components/UnifiReleaseHistoryPage.vue'
 import UnifiLockHistoryPage from './components/UnifiLockHistoryPage.vue'
 import TeamOverviewPage from './components/TeamOverviewPage.vue'
+import PassCardManagementPage from './components/PassCardManagementPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 
 // 创建路由实例

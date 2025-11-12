@@ -28,7 +28,8 @@ export const ROUTES = {
   UPGRADE_BOUNTY_HISTORY: 'upgrade-bounty-history',
   UNIFI_RELEASE_HISTORY: 'unifi-release-history',
   UNIFI_LOCK_HISTORY: 'unifi-lock-history',
-  TEAM_OVERVIEW: 'team-overview'
+  TEAM_OVERVIEW: 'team-overview',
+  PASS_CARD_MANAGEMENT: 'pass-card-management'
 }
 
 /**
@@ -122,6 +123,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToTeamOverview() {
       this.navigate(ROUTES.TEAM_OVERVIEW)
+    },
+    goToPassCardManagement() {
+      this.navigate(ROUTES.PASS_CARD_MANAGEMENT)
     },
     
     // 登出（跳转到登录页）
