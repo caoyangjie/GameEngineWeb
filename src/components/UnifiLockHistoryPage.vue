@@ -1,5 +1,5 @@
 <template>
-	<div class="withdrawal-history-container">
+	<div class="unifi-lock-history-container">
 	  <!-- 背景层 -->
 	  <div class="background">
 		<div class="sky"></div>
@@ -14,12 +14,12 @@
 	  <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
   
 	  <!-- 主要内容区域 -->
-	  <main class="withdrawal-history-main-content">
+	  <main class="unifi-lock-history-main-content">
 		<!-- 标题 -->
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">提款历史</span>
+			<span class="title-text">UNIFI锁仓历史</span>
 		  </div>
 		</div>
   
@@ -48,45 +48,21 @@
 				<span class="filter-arrow">▼</span>
 			  </div>
 			</div>
-			<div class="filter-field">
-			  <label class="filter-label">状态</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.status" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="pending">待处理</option>
-				  <option value="processed">已处理</option>
-				  <option value="failed">失败</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">提款类型</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.withdrawalType" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="priority">优先</option>
-				  <option value="normal">普通</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
 			使用筛选
 		  </button>
 		</div>
   
-		<!-- 提款历史表格 -->
+		<!-- UNIFI锁仓历史表格 -->
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
 			<div class="header-cell">日期</div>
-			<div class="header-cell">美元价值</div>
-			<div class="header-cell">应收金额</div>
-			<div class="header-cell">提款类型</div>
-			<div class="header-cell">收款地址</div>
-			<div class="header-cell">状态</div>
+			<div class="header-cell">金额</div>
+			<div class="header-cell">UNIFI 价格</div>
+			<div class="header-cell">百分比</div>
+			<div class="header-cell">购买价值</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -94,25 +70,20 @@
   
 		  <!-- 表格内容 -->
 		  <div class="table-content">
-			<div v-if="paginatedWithdrawals.length === 0" class="empty-state">
+			<div v-if="paginatedBounties.length === 0" class="empty-state">
 			  <div class="empty-text">暂无数据</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
-				v-for="withdrawal in paginatedWithdrawals" 
-				:key="withdrawal.id" 
+				v-for="bounty in paginatedBounties" 
+				:key="bounty.id" 
 				class="table-row"
 			  >
-				<div class="table-cell">{{ formatDateTime(withdrawal.date) }}</div>
-				<div class="table-cell">{{ withdrawal.usdValue }}</div>
-				<div class="table-cell">{{ withdrawal.receivableAmount }}</div>
-				<div class="table-cell">{{ getWithdrawalTypeText(withdrawal.withdrawalType) }}</div>
-				<div class="table-cell address-cell">{{ withdrawal.receivingAddress }}</div>
-				<div class="table-cell">
-				  <span :class="['status-badge', `status-${withdrawal.status}`]">
-					{{ getStatusText(withdrawal.status) }}
-				  </span>
-				</div>
+				<div class="table-cell">{{ formatDateTime(bounty.date) }}</div>
+				<div class="table-cell">{{ formatAmount(bounty.amount) }}</div>
+				<div class="table-cell">{{ formatUnifiPrice(bounty.unifiPrice) }}</div>
+				<div class="table-cell">{{ formatPercentage(bounty.percentage) }}</div>
+				<div class="table-cell">{{ formatPurchaseValue(bounty.purchaseValue) }}</div>
 			  </div>
 			</div>
 		  </div>
@@ -156,7 +127,7 @@
 	  <!-- 右侧边栏菜单 -->
 	  <Sidebar 
 		:is-open="sidebarOpen" 
-		active-route="withdrawal-history"
+		active-route="unifi-lock-history"
 		@close="handleSidebarClose"
 	  />
 	</div>
@@ -175,9 +146,7 @@
   // 筛选条件
   const filters = reactive({
 	startDate: '',
-	endDate: '',
-	status: '',
-	withdrawalType: ''
+	endDate: ''
   })
   
   // 每页显示数量
@@ -186,138 +155,121 @@
   // 当前页码
   const currentPage = ref(1)
   
-  // 提款数据（示例数据，实际应该从API获取）
-  const withdrawals = ref([
+  // UNIFI锁仓数据（示例数据，实际应该从API获取）
+  const bounties = ref([
 	{
 	  id: 1,
-	  date: '2024-09-24 10:31:56',
-	  usdValue: '760.000',
-	  receivableAmount: '722.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x7DfF3EC3b62d5ea8ac471832D2FfFAC352977a39',
-	  status: 'processed'
+	  date: '2025-12-11 00:00:16',
+	  amount: '12.62981050',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7577.88600000'
 	},
 	{
 	  id: 2,
-	  date: '2024-09-23 14:20:15',
-	  usdValue: '1200.500',
-	  receivableAmount: '1140.475',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x8EaF4C3b72d5ea8ac471832D2FfFAC352977a40',
-	  status: 'processed'
+	  date: '2025-11-11 00:00:16',
+	  amount: '12.64878366',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7589.27000000'
 	},
 	{
 	  id: 3,
-	  date: '2024-09-22 09:15:42',
-	  usdValue: '500.000',
-	  receivableAmount: '475.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x9FbG5D4c83d5ea8ac471832D2FfFAC352977a41',
-	  status: 'pending'
+	  date: '2025-10-11 00:00:16',
+	  amount: '12.66778533',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7600.67100000'
 	},
 	{
 	  id: 4,
-	  date: '2024-09-21 16:45:30',
-	  usdValue: '3000.000',
-	  receivableAmount: '2850.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x1AaH6E5d94d5ea8ac471832D2FfFAC352977a42',
-	  status: 'processed'
+	  date: '2025-09-11 00:00:15',
+	  amount: '12.68681550',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7612.08900000'
 	},
 	{
 	  id: 5,
-	  date: '2024-09-20 11:30:18',
-	  usdValue: '750.250',
-	  receivableAmount: '712.738',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x2BbI7F6e95d5ea8ac471832D2FfFAC352977a43',
-	  status: 'failed'
+	  date: '2025-08-11 00:00:16',
+	  amount: '12.70587416',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7623.52500000'
 	},
 	{
 	  id: 6,
-	  date: '2024-09-19 13:22:55',
-	  usdValue: '1500.000',
-	  receivableAmount: '1425.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x3CcJ8G7f06d5ea8ac471832D2FfFAC352977a44',
-	  status: 'processed'
+	  date: '2025-07-11 00:00:16',
+	  amount: '12.72496150',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7634.97700000'
 	},
 	{
 	  id: 7,
-	  date: '2024-09-18 08:10:33',
-	  usdValue: '2000.750',
-	  receivableAmount: '1900.713',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x4DdK9H8g17d5ea8ac471832D2FfFAC352977a45',
-	  status: 'pending'
+	  date: '2025-06-11 00:00:16',
+	  amount: '12.74407750',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7646.44700000'
 	},
 	{
 	  id: 8,
-	  date: '2024-09-17 15:40:20',
-	  usdValue: '1200.000',
-	  receivableAmount: '1140.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x5EeL0I9h28d5ea8ac471832D2FfFAC352977a46',
-	  status: 'processed'
+	  date: '2025-05-11 00:00:16',
+	  amount: '12.76322216',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7657.93300000'
 	},
 	{
 	  id: 9,
-	  date: '2024-09-16 10:25:45',
-	  usdValue: '850.500',
-	  receivableAmount: '807.975',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x6FfM1J0i39d5ea8ac471832D2FfFAC352977a47',
-	  status: 'processed'
+	  date: '2025-04-11 00:00:16',
+	  amount: '12.78239550',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7669.43700000'
 	},
 	{
 	  id: 10,
-	  date: '2024-09-15 12:15:10',
-	  usdValue: '3500.000',
-	  receivableAmount: '3325.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x7GgN2K1j40d5ea8ac471832D2FfFAC352977a48',
-	  status: 'pending'
+	  date: '2025-03-11 00:00:16',
+	  amount: '12.80159750',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7680.95800000'
 	},
 	{
 	  id: 11,
-	  date: '2024-09-14 17:30:28',
-	  usdValue: '950.000',
-	  receivableAmount: '902.500',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x8HhO3L2k51d5ea8ac471832D2FfFAC352977a49',
-	  status: 'processed'
+	  date: '2025-02-11 00:00:16',
+	  amount: '12.82082816',
+	  unifiPrice: '0.30000000',
+	  percentage: '0.050',
+	  purchaseValue: '7692.49700000'
 	}
   ])
   
-  // 应用筛选后的提款列表
-  const filteredWithdrawals = computed(() => {
-	let result = withdrawals.value
+  // 应用筛选后的赏金列表
+  const filteredBounties = computed(() => {
+	let result = bounties.value
   
 	if (filters.startDate) {
-	  result = result.filter(w => w.date >= filters.startDate)
+	  result = result.filter(b => b.date >= filters.startDate)
 	}
 	if (filters.endDate) {
-	  result = result.filter(w => w.date <= filters.endDate)
-	}
-	if (filters.status) {
-	  result = result.filter(w => w.status === filters.status)
-	}
-	if (filters.withdrawalType) {
-	  result = result.filter(w => w.withdrawalType === filters.withdrawalType)
+	  result = result.filter(b => b.date <= filters.endDate)
 	}
   
 	return result
   })
   
   // 分页计算
-  const totalItems = computed(() => filteredWithdrawals.value.length)
+  const totalItems = computed(() => filteredBounties.value.length)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
   
-  // 当前页显示的提款
-  const paginatedWithdrawals = computed(() => {
+  // 当前页显示的赏金
+  const paginatedBounties = computed(() => {
 	const start = (currentPage.value - 1) * itemsPerPage.value
 	const end = start + itemsPerPage.value
-	return filteredWithdrawals.value.slice(start, end)
+	return filteredBounties.value.slice(start, end)
   })
   
   // 可见的页码
@@ -373,39 +325,65 @@
 	if (dateString.includes(' ')) {
 	  return dateString
 	}
-	// 否则格式化日期
+	// 格式化日期为 MM-DD-YYYY HH:MM:SS AM/PM 格式
 	const date = new Date(dateString)
-	return date.toLocaleString('zh-CN', {
-	  year: 'numeric',
-	  month: '2-digit',
-	  day: '2-digit',
-	  hour: '2-digit',
-	  minute: '2-digit',
-	  second: '2-digit',
-	  hour12: false
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	const year = date.getFullYear()
+	const hours = date.getHours()
+	const minutes = String(date.getMinutes()).padStart(2, '0')
+	const seconds = String(date.getSeconds()).padStart(2, '0')
+	const ampm = hours >= 12 ? 'PM' : 'AM'
+	const displayHours = hours % 12 || 12
+	const displayHoursStr = String(displayHours).padStart(2, '0')
+	
+	return `${month}-${day}-${year} ${displayHoursStr}:${minutes}:${seconds} ${ampm}`
+  }
+  
+  const formatAmount = (amount) => {
+	if (!amount) return ''
+	// 格式化金额，保持8位小数精度，无千位分隔符
+	const num = parseFloat(amount)
+	if (isNaN(num)) return amount
+	// 使用 toFixed(8) 确保8位小数，不添加千位分隔符
+	return num.toFixed(8)
+  }
+  
+  const formatUnifiPrice = (price) => {
+	if (!price) return ''
+	// 格式化UNIFI价格，保持8位小数精度，无千位分隔符
+	const num = parseFloat(price)
+	if (isNaN(num)) return price
+	// 使用 toFixed(8) 确保8位小数，不添加千位分隔符
+	return num.toFixed(8)
+  }
+  
+  const formatPercentage = (percentage) => {
+	if (!percentage) return ''
+	// 格式化百分比，保留3位小数，无千位分隔符
+	const num = parseFloat(percentage)
+	if (isNaN(num)) return percentage
+	return num.toLocaleString('zh-CN', {
+	  minimumFractionDigits: 3,
+	  maximumFractionDigits: 3,
+	  useGrouping: false
 	})
   }
   
-  const getStatusText = (status) => {
-	const statusMap = {
-	  'pending': '待处理',
-	  'processed': '已处理',
-	  'failed': '失败'
-	}
-	return statusMap[status] || status
-  }
-  
-  const getWithdrawalTypeText = (type) => {
-	const typeMap = {
-	  'priority': '优先',
-	  'normal': '普通'
-	}
-	return typeMap[type] || type
+  const formatPurchaseValue = (value) => {
+	if (!value) return ''
+	// 格式化购买价值，带千位分隔符，保留8位小数
+	const num = parseFloat(value)
+	if (isNaN(num)) return value
+	return num.toLocaleString('zh-CN', {
+	  minimumFractionDigits: 8,
+	  maximumFractionDigits: 8
+	})
   }
   </script>
   
   <style scoped>
-  .withdrawal-history-container {
+  .unifi-lock-history-container {
 	position: relative;
 	width: 100%;
 	height: 100vh;
@@ -526,7 +504,7 @@
   }
   
   /* 主要内容区域 */
-  .withdrawal-history-main-content {
+  .unifi-lock-history-main-content {
 	position: relative;
 	z-index: 5;
 	padding: 40px;
@@ -584,7 +562,7 @@
   
   .filter-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	gap: 20px;
 	margin-bottom: 20px;
   }
@@ -619,11 +597,6 @@
   .filter-input:focus {
 	border-color: rgba(255, 215, 0, 0.8);
 	box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  }
-  
-  .filter-select {
-	appearance: none;
-	cursor: pointer;
   }
   
   .filter-arrow {
@@ -677,7 +650,7 @@
   
   .table-header {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.2fr 0.9fr 1.5fr;
 	gap: 10px;
 	padding: 20px;
 	background: rgba(255, 215, 0, 0.1);
@@ -720,7 +693,7 @@
   
   .table-row {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.2fr 0.9fr 1.5fr;
 	gap: 10px;
 	padding: 15px 0;
 	background: rgba(255, 255, 255, 0.02);
@@ -740,38 +713,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-  }
-  
-  .address-cell {
-	font-family: 'Courier New', monospace;
-	font-size: 11px;
-	word-break: break-all;
-  }
-  
-  .status-badge {
-	padding: 4px 12px;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: bold;
-	display: inline-block;
-  }
-  
-  .status-pending {
-	background: rgba(255, 193, 7, 0.2);
-	color: #ffc107;
-	border: 1px solid rgba(255, 193, 7, 0.5);
-  }
-  
-  .status-processed {
-	background: rgba(76, 175, 80, 0.2);
-	color: #4caf50;
-	border: 1px solid rgba(76, 175, 80, 0.5);
-  }
-  
-  .status-failed {
-	background: rgba(244, 67, 54, 0.2);
-	color: #f44336;
-	border: 1px solid rgba(244, 67, 54, 0.5);
   }
   
   /* 分页区域 */
@@ -855,7 +796,7 @@
   
   /* 响应式设计 */
   @media (max-width: 1200px) {
-	.withdrawal-history-main-content {
+	.unifi-lock-history-main-content {
 	  padding: 30px 20px;
 	}
   
@@ -865,8 +806,8 @@
   
 	.table-header,
 	.table-row {
-	  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.7fr 1.5fr 0.7fr;
-	  font-size: 12px;
+	  grid-template-columns: 1.2fr 1fr 1fr 0.8fr 1.2fr;
+	  font-size: 11px;
 	}
   
 	.pagination-section {
@@ -876,7 +817,7 @@
   }
   
   @media (max-width: 768px) {
-	.withdrawal-history-main-content {
+	.unifi-lock-history-main-content {
 	  padding: 20px 15px;
 	  margin-top: 100px;
 	}

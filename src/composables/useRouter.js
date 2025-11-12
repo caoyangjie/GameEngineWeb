@@ -21,7 +21,14 @@ export const ROUTES = {
   WITHDRAWAL_HISTORY: 'withdrawal-history',
   UNIFI_WITHDRAWAL_HISTORY: 'unifi-withdrawal-history',
   JOURNEY_HISTORY: 'journey-history',
-  MDX_PURCHASE_RECORD: 'mdx-purchase-record'
+  MDX_HISTORY: 'mdx-history',
+  DAILY_BOUNTY_HISTORY: 'daily-bounty-history',
+  TEAM_BOUNTY_HISTORY: 'team-bounty-history',
+  RECRUITMENT_BOUNTY_HISTORY: 'recruitment-bounty-history',
+  UPGRADE_BOUNTY_HISTORY: 'upgrade-bounty-history',
+  UNIFI_RELEASE_HISTORY: 'unifi-release-history',
+  UNIFI_LOCK_HISTORY: 'unifi-lock-history',
+  TEAM_OVERVIEW: 'team-overview'
 }
 
 /**
@@ -92,8 +99,29 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     goToJourneyHistory() {
       this.navigate(ROUTES.JOURNEY_HISTORY)
     },
-    goToMdxPurchaseRecord() {
-      this.navigate(ROUTES.MDX_PURCHASE_RECORD)
+    goToMdxHistory() {
+      this.navigate(ROUTES.MDX_HISTORY)
+    },
+    goToDailyBountyHistory() {
+      this.navigate(ROUTES.DAILY_BOUNTY_HISTORY)
+    },
+    goToTeamBountyHistory() {
+      this.navigate(ROUTES.TEAM_BOUNTY_HISTORY)
+    },
+    goToRecruitmentBountyHistory() {
+      this.navigate(ROUTES.RECRUITMENT_BOUNTY_HISTORY)
+    },
+    goToUpgradeBountyHistory() {
+      this.navigate(ROUTES.UPGRADE_BOUNTY_HISTORY)
+    },
+    goToUnifiReleaseHistory() {
+      this.navigate(ROUTES.UNIFI_RELEASE_HISTORY)
+    },
+    goToUnifiLockHistory() {
+      this.navigate(ROUTES.UNIFI_LOCK_HISTORY)
+    },
+    goToTeamOverview() {
+      this.navigate(ROUTES.TEAM_OVERVIEW)
     },
     
     // 登出（跳转到登录页）

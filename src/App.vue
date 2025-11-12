@@ -16,6 +16,14 @@
     <WithdrawalHistoryPage v-if="router.currentRoute.value === ROUTES.WITHDRAWAL_HISTORY" />
     <UNIFIWithdrawalHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_WITHDRAWAL_HISTORY" />
     <JourneyHistoryPage v-if="router.currentRoute.value === ROUTES.JOURNEY_HISTORY" />
+    <MdxHistoryPage v-if="router.currentRoute.value === ROUTES.MDX_HISTORY" />
+    <DailyBountyHistoryPage v-if="router.currentRoute.value === ROUTES.DAILY_BOUNTY_HISTORY" />
+    <TeamBountyHistoryPage v-if="router.currentRoute.value === ROUTES.TEAM_BOUNTY_HISTORY" />
+    <RecruitmentBountyHistoryPage v-if="router.currentRoute.value === ROUTES.RECRUITMENT_BOUNTY_HISTORY" />
+    <UpgradeBountyHistoryPage v-if="router.currentRoute.value === ROUTES.UPGRADE_BOUNTY_HISTORY" />
+    <UnifiReleaseHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_RELEASE_HISTORY" />
+    <UnifiLockHistoryPage v-if="router.currentRoute.value === ROUTES.UNIFI_LOCK_HISTORY" />
+    <TeamOverviewPage v-if="router.currentRoute.value === ROUTES.TEAM_OVERVIEW" />
   </div>
 </template>
 
@@ -36,6 +44,14 @@ import DepositHistoryPage from './components/DepositHistoryPage.vue'
 import WithdrawalHistoryPage from './components/WithdrawalHistoryPage.vue'
 import UNIFIWithdrawalHistoryPage from './components/UNIFIWithdrawalHistoryPage.vue'
 import JourneyHistoryPage from './components/JourneyHistoryPage.vue'
+import MdxHistoryPage from './components/MdxHistoryPage.vue'
+import DailyBountyHistoryPage from './components/DailyBountyHistoryPage.vue'
+import TeamBountyHistoryPage from './components/TeamBountyHistoryPage.vue'
+import RecruitmentBountyHistoryPage from './components/RecruitmentBountyHistoryPage.vue'
+import UpgradeBountyHistoryPage from './components/UpgradeBountyHistoryPage.vue'
+import UnifiReleaseHistoryPage from './components/UnifiReleaseHistoryPage.vue'
+import UnifiLockHistoryPage from './components/UnifiLockHistoryPage.vue'
+import TeamOverviewPage from './components/TeamOverviewPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 
 // 创建路由实例

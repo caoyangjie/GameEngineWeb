@@ -18,7 +18,6 @@
 		<!-- 标题 -->
 		<div class="title-section">
 		  <div class="title-banner">
-			<span class="title-icon">🧧</span>
 			<span class="title-icon">💰</span>
 			<span class="title-text">UNIFI 提现历史</span>
 		  </div>

@@ -1,5 +1,5 @@
 <template>
-	<div class="withdrawal-history-container">
+	<div class="team-bounty-history-container">
 	  <!-- 背景层 -->
 	  <div class="background">
 		<div class="sky"></div>
@@ -14,12 +14,12 @@
 	  <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
   
 	  <!-- 主要内容区域 -->
-	  <main class="withdrawal-history-main-content">
+	  <main class="team-bounty-history-main-content">
 		<!-- 标题 -->
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">提款历史</span>
+			<span class="title-text">团队赏金历史</span>
 		  </div>
 		</div>
   
@@ -49,24 +49,12 @@
 			  </div>
 			</div>
 			<div class="filter-field">
-			  <label class="filter-label">状态</label>
+			  <label class="filter-label">类型</label>
 			  <div class="filter-input-wrapper">
-				<select v-model="filters.status" class="filter-input filter-select">
+				<select v-model="filters.type" class="filter-input filter-select">
 				  <option value="">全部</option>
-				  <option value="pending">待处理</option>
-				  <option value="processed">已处理</option>
-				  <option value="failed">失败</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">提款类型</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.withdrawalType" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="priority">优先</option>
-				  <option value="normal">普通</option>
+				  <option value="A">A队</option>
+				  <option value="B">B队</option>
 				</select>
 				<span class="filter-arrow">▼</span>
 			  </div>
@@ -77,16 +65,16 @@
 		  </button>
 		</div>
   
-		<!-- 提款历史表格 -->
+		<!-- 团队赏金历史表格 -->
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
 			<div class="header-cell">日期</div>
-			<div class="header-cell">美元价值</div>
-			<div class="header-cell">应收金额</div>
-			<div class="header-cell">提款类型</div>
-			<div class="header-cell">收款地址</div>
-			<div class="header-cell">状态</div>
+			<div class="header-cell">A队倍增池值</div>
+			<div class="header-cell">B队倍增池值</div>
+			<div class="header-cell">百分比</div>
+			<div class="header-cell">金额</div>
+			<div class="header-cell">类型</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -94,25 +82,21 @@
   
 		  <!-- 表格内容 -->
 		  <div class="table-content">
-			<div v-if="paginatedWithdrawals.length === 0" class="empty-state">
+			<div v-if="paginatedBounties.length === 0" class="empty-state">
 			  <div class="empty-text">暂无数据</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
-				v-for="withdrawal in paginatedWithdrawals" 
-				:key="withdrawal.id" 
+				v-for="bounty in paginatedBounties" 
+				:key="bounty.id" 
 				class="table-row"
 			  >
-				<div class="table-cell">{{ formatDateTime(withdrawal.date) }}</div>
-				<div class="table-cell">{{ withdrawal.usdValue }}</div>
-				<div class="table-cell">{{ withdrawal.receivableAmount }}</div>
-				<div class="table-cell">{{ getWithdrawalTypeText(withdrawal.withdrawalType) }}</div>
-				<div class="table-cell address-cell">{{ withdrawal.receivingAddress }}</div>
-				<div class="table-cell">
-				  <span :class="['status-badge', `status-${withdrawal.status}`]">
-					{{ getStatusText(withdrawal.status) }}
-				  </span>
-				</div>
+				<div class="table-cell">{{ formatDateTime(bounty.date) }}</div>
+				<div class="table-cell">{{ formatAmount(bounty.teamAPoolValue) }}</div>
+				<div class="table-cell">{{ formatAmount(bounty.teamBPoolValue) }}</div>
+				<div class="table-cell">{{ formatPercentage(bounty.percentage) }}</div>
+				<div class="table-cell">{{ formatAmount(bounty.amount) }}</div>
+				<div class="table-cell">{{ getTypeText(bounty.type) }}</div>
 			  </div>
 			</div>
 		  </div>
@@ -156,7 +140,7 @@
 	  <!-- 右侧边栏菜单 -->
 	  <Sidebar 
 		:is-open="sidebarOpen" 
-		active-route="withdrawal-history"
+		active-route="team-bounty-history"
 		@close="handleSidebarClose"
 	  />
 	</div>
@@ -176,8 +160,7 @@
   const filters = reactive({
 	startDate: '',
 	endDate: '',
-	status: '',
-	withdrawalType: ''
+	type: ''
   })
   
   // 每页显示数量
@@ -186,138 +169,135 @@
   // 当前页码
   const currentPage = ref(1)
   
-  // 提款数据（示例数据，实际应该从API获取）
-  const withdrawals = ref([
+  // 团队赏金数据（示例数据，实际应该从API获取）
+  const bounties = ref([
 	{
 	  id: 1,
-	  date: '2024-09-24 10:31:56',
-	  usdValue: '760.000',
-	  receivableAmount: '722.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x7DfF3EC3b62d5ea8ac471832D2FfFAC352977a39',
-	  status: 'processed'
+	  date: '2025-12-11 00:00:20',
+	  teamAPoolValue: '50000.000',
+	  teamBPoolValue: '45000.000',
+	  percentage: '0.150',
+	  amount: '11.144',
+	  type: 'A'
 	},
 	{
 	  id: 2,
-	  date: '2024-09-23 14:20:15',
-	  usdValue: '1200.500',
-	  receivableAmount: '1140.475',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x8EaF4C3b72d5ea8ac471832D2FfFAC352977a40',
-	  status: 'processed'
+	  date: '2025-11-11 00:00:20',
+	  teamAPoolValue: '51000.000',
+	  teamBPoolValue: '46000.000',
+	  percentage: '0.150',
+	  amount: '11.161',
+	  type: 'B'
 	},
 	{
 	  id: 3,
-	  date: '2024-09-22 09:15:42',
-	  usdValue: '500.000',
-	  receivableAmount: '475.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x9FbG5D4c83d5ea8ac471832D2FfFAC352977a41',
-	  status: 'pending'
+	  date: '2025-10-11 00:00:21',
+	  teamAPoolValue: '52000.000',
+	  teamBPoolValue: '47000.000',
+	  percentage: '0.150',
+	  amount: '11.177',
+	  type: 'A'
 	},
 	{
 	  id: 4,
-	  date: '2024-09-21 16:45:30',
-	  usdValue: '3000.000',
-	  receivableAmount: '2850.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x1AaH6E5d94d5ea8ac471832D2FfFAC352977a42',
-	  status: 'processed'
+	  date: '2025-09-11 00:00:22',
+	  teamAPoolValue: '53000.000',
+	  teamBPoolValue: '48000.000',
+	  percentage: '0.150',
+	  amount: '11.193',
+	  type: 'B'
 	},
 	{
 	  id: 5,
-	  date: '2024-09-20 11:30:18',
-	  usdValue: '750.250',
-	  receivableAmount: '712.738',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x2BbI7F6e95d5ea8ac471832D2FfFAC352977a43',
-	  status: 'failed'
+	  date: '2025-08-11 00:00:23',
+	  teamAPoolValue: '54000.000',
+	  teamBPoolValue: '49000.000',
+	  percentage: '0.150',
+	  amount: '11.209',
+	  type: 'A'
 	},
 	{
 	  id: 6,
-	  date: '2024-09-19 13:22:55',
-	  usdValue: '1500.000',
-	  receivableAmount: '1425.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x3CcJ8G7f06d5ea8ac471832D2FfFAC352977a44',
-	  status: 'processed'
+	  date: '2025-07-11 00:00:24',
+	  teamAPoolValue: '55000.000',
+	  teamBPoolValue: '50000.000',
+	  percentage: '0.150',
+	  amount: '11.225',
+	  type: 'B'
 	},
 	{
 	  id: 7,
-	  date: '2024-09-18 08:10:33',
-	  usdValue: '2000.750',
-	  receivableAmount: '1900.713',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x4DdK9H8g17d5ea8ac471832D2FfFAC352977a45',
-	  status: 'pending'
+	  date: '2025-06-11 00:00:25',
+	  teamAPoolValue: '56000.000',
+	  teamBPoolValue: '51000.000',
+	  percentage: '0.150',
+	  amount: '11.241',
+	  type: 'A'
 	},
 	{
 	  id: 8,
-	  date: '2024-09-17 15:40:20',
-	  usdValue: '1200.000',
-	  receivableAmount: '1140.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x5EeL0I9h28d5ea8ac471832D2FfFAC352977a46',
-	  status: 'processed'
+	  date: '2025-05-11 00:00:26',
+	  teamAPoolValue: '57000.000',
+	  teamBPoolValue: '52000.000',
+	  percentage: '0.150',
+	  amount: '11.257',
+	  type: 'B'
 	},
 	{
 	  id: 9,
-	  date: '2024-09-16 10:25:45',
-	  usdValue: '850.500',
-	  receivableAmount: '807.975',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x6FfM1J0i39d5ea8ac471832D2FfFAC352977a47',
-	  status: 'processed'
+	  date: '2025-04-11 00:00:27',
+	  teamAPoolValue: '58000.000',
+	  teamBPoolValue: '53000.000',
+	  percentage: '0.150',
+	  amount: '11.273',
+	  type: 'A'
 	},
 	{
 	  id: 10,
-	  date: '2024-09-15 12:15:10',
-	  usdValue: '3500.000',
-	  receivableAmount: '3325.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x7GgN2K1j40d5ea8ac471832D2FfFAC352977a48',
-	  status: 'pending'
+	  date: '2025-03-11 00:00:28',
+	  teamAPoolValue: '59000.000',
+	  teamBPoolValue: '54000.000',
+	  percentage: '0.150',
+	  amount: '11.289',
+	  type: 'B'
 	},
 	{
 	  id: 11,
-	  date: '2024-09-14 17:30:28',
-	  usdValue: '950.000',
-	  receivableAmount: '902.500',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x8HhO3L2k51d5ea8ac471832D2FfFAC352977a49',
-	  status: 'processed'
+	  date: '2025-02-11 00:00:29',
+	  teamAPoolValue: '60000.000',
+	  teamBPoolValue: '55000.000',
+	  percentage: '0.150',
+	  amount: '11.305',
+	  type: 'A'
 	}
   ])
   
-  // 应用筛选后的提款列表
-  const filteredWithdrawals = computed(() => {
-	let result = withdrawals.value
+  // 应用筛选后的赏金列表
+  const filteredBounties = computed(() => {
+	let result = bounties.value
   
 	if (filters.startDate) {
-	  result = result.filter(w => w.date >= filters.startDate)
+	  result = result.filter(b => b.date >= filters.startDate)
 	}
 	if (filters.endDate) {
-	  result = result.filter(w => w.date <= filters.endDate)
+	  result = result.filter(b => b.date <= filters.endDate)
 	}
-	if (filters.status) {
-	  result = result.filter(w => w.status === filters.status)
-	}
-	if (filters.withdrawalType) {
-	  result = result.filter(w => w.withdrawalType === filters.withdrawalType)
+	if (filters.type) {
+	  result = result.filter(b => b.type === filters.type)
 	}
   
 	return result
   })
   
   // 分页计算
-  const totalItems = computed(() => filteredWithdrawals.value.length)
+  const totalItems = computed(() => filteredBounties.value.length)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
   
-  // 当前页显示的提款
-  const paginatedWithdrawals = computed(() => {
+  // 当前页显示的赏金
+  const paginatedBounties = computed(() => {
 	const start = (currentPage.value - 1) * itemsPerPage.value
 	const end = start + itemsPerPage.value
-	return filteredWithdrawals.value.slice(start, end)
+	return filteredBounties.value.slice(start, end)
   })
   
   // 可见的页码
@@ -382,30 +362,43 @@
 	  hour: '2-digit',
 	  minute: '2-digit',
 	  second: '2-digit',
-	  hour12: false
+	  hour12: true
 	})
   }
   
-  const getStatusText = (status) => {
-	const statusMap = {
-	  'pending': '待处理',
-	  'processed': '已处理',
-	  'failed': '失败'
-	}
-	return statusMap[status] || status
+  const formatAmount = (amount) => {
+	if (!amount) return ''
+	// 格式化金额，保留3位小数
+	const num = parseFloat(amount)
+	if (isNaN(num)) return amount
+	return num.toLocaleString('zh-CN', {
+	  minimumFractionDigits: 3,
+	  maximumFractionDigits: 3
+	})
   }
   
-  const getWithdrawalTypeText = (type) => {
+  const formatPercentage = (percentage) => {
+	if (!percentage) return ''
+	// 格式化百分比，保留3位小数
+	const num = parseFloat(percentage)
+	if (isNaN(num)) return percentage
+	return num.toLocaleString('zh-CN', {
+	  minimumFractionDigits: 3,
+	  maximumFractionDigits: 3
+	})
+  }
+  
+  const getTypeText = (type) => {
 	const typeMap = {
-	  'priority': '优先',
-	  'normal': '普通'
+	  'A': 'A队',
+	  'B': 'B队'
 	}
 	return typeMap[type] || type
   }
   </script>
   
   <style scoped>
-  .withdrawal-history-container {
+  .team-bounty-history-container {
 	position: relative;
 	width: 100%;
 	height: 100vh;
@@ -526,7 +519,7 @@
   }
   
   /* 主要内容区域 */
-  .withdrawal-history-main-content {
+  .team-bounty-history-main-content {
 	position: relative;
 	z-index: 5;
 	padding: 40px;
@@ -584,7 +577,7 @@
   
   .filter-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 	gap: 20px;
 	margin-bottom: 20px;
   }
@@ -677,7 +670,7 @@
   
   .table-header {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr 1fr 0.8fr;
 	gap: 10px;
 	padding: 20px;
 	background: rgba(255, 215, 0, 0.1);
@@ -720,7 +713,7 @@
   
   .table-row {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr 1fr 0.8fr;
 	gap: 10px;
 	padding: 15px 0;
 	background: rgba(255, 255, 255, 0.02);
@@ -740,38 +733,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-  }
-  
-  .address-cell {
-	font-family: 'Courier New', monospace;
-	font-size: 11px;
-	word-break: break-all;
-  }
-  
-  .status-badge {
-	padding: 4px 12px;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: bold;
-	display: inline-block;
-  }
-  
-  .status-pending {
-	background: rgba(255, 193, 7, 0.2);
-	color: #ffc107;
-	border: 1px solid rgba(255, 193, 7, 0.5);
-  }
-  
-  .status-processed {
-	background: rgba(76, 175, 80, 0.2);
-	color: #4caf50;
-	border: 1px solid rgba(76, 175, 80, 0.5);
-  }
-  
-  .status-failed {
-	background: rgba(244, 67, 54, 0.2);
-	color: #f44336;
-	border: 1px solid rgba(244, 67, 54, 0.5);
   }
   
   /* 分页区域 */
@@ -855,17 +816,17 @@
   
   /* 响应式设计 */
   @media (max-width: 1200px) {
-	.withdrawal-history-main-content {
+	.team-bounty-history-main-content {
 	  padding: 30px 20px;
 	}
   
 	.filter-row {
-	  grid-template-columns: repeat(2, 1fr);
+	  grid-template-columns: repeat(3, 1fr);
 	}
   
 	.table-header,
 	.table-row {
-	  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.7fr 1.5fr 0.7fr;
+	  grid-template-columns: 1.2fr 1fr 1fr 0.9fr 0.9fr 0.8fr;
 	  font-size: 12px;
 	}
   
@@ -876,7 +837,7 @@
   }
   
   @media (max-width: 768px) {
-	.withdrawal-history-main-content {
+	.team-bounty-history-main-content {
 	  padding: 20px 15px;
 	  margin-top: 100px;
 	}

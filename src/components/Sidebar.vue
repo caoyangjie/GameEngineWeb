@@ -120,19 +120,74 @@
           </div>
           <div 
             class="submenu-item" 
-            :class="{ active: activeRoute === ROUTES.MDX_PURCHASE_RECORD }" 
-            @click="handleNavigate(ROUTES.MDX_PURCHASE_RECORD)"
+            :class="{ active: activeRoute === ROUTES.MDX_HISTORY }" 
+            @click="handleNavigate(ROUTES.MDX_HISTORY)"
           >
             <span class="submenu-icon">💳</span>
             <span class="submenu-text">MDX 购买记录</span>
           </div>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('income-history')">
+        <div class="sidebar-item" @click="toggleIncomeHistorySubmenu">
           <span class="sidebar-icon">🎒</span>
           <span class="sidebar-text">收入历史</span>
-          <span class="sidebar-arrow">→</span>
+          <span class="sidebar-arrow" :class="{ rotated: showIncomeHistorySubmenu }">→</span>
         </div>
-        <div class="sidebar-item" @click="handleNavigate('team')">
+        <!-- 收入历史二级菜单 -->
+        <div v-if="showIncomeHistorySubmenu" class="submenu">
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.DAILY_BOUNTY_HISTORY }" 
+            @click="handleNavigate(ROUTES.DAILY_BOUNTY_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">每日赏金历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.TEAM_BOUNTY_HISTORY }" 
+            @click="handleNavigate(ROUTES.TEAM_BOUNTY_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">团队赏金历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.RECRUITMENT_BOUNTY_HISTORY }" 
+            @click="handleNavigate(ROUTES.RECRUITMENT_BOUNTY_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">招聘赏金历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.UPGRADE_BOUNTY_HISTORY }" 
+            @click="handleNavigate(ROUTES.UPGRADE_BOUNTY_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">升级赏金历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.UNIFI_RELEASE_HISTORY }" 
+            @click="handleNavigate(ROUTES.UNIFI_RELEASE_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">UNIFI 释放历史</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.UNIFI_LOCK_HISTORY }" 
+            @click="handleNavigate(ROUTES.UNIFI_LOCK_HISTORY)"
+          >
+            <span class="submenu-icon">💰</span>
+            <span class="submenu-text">UNIFI 锁仓历史</span>
+          </div>
+        </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.TEAM_OVERVIEW }" 
+          @click="handleNavigate(ROUTES.TEAM_OVERVIEW)"
+        >
           <span class="sidebar-icon">👥</span>
           <span class="sidebar-text">团队详情</span>
           <span class="sidebar-arrow">→</span>
@@ -184,6 +239,7 @@ const router = useRouter()
 const showJourneySubmenu = ref(false)
 const showVaultSubmenu = ref(false)
 const showVaultHistorySubmenu = ref(false)
+const showIncomeHistorySubmenu = ref(false)
 
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
@@ -195,8 +251,13 @@ watch(() => props.activeRoute, (newRoute) => {
   }
   if (newRoute === ROUTES.WALLET_HISTORY || newRoute === ROUTES.DEPOSIT_HISTORY || 
       newRoute === ROUTES.WITHDRAWAL_HISTORY || newRoute === ROUTES.UNIFI_WITHDRAWAL_HISTORY ||
-      newRoute === ROUTES.JOURNEY_HISTORY || newRoute === ROUTES.MDX_PURCHASE_RECORD) {
+      newRoute === ROUTES.JOURNEY_HISTORY || newRoute === ROUTES.MDX_HISTORY) {
     showVaultHistorySubmenu.value = true
+  }
+  if (newRoute === ROUTES.DAILY_BOUNTY_HISTORY || newRoute === ROUTES.TEAM_BOUNTY_HISTORY ||
+      newRoute === ROUTES.RECRUITMENT_BOUNTY_HISTORY || newRoute === ROUTES.UPGRADE_BOUNTY_HISTORY ||
+      newRoute === ROUTES.UNIFI_RELEASE_HISTORY || newRoute === ROUTES.UNIFI_LOCK_HISTORY) {
+    showIncomeHistorySubmenu.value = true
   }
 }, { immediate: true })
 
@@ -212,6 +273,10 @@ const toggleVaultHistorySubmenu = () => {
   showVaultHistorySubmenu.value = !showVaultHistorySubmenu.value
 }
 
+const toggleIncomeHistorySubmenu = () => {
+  showIncomeHistorySubmenu.value = !showIncomeHistorySubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
@@ -221,8 +286,13 @@ const handleNavigate = (route) => {
   }
   if (route === ROUTES.WALLET_HISTORY || route === ROUTES.DEPOSIT_HISTORY || 
       route === ROUTES.WITHDRAWAL_HISTORY || route === ROUTES.UNIFI_WITHDRAWAL_HISTORY ||
-      route === ROUTES.JOURNEY_HISTORY || route === ROUTES.MDX_PURCHASE_RECORD) {
+      route === ROUTES.JOURNEY_HISTORY || route === ROUTES.MDX_HISTORY) {
     showVaultHistorySubmenu.value = false
+  }
+  if (route === ROUTES.DAILY_BOUNTY_HISTORY || route === ROUTES.TEAM_BOUNTY_HISTORY ||
+      route === ROUTES.RECRUITMENT_BOUNTY_HISTORY || route === ROUTES.UPGRADE_BOUNTY_HISTORY ||
+      route === ROUTES.UNIFI_RELEASE_HISTORY || route === ROUTES.UNIFI_LOCK_HISTORY) {
+    showIncomeHistorySubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -252,8 +322,22 @@ const handleNavigate = (route) => {
     router.goToUnifiWithdrawalHistory()
   } else if (route === ROUTES.JOURNEY_HISTORY) {
     router.goToJourneyHistory()
-  } else if (route === ROUTES.MDX_PURCHASE_RECORD) {
-    router.goToMdxPurchaseRecord()
+  } else if (route === ROUTES.MDX_HISTORY) {
+    router.goToMdxHistory()
+  } else if (route === ROUTES.DAILY_BOUNTY_HISTORY) {
+    router.goToDailyBountyHistory()
+  } else if (route === ROUTES.TEAM_BOUNTY_HISTORY) {
+    router.goToTeamBountyHistory()
+  } else if (route === ROUTES.RECRUITMENT_BOUNTY_HISTORY) {
+    router.goToRecruitmentBountyHistory()
+  } else if (route === ROUTES.UPGRADE_BOUNTY_HISTORY) {
+    router.goToUpgradeBountyHistory()
+  } else if (route === ROUTES.UNIFI_RELEASE_HISTORY) {
+    router.goToUnifiReleaseHistory()
+  } else if (route === ROUTES.UNIFI_LOCK_HISTORY) {
+    router.goToUnifiLockHistory()
+  } else if (route === ROUTES.TEAM_OVERVIEW) {
+    router.goToTeamOverview()
   }
   
   // 通知父组件关闭侧边栏

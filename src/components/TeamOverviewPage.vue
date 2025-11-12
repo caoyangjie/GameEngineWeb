@@ -1,5 +1,5 @@
 <template>
-	<div class="withdrawal-history-container">
+	<div class="team-overview-container">
 	  <!-- 背景层 -->
 	  <div class="background">
 		<div class="sky"></div>
@@ -14,79 +14,28 @@
 	  <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
   
 	  <!-- 主要内容区域 -->
-	  <main class="withdrawal-history-main-content">
+	  <main class="team-overview-main-content">
 		<!-- 标题 -->
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">提款历史</span>
+			<span class="title-text">团队概览</span>
 		  </div>
 		</div>
   
-		<!-- 筛选区域 -->
-		<div class="filter-section">
-		  <div class="filter-row">
-			<div class="filter-field">
-			  <label class="filter-label">开始日期</label>
-			  <div class="filter-input-wrapper">
-				<input 
-				  type="date" 
-				  v-model="filters.startDate" 
-				  class="filter-input"
-				/>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">结束日期</label>
-			  <div class="filter-input-wrapper">
-				<input 
-				  type="date" 
-				  v-model="filters.endDate" 
-				  class="filter-input"
-				/>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">状态</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.status" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="pending">待处理</option>
-				  <option value="processed">已处理</option>
-				  <option value="failed">失败</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">提款类型</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.withdrawalType" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="priority">优先</option>
-				  <option value="normal">普通</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-		  </div>
-		  <button class="filter-button" @click="applyFilter">
-			使用筛选
-		  </button>
+		<!-- 子标题 -->
+		<div class="subtitle-section">
+		  <div class="subtitle-text">少于3天完成旅程的玩家</div>
 		</div>
   
-		<!-- 提款历史表格 -->
+		<!-- 团队概览表格 -->
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
-			<div class="header-cell">日期</div>
-			<div class="header-cell">美元价值</div>
-			<div class="header-cell">应收金额</div>
-			<div class="header-cell">提款类型</div>
-			<div class="header-cell">收款地址</div>
-			<div class="header-cell">状态</div>
+			<div class="header-cell">玩家ID</div>
+			<div class="header-cell">旅程天数</div>
+			<div class="header-cell">当前剩余天数</div>
+			<div class="header-cell">层级</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -94,25 +43,20 @@
   
 		  <!-- 表格内容 -->
 		  <div class="table-content">
-			<div v-if="paginatedWithdrawals.length === 0" class="empty-state">
+			<div v-if="paginatedPlayers.length === 0" class="empty-state">
+			  <div class="empty-icon">🌳</div>
 			  <div class="empty-text">暂无数据</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
-				v-for="withdrawal in paginatedWithdrawals" 
-				:key="withdrawal.id" 
+				v-for="player in paginatedPlayers" 
+				:key="player.id" 
 				class="table-row"
 			  >
-				<div class="table-cell">{{ formatDateTime(withdrawal.date) }}</div>
-				<div class="table-cell">{{ withdrawal.usdValue }}</div>
-				<div class="table-cell">{{ withdrawal.receivableAmount }}</div>
-				<div class="table-cell">{{ getWithdrawalTypeText(withdrawal.withdrawalType) }}</div>
-				<div class="table-cell address-cell">{{ withdrawal.receivingAddress }}</div>
-				<div class="table-cell">
-				  <span :class="['status-badge', `status-${withdrawal.status}`]">
-					{{ getStatusText(withdrawal.status) }}
-				  </span>
-				</div>
+				<div class="table-cell">{{ player.playerId }}</div>
+				<div class="table-cell">{{ player.journeyDays }} 天</div>
+				<div class="table-cell">{{ player.remainingDays }} 天</div>
+				<div class="table-cell">{{ player.level }}</div>
 			  </div>
 			</div>
 		  </div>
@@ -156,14 +100,14 @@
 	  <!-- 右侧边栏菜单 -->
 	  <Sidebar 
 		:is-open="sidebarOpen" 
-		active-route="withdrawal-history"
+		:active-route="ROUTES.TEAM_OVERVIEW"
 		@close="handleSidebarClose"
 	  />
 	</div>
   </template>
   
   <script setup>
-  import { ref, reactive, computed } from 'vue'
+  import { ref, computed } from 'vue'
   import TopHeader from './TopHeader.vue'
   import Sidebar from './Sidebar.vue'
   import { useRouter, ROUTES } from '../composables/useRouter.js'
@@ -172,152 +116,41 @@
   
   const sidebarOpen = ref(false)
   
-  // 筛选条件
-  const filters = reactive({
-	startDate: '',
-	endDate: '',
-	status: '',
-	withdrawalType: ''
-  })
-  
   // 每页显示数量
   const itemsPerPage = ref(10)
   
   // 当前页码
   const currentPage = ref(1)
   
-  // 提款数据（示例数据，实际应该从API获取）
-  const withdrawals = ref([
+  // 团队玩家数据（示例数据，实际应该从API获取）
+  // 根据图片描述，当前没有数据，所以初始为空数组
+  const players = ref([
+	// 示例数据（当有数据时使用）
 	{
 	  id: 1,
-	  date: '2024-09-24 10:31:56',
-	  usdValue: '760.000',
-	  receivableAmount: '722.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x7DfF3EC3b62d5ea8ac471832D2FfFAC352977a39',
-	  status: 'processed'
+	  playerId: 'Player001',
+	  journeyDays: 2,
+	  remainingDays: 1,
+	  level: '银'
 	},
 	{
 	  id: 2,
-	  date: '2024-09-23 14:20:15',
-	  usdValue: '1200.500',
-	  receivableAmount: '1140.475',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x8EaF4C3b72d5ea8ac471832D2FfFAC352977a40',
-	  status: 'processed'
-	},
-	{
-	  id: 3,
-	  date: '2024-09-22 09:15:42',
-	  usdValue: '500.000',
-	  receivableAmount: '475.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x9FbG5D4c83d5ea8ac471832D2FfFAC352977a41',
-	  status: 'pending'
-	},
-	{
-	  id: 4,
-	  date: '2024-09-21 16:45:30',
-	  usdValue: '3000.000',
-	  receivableAmount: '2850.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x1AaH6E5d94d5ea8ac471832D2FfFAC352977a42',
-	  status: 'processed'
-	},
-	{
-	  id: 5,
-	  date: '2024-09-20 11:30:18',
-	  usdValue: '750.250',
-	  receivableAmount: '712.738',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x2BbI7F6e95d5ea8ac471832D2FfFAC352977a43',
-	  status: 'failed'
-	},
-	{
-	  id: 6,
-	  date: '2024-09-19 13:22:55',
-	  usdValue: '1500.000',
-	  receivableAmount: '1425.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x3CcJ8G7f06d5ea8ac471832D2FfFAC352977a44',
-	  status: 'processed'
-	},
-	{
-	  id: 7,
-	  date: '2024-09-18 08:10:33',
-	  usdValue: '2000.750',
-	  receivableAmount: '1900.713',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x4DdK9H8g17d5ea8ac471832D2FfFAC352977a45',
-	  status: 'pending'
-	},
-	{
-	  id: 8,
-	  date: '2024-09-17 15:40:20',
-	  usdValue: '1200.000',
-	  receivableAmount: '1140.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x5EeL0I9h28d5ea8ac471832D2FfFAC352977a46',
-	  status: 'processed'
-	},
-	{
-	  id: 9,
-	  date: '2024-09-16 10:25:45',
-	  usdValue: '850.500',
-	  receivableAmount: '807.975',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x6FfM1J0i39d5ea8ac471832D2FfFAC352977a47',
-	  status: 'processed'
-	},
-	{
-	  id: 10,
-	  date: '2024-09-15 12:15:10',
-	  usdValue: '3500.000',
-	  receivableAmount: '3325.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x7GgN2K1j40d5ea8ac471832D2FfFAC352977a48',
-	  status: 'pending'
-	},
-	{
-	  id: 11,
-	  date: '2024-09-14 17:30:28',
-	  usdValue: '950.000',
-	  receivableAmount: '902.500',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x8HhO3L2k51d5ea8ac471832D2FfFAC352977a49',
-	  status: 'processed'
+	  playerId: 'Player002',
+	  journeyDays: 2,
+	  remainingDays: 0,
+	  level: '金'
 	}
   ])
   
-  // 应用筛选后的提款列表
-  const filteredWithdrawals = computed(() => {
-	let result = withdrawals.value
-  
-	if (filters.startDate) {
-	  result = result.filter(w => w.date >= filters.startDate)
-	}
-	if (filters.endDate) {
-	  result = result.filter(w => w.date <= filters.endDate)
-	}
-	if (filters.status) {
-	  result = result.filter(w => w.status === filters.status)
-	}
-	if (filters.withdrawalType) {
-	  result = result.filter(w => w.withdrawalType === filters.withdrawalType)
-	}
-  
-	return result
-  })
-  
   // 分页计算
-  const totalItems = computed(() => filteredWithdrawals.value.length)
+  const totalItems = computed(() => players.value.length)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
   
-  // 当前页显示的提款
-  const paginatedWithdrawals = computed(() => {
+  // 当前页显示的玩家
+  const paginatedPlayers = computed(() => {
 	const start = (currentPage.value - 1) * itemsPerPage.value
 	const end = start + itemsPerPage.value
-	return filteredWithdrawals.value.slice(start, end)
+	return players.value.slice(start, end)
   })
   
   // 可见的页码
@@ -354,11 +187,6 @@
 	router.goToDeposit()
   }
   
-  const applyFilter = () => {
-	currentPage.value = 1 // 重置到第一页
-	console.log('应用筛选', filters)
-  }
-  
   const goToPage = (page) => {
 	if (page >= 1 && page <= totalPages.value) {
 	  currentPage.value = page
@@ -366,46 +194,10 @@
 	  window.scrollTo({ top: 0, behavior: 'smooth' })
 	}
   }
-  
-  const formatDateTime = (dateString) => {
-	if (!dateString) return ''
-	// 如果已经是格式化好的字符串，直接返回
-	if (dateString.includes(' ')) {
-	  return dateString
-	}
-	// 否则格式化日期
-	const date = new Date(dateString)
-	return date.toLocaleString('zh-CN', {
-	  year: 'numeric',
-	  month: '2-digit',
-	  day: '2-digit',
-	  hour: '2-digit',
-	  minute: '2-digit',
-	  second: '2-digit',
-	  hour12: false
-	})
-  }
-  
-  const getStatusText = (status) => {
-	const statusMap = {
-	  'pending': '待处理',
-	  'processed': '已处理',
-	  'failed': '失败'
-	}
-	return statusMap[status] || status
-  }
-  
-  const getWithdrawalTypeText = (type) => {
-	const typeMap = {
-	  'priority': '优先',
-	  'normal': '普通'
-	}
-	return typeMap[type] || type
-  }
   </script>
   
   <style scoped>
-  .withdrawal-history-container {
+  .team-overview-container {
 	position: relative;
 	width: 100%;
 	height: 100vh;
@@ -526,7 +318,7 @@
   }
   
   /* 主要内容区域 */
-  .withdrawal-history-main-content {
+  .team-overview-main-content {
 	position: relative;
 	z-index: 5;
 	padding: 40px;
@@ -538,7 +330,7 @@
   
   /* 标题区域 */
   .title-section {
-	margin-bottom: 30px;
+	margin-bottom: 20px;
   }
   
   .title-banner {
@@ -569,96 +361,16 @@
 	letter-spacing: 2px;
   }
   
-  /* 筛选区域 */
-  .filter-section {
-	background: rgba(0, 0, 0, 0.7);
-	border: 2px solid rgba(255, 215, 0, 0.4);
-	border-radius: 12px;
-	padding: 25px;
+  /* 子标题区域 */
+  .subtitle-section {
 	margin-bottom: 30px;
-	backdrop-filter: blur(10px);
-	box-shadow: 
-	  0 0 30px rgba(255, 215, 0, 0.3),
-	  inset 0 0 30px rgba(255, 215, 0, 0.05);
+	text-align: center;
   }
   
-  .filter-row {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 20px;
-	margin-bottom: 20px;
-  }
-  
-  .filter-field {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-  }
-  
-  .filter-label {
-	font-size: 14px;
+  .subtitle-text {
+	font-size: 18px;
 	color: rgba(255, 255, 255, 0.9);
-  }
-  
-  .filter-input-wrapper {
-	position: relative;
-  }
-  
-  .filter-input {
-	width: 100%;
-	padding: 10px 35px 10px 15px;
-	background: rgba(0, 0, 0, 0.5);
-	border: 1px solid rgba(255, 215, 0, 0.5);
-	border-radius: 6px;
-	color: white;
-	font-size: 14px;
-	outline: none;
-	transition: all 0.3s;
-  }
-  
-  .filter-input:focus {
-	border-color: rgba(255, 215, 0, 0.8);
-	box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  }
-  
-  .filter-select {
-	appearance: none;
-	cursor: pointer;
-  }
-  
-  .filter-arrow {
-	position: absolute;
-	right: 12px;
-	top: 50%;
-	transform: translateY(-50%);
-	color: #ffd700;
-	pointer-events: none;
-	font-size: 12px;
-  }
-  
-  .filter-button {
-	width: 100%;
-	padding: 12px;
-	background: linear-gradient(135deg, rgba(255, 215, 0, 0.4) 0%, rgba(255, 140, 0, 0.4) 100%);
-	border: 2px solid rgba(255, 215, 0, 0.8);
-	border-radius: 8px;
-	color: #ffd700;
-	font-size: 16px;
-	font-weight: bold;
-	cursor: pointer;
-	transition: all 0.3s;
-	text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
-	box-shadow: 
-	  0 0 20px rgba(255, 215, 0, 0.3),
-	  inset 0 0 20px rgba(255, 215, 0, 0.1);
-  }
-  
-  .filter-button:hover {
-	background: linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
-	box-shadow: 
-	  0 0 30px rgba(255, 215, 0, 0.5),
-	  inset 0 0 20px rgba(255, 215, 0, 0.2);
-	transform: translateY(-2px);
+	text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   }
   
   /* 表格区域 */
@@ -677,7 +389,7 @@
   
   .table-header {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.5fr 1fr;
 	gap: 10px;
 	padding: 20px;
 	background: rgba(255, 215, 0, 0.1);
@@ -706,6 +418,12 @@
 	text-align: center;
   }
   
+  .empty-icon {
+	font-size: 48px;
+	margin-bottom: 20px;
+	opacity: 0.6;
+  }
+  
   .empty-text {
 	font-size: 18px;
 	color: rgba(255, 255, 255, 0.6);
@@ -720,7 +438,7 @@
   
   .table-row {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1.2fr 1.5fr 1fr;
 	gap: 10px;
 	padding: 15px 0;
 	background: rgba(255, 255, 255, 0.02);
@@ -740,38 +458,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-  }
-  
-  .address-cell {
-	font-family: 'Courier New', monospace;
-	font-size: 11px;
-	word-break: break-all;
-  }
-  
-  .status-badge {
-	padding: 4px 12px;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: bold;
-	display: inline-block;
-  }
-  
-  .status-pending {
-	background: rgba(255, 193, 7, 0.2);
-	color: #ffc107;
-	border: 1px solid rgba(255, 193, 7, 0.5);
-  }
-  
-  .status-processed {
-	background: rgba(76, 175, 80, 0.2);
-	color: #4caf50;
-	border: 1px solid rgba(76, 175, 80, 0.5);
-  }
-  
-  .status-failed {
-	background: rgba(244, 67, 54, 0.2);
-	color: #f44336;
-	border: 1px solid rgba(244, 67, 54, 0.5);
   }
   
   /* 分页区域 */
@@ -855,17 +541,13 @@
   
   /* 响应式设计 */
   @media (max-width: 1200px) {
-	.withdrawal-history-main-content {
+	.team-overview-main-content {
 	  padding: 30px 20px;
-	}
-  
-	.filter-row {
-	  grid-template-columns: repeat(2, 1fr);
 	}
   
 	.table-header,
 	.table-row {
-	  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.7fr 1.5fr 0.7fr;
+	  grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr;
 	  font-size: 12px;
 	}
   
@@ -876,13 +558,9 @@
   }
   
   @media (max-width: 768px) {
-	.withdrawal-history-main-content {
+	.team-overview-main-content {
 	  padding: 20px 15px;
 	  margin-top: 100px;
-	}
-  
-	.filter-row {
-	  grid-template-columns: 1fr;
 	}
   
 	.table-header,

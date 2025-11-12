@@ -1,5 +1,5 @@
 <template>
-	<div class="withdrawal-history-container">
+	<div class="deposit-history-container">
 	  <!-- 背景层 -->
 	  <div class="background">
 		<div class="sky"></div>
@@ -14,12 +14,12 @@
 	  <TopHeader @toggle-sidebar="toggleSidebar" @go-to-journey="handleGoToJourney" @go-to-deposit="handleGoToDeposit" />
   
 	  <!-- 主要内容区域 -->
-	  <main class="withdrawal-history-main-content">
+	  <main class="deposit-history-main-content">
 		<!-- 标题 -->
 		<div class="title-section">
 		  <div class="title-banner">
 			<span class="title-icon">💰</span>
-			<span class="title-text">提款历史</span>
+			<span class="title-text">MDX购买历史</span>
 		  </div>
 		</div>
   
@@ -48,45 +48,21 @@
 				<span class="filter-arrow">▼</span>
 			  </div>
 			</div>
-			<div class="filter-field">
-			  <label class="filter-label">状态</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.status" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="pending">待处理</option>
-				  <option value="processed">已处理</option>
-				  <option value="failed">失败</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
-			<div class="filter-field">
-			  <label class="filter-label">提款类型</label>
-			  <div class="filter-input-wrapper">
-				<select v-model="filters.withdrawalType" class="filter-input filter-select">
-				  <option value="">全部</option>
-				  <option value="priority">优先</option>
-				  <option value="normal">普通</option>
-				</select>
-				<span class="filter-arrow">▼</span>
-			  </div>
-			</div>
 		  </div>
 		  <button class="filter-button" @click="applyFilter">
 			使用筛选
 		  </button>
 		</div>
   
-		<!-- 提款历史表格 -->
+		<!-- 存款历史表格 -->
 		<div class="history-table-section">
 		  <!-- 表头 -->
 		  <div class="table-header">
 			<div class="header-cell">日期</div>
-			<div class="header-cell">美元价值</div>
-			<div class="header-cell">应收金额</div>
-			<div class="header-cell">提款类型</div>
-			<div class="header-cell">收款地址</div>
-			<div class="header-cell">状态</div>
+			<div class="header-cell">MDX数量</div>
+			<div class="header-cell">MDX代币价值</div>
+			<div class="header-cell">金额(美元)</div>
+			<div class="header-cell">地址</div>
 		  </div>
   
 		  <!-- 分隔线 -->
@@ -94,25 +70,20 @@
   
 		  <!-- 表格内容 -->
 		  <div class="table-content">
-			<div v-if="paginatedWithdrawals.length === 0" class="empty-state">
+			<div v-if="paginatedDeposits.length === 0" class="empty-state">
 			  <div class="empty-text">暂无数据</div>
 			</div>
 			<div v-else class="table-rows">
 			  <div 
-				v-for="withdrawal in paginatedWithdrawals" 
-				:key="withdrawal.id" 
+				v-for="deposit in paginatedDeposits" 
+				:key="deposit.id" 
 				class="table-row"
 			  >
-				<div class="table-cell">{{ formatDateTime(withdrawal.date) }}</div>
-				<div class="table-cell">{{ withdrawal.usdValue }}</div>
-				<div class="table-cell">{{ withdrawal.receivableAmount }}</div>
-				<div class="table-cell">{{ getWithdrawalTypeText(withdrawal.withdrawalType) }}</div>
-				<div class="table-cell address-cell">{{ withdrawal.receivingAddress }}</div>
-				<div class="table-cell">
-				  <span :class="['status-badge', `status-${withdrawal.status}`]">
-					{{ getStatusText(withdrawal.status) }}
-				  </span>
-				</div>
+				<div class="table-cell">{{ formatDateTime(deposit.date) }}</div>
+				<div class="table-cell">{{ deposit.mdxAmount }}</div>
+				<div class="table-cell">{{ deposit.mdxDaiBiAmount }}</div>
+				<div class="table-cell">{{ deposit.amount }}</div>
+				<div class="table-cell address-cell">{{ deposit.mdxAddress }}</div>
 			  </div>
 			</div>
 		  </div>
@@ -156,7 +127,7 @@
 	  <!-- 右侧边栏菜单 -->
 	  <Sidebar 
 		:is-open="sidebarOpen" 
-		active-route="withdrawal-history"
+		active-route="mdx-history"
 		@close="handleSidebarClose"
 	  />
 	</div>
@@ -176,8 +147,7 @@
   const filters = reactive({
 	startDate: '',
 	endDate: '',
-	status: '',
-	withdrawalType: ''
+	status: ''
   })
   
   // 每页显示数量
@@ -186,138 +156,124 @@
   // 当前页码
   const currentPage = ref(1)
   
-  // 提款数据（示例数据，实际应该从API获取）
-  const withdrawals = ref([
+  // 存款数据（示例数据，实际应该从API获取）
+  const deposits = ref([
 	{
 	  id: 1,
-	  date: '2024-09-24 10:31:56',
-	  usdValue: '760.000',
-	  receivableAmount: '722.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x7DfF3EC3b62d5ea8ac471832D2FfFAC352977a39',
-	  status: 'processed'
+	  date: '2024-01-15 10:30:25',
+	  amount: '1000.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 2,
-	  date: '2024-09-23 14:20:15',
-	  usdValue: '1200.500',
-	  receivableAmount: '1140.475',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x8EaF4C3b72d5ea8ac471832D2FfFAC352977a40',
-	  status: 'processed'
+	  date: '2024-01-16 14:20:15',
+	  amount: '2500.50',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 3,
-	  date: '2024-09-22 09:15:42',
-	  usdValue: '500.000',
-	  receivableAmount: '475.000',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x9FbG5D4c83d5ea8ac471832D2FfFAC352977a41',
-	  status: 'pending'
+	  date: '2024-01-17 09:15:42',
+	  amount: '500.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 4,
-	  date: '2024-09-21 16:45:30',
-	  usdValue: '3000.000',
-	  receivableAmount: '2850.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x1AaH6E5d94d5ea8ac471832D2FfFAC352977a42',
-	  status: 'processed'
+	  date: '2024-01-18 16:45:30',
+	  amount: '3000.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 5,
-	  date: '2024-09-20 11:30:18',
-	  usdValue: '750.250',
-	  receivableAmount: '712.738',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x2BbI7F6e95d5ea8ac471832D2FfFAC352977a43',
-	  status: 'failed'
+	  date: '2024-01-19 11:30:18',
+	  amount: '750.25',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 6,
-	  date: '2024-09-19 13:22:55',
-	  usdValue: '1500.000',
-	  receivableAmount: '1425.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x3CcJ8G7f06d5ea8ac471832D2FfFAC352977a44',
-	  status: 'processed'
+	  date: '2024-01-20 13:22:55',
+	  amount: '1500.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 7,
-	  date: '2024-09-18 08:10:33',
-	  usdValue: '2000.750',
-	  receivableAmount: '1900.713',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x4DdK9H8g17d5ea8ac471832D2FfFAC352977a45',
-	  status: 'pending'
+	  date: '2024-01-21 08:10:33',
+	  amount: '2000.75',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 8,
-	  date: '2024-09-17 15:40:20',
-	  usdValue: '1200.000',
-	  receivableAmount: '1140.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x5EeL0I9h28d5ea8ac471832D2FfFAC352977a46',
-	  status: 'processed'
+	  date: '2024-01-22 15:40:20',
+	  amount: '1200.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 9,
-	  date: '2024-09-16 10:25:45',
-	  usdValue: '850.500',
-	  receivableAmount: '807.975',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x6FfM1J0i39d5ea8ac471832D2FfFAC352977a47',
-	  status: 'processed'
+	  date: '2024-01-23 10:25:45',
+	  amount: '850.50',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 10,
-	  date: '2024-09-15 12:15:10',
-	  usdValue: '3500.000',
-	  receivableAmount: '3325.000',
-	  withdrawalType: 'normal',
-	  receivingAddress: '0x7GgN2K1j40d5ea8ac471832D2FfFAC352977a48',
-	  status: 'pending'
+	  date: '2024-01-24 12:15:10',
+	  amount: '3500.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	},
 	{
 	  id: 11,
-	  date: '2024-09-14 17:30:28',
-	  usdValue: '950.000',
-	  receivableAmount: '902.500',
-	  withdrawalType: 'priority',
-	  receivingAddress: '0x8HhO3L2k51d5ea8ac471832D2FfFAC352977a49',
-	  status: 'processed'
+	  date: '2024-01-25 17:30:28',
+	  amount: '950.00',
+	  mdxAmount: '1000.00',
+	  mdxDaiBiAmount: '1000.00',
+	  mdxAddress: '0x1234567890123456789012345678901234567890'
 	}
   ])
   
-  // 应用筛选后的提款列表
-  const filteredWithdrawals = computed(() => {
-	let result = withdrawals.value
+  // 应用筛选后的存款列表
+  const filteredDeposits = computed(() => {
+	let result = deposits.value
   
 	if (filters.startDate) {
-	  result = result.filter(w => w.date >= filters.startDate)
+	  result = result.filter(d => d.date >= filters.startDate)
 	}
 	if (filters.endDate) {
-	  result = result.filter(w => w.date <= filters.endDate)
+	  result = result.filter(d => d.date <= filters.endDate)
 	}
 	if (filters.status) {
-	  result = result.filter(w => w.status === filters.status)
-	}
-	if (filters.withdrawalType) {
-	  result = result.filter(w => w.withdrawalType === filters.withdrawalType)
+	  result = result.filter(d => d.status === filters.status)
 	}
   
 	return result
   })
   
   // 分页计算
-  const totalItems = computed(() => filteredWithdrawals.value.length)
+  const totalItems = computed(() => filteredDeposits.value.length)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
   
-  // 当前页显示的提款
-  const paginatedWithdrawals = computed(() => {
+  // 当前页显示的存款
+  const paginatedDeposits = computed(() => {
 	const start = (currentPage.value - 1) * itemsPerPage.value
 	const end = start + itemsPerPage.value
-	return filteredWithdrawals.value.slice(start, end)
+	return filteredDeposits.value.slice(start, end)
   })
   
   // 可见的页码
@@ -389,23 +345,15 @@
   const getStatusText = (status) => {
 	const statusMap = {
 	  'pending': '待处理',
-	  'processed': '已处理',
+	  'completed': '已完成',
 	  'failed': '失败'
 	}
 	return statusMap[status] || status
   }
-  
-  const getWithdrawalTypeText = (type) => {
-	const typeMap = {
-	  'priority': '优先',
-	  'normal': '普通'
-	}
-	return typeMap[type] || type
-  }
   </script>
   
   <style scoped>
-  .withdrawal-history-container {
+  .deposit-history-container {
 	position: relative;
 	width: 100%;
 	height: 100vh;
@@ -526,7 +474,7 @@
   }
   
   /* 主要内容区域 */
-  .withdrawal-history-main-content {
+  .deposit-history-main-content {
 	position: relative;
 	z-index: 5;
 	padding: 40px;
@@ -584,7 +532,7 @@
   
   .filter-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 	gap: 20px;
 	margin-bottom: 20px;
   }
@@ -677,7 +625,7 @@
   
   .table-header {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1fr 1.2fr 1fr 2fr;
 	gap: 10px;
 	padding: 20px;
 	background: rgba(255, 215, 0, 0.1);
@@ -720,7 +668,7 @@
   
   .table-row {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr 0.8fr 2fr 0.8fr;
+	grid-template-columns: 1.5fr 1fr 1.2fr 1fr 2fr;
 	gap: 10px;
 	padding: 15px 0;
 	background: rgba(255, 255, 255, 0.02);
@@ -762,7 +710,7 @@
 	border: 1px solid rgba(255, 193, 7, 0.5);
   }
   
-  .status-processed {
+  .status-completed {
 	background: rgba(76, 175, 80, 0.2);
 	color: #4caf50;
 	border: 1px solid rgba(76, 175, 80, 0.5);
@@ -855,7 +803,7 @@
   
   /* 响应式设计 */
   @media (max-width: 1200px) {
-	.withdrawal-history-main-content {
+	.deposit-history-main-content {
 	  padding: 30px 20px;
 	}
   
@@ -865,7 +813,7 @@
   
 	.table-header,
 	.table-row {
-	  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.7fr 1.5fr 0.7fr;
+	  grid-template-columns: 1.2fr 0.9fr 1fr 0.9fr 1.5fr;
 	  font-size: 12px;
 	}
   
@@ -876,7 +824,7 @@
   }
   
   @media (max-width: 768px) {
-	.withdrawal-history-main-content {
+	.deposit-history-main-content {
 	  padding: 20px 15px;
 	  margin-top: 100px;
 	}
@@ -903,4 +851,3 @@
 	}
   }
   </style>
-
