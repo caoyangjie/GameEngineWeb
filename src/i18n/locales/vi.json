@@ -10,7 +10,8 @@
     "vipPrivileges": "Thành viên VIP được hưởng đặc quyền độc quyền",
     "teamDungeon": "Hầm ngục nhóm sắp mở",
     "appName": "Hành trình Tây Du",
-    "appSubtitle": "Thách thức Ranh giới • Vượt qua Giới hạn"
+    "appSubtitle": "Thách thức Ranh giới • Vượt qua Giới hạn",
+    "alertConfirm": "OK"
   },
   "sidebar": {
     "backToHome": "Về Trang chủ",

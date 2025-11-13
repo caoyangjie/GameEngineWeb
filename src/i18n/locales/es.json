@@ -10,7 +10,8 @@
     "vipPrivileges": "Los miembros VIP disfrutan de privilegios exclusivos",
     "teamDungeon": "La mazmorra de equipo se abrirá pronto",
     "appName": "Viaje al Oeste",
-    "appSubtitle": "Desafiar Límites • Más Allá de los Límites"
+    "appSubtitle": "Desafiar Límites • Más Allá de los Límites",
+    "alertConfirm": "OK"
   },
   "sidebar": {
     "backToHome": "Volver al Inicio",

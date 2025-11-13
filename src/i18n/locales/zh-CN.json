@@ -10,7 +10,8 @@
     "vipPrivileges": "VIP会员享受专属特权",
     "teamDungeon": "团队副本即将开启",
     "appName": "西域旅",
-    "appSubtitle": "挑战边界 • 超越极限"
+    "appSubtitle": "挑战边界 • 超越极限",
+    "alertConfirm": "确定"
   },
   "sidebar": {
     "backToHome": "返回首页",

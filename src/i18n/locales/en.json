@@ -10,7 +10,8 @@
     "vipPrivileges": "VIP members enjoy exclusive privileges",
     "teamDungeon": "Team dungeon opening soon",
     "appName": "Journey to the West",
-    "appSubtitle": "Challenge Boundaries • Beyond Limits"
+    "appSubtitle": "Challenge Boundaries • Beyond Limits",
+    "alertConfirm": "OK"
   },
   "sidebar": {
     "backToHome": "Back to Home",

@@ -10,7 +10,8 @@
     "vipPrivileges": "VIP会員は専用特典を享受",
     "teamDungeon": "チームダンジョン間もなく開始",
     "appName": "西域の旅",
-    "appSubtitle": "境界に挑戦 • 限界を超える"
+    "appSubtitle": "境界に挑戦 • 限界を超える",
+    "alertConfirm": "OK"
   },
   "sidebar": {
     "backToHome": "ホームに戻る",

@@ -10,7 +10,8 @@
     "vipPrivileges": "VIP 회원 전용 특권 제공",
     "teamDungeon": "팀 던전 곧 오픈",
     "appName": "서역 여행",
-    "appSubtitle": "경계에 도전 • 한계를 초월"
+    "appSubtitle": "경계에 도전 • 한계를 초월",
+    "alertConfirm": "확인"
   },
   "sidebar": {
     "backToHome": "홈으로 돌아가기",

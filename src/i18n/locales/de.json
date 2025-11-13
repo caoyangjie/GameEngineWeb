@@ -10,7 +10,8 @@
     "vipPrivileges": "VIP-Mitglieder genießen exklusive Privilegien",
     "teamDungeon": "Team-Dungeon wird bald eröffnet",
     "appName": "Reise nach Westen",
-    "appSubtitle": "Grenzen Herausfordern • Über Grenzen Hinaus"
+    "appSubtitle": "Grenzen Herausfordern • Über Grenzen Hinaus",
+    "alertConfirm": "OK"
   },
   "sidebar": {
     "backToHome": "Zurück zur Startseite",
