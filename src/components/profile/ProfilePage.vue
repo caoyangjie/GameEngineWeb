@@ -24,7 +24,17 @@
             <div class="form-label">{{ t('profile.recruitmentQRCode') }}</div>
             <div class="qr-code-wrapper">
               <div class="qr-code-placeholder">
-                <canvas ref="qrCanvas" class="qr-canvas"></canvas>
+                <img 
+                  v-if="recruitmentQRCodeImage && !isQRCodeLoading" 
+                  :src="recruitmentQRCodeImage" 
+                  alt="招聘二维码" 
+                  class="qr-image"
+                  @error="handleQRCodeError('recruitment')"
+                />
+                <div v-if="isQRCodeLoading" class="qr-code-loading">{{ t('login.captchaLoading') || '加载中...' }}</div>
+                <div v-if="!recruitmentQRCodeImage && !isQRCodeLoading" class="qr-code-placeholder-text">
+                  {{ t('profile.noQRCode') || '暂无二维码' }}
+                </div>
               </div>
             </div>
           </div>
@@ -94,32 +104,33 @@
           </div>
 
           <!-- 提交按钮 -->
-          <button class="submit-btn" @click="handleSubmit">{{ t('profile.submit') }}</button>
+          <button class="submit-btn" @click="handleSubmit" :disabled="isLoading">
+            {{ isLoading ? (t('profile.submitting') || '提交中...') : t('profile.submit') }}
+          </button>
         </div>
 
         <!-- 右列：个人资料部分 -->
         <div class="right-column">
           <div class="personal-info-section">
-
-            <!-- <div class="form-label">个人资料</div>
-            <div class="profile-header-section">
-              <div class="character-image-wrapper">
-                <img 
-                  :src="characterImage" 
-                  alt="孙悟空" 
-                  class="character-profile-image"
-                  @error="handleImageError"
-                />
-              </div>
-            </div> -->
-          <div class="form-group qr-code-group">
-            <div class="form-label">{{ t('profile.recruitmentQRCode') }}</div>
-            <div class="qr-code-wrapper">
-              <div class="qr-code-placeholder">
-                <canvas ref="qrCanvas" class="qr-canvas"></canvas>
+            <!-- 电子邮箱二维码 -->
+            <div class="form-group qr-code-group">
+              <div class="form-label">{{ t('profile.emailQRCode') }}</div>
+              <div class="qr-code-wrapper">
+                <div class="qr-code-placeholder">
+                  <img 
+                    v-if="emailQRCodeImage && !isQRCodeLoading" 
+                    :src="emailQRCodeImage" 
+                    alt="电子邮箱二维码" 
+                    class="qr-image"
+                    @error="handleQRCodeError('email')"
+                  />
+                  <div v-if="isQRCodeLoading" class="qr-code-loading">{{ t('login.captchaLoading') || '加载中...' }}</div>
+                  <div v-if="!emailQRCodeImage && !isQRCodeLoading" class="qr-code-placeholder-text">
+                    {{ t('profile.noQRCode') || '暂无二维码' }}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
             <!-- 电子邮箱 -->
             <div class="form-group">
@@ -196,7 +207,9 @@
             </div>
 
             <!-- 保存按钮 -->
-            <button class="save-btn" @click="handleSave">{{ t('profile.save') }}</button>
+            <button class="save-btn" @click="handleSave" :disabled="isLoading">
+              {{ isLoading ? (t('profile.saving') || '保存中...') : t('profile.save') }}
+            </button>
           </div>
         </div>
       </div>
@@ -212,11 +225,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { getUserInfo as getLocalUserInfo } from '../../utils/auth.js'
+import { getUserExtInfo, updateUserExtInfo, updatePassword, getUserInfo as getApiUserInfo, generateQRCode as generateQRCodeApi } from '../../api/auth.js'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -225,16 +240,19 @@ const sidebarOpen = ref(false)
 const showLoginPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
-const qrCanvas = ref(null)
+const recruitmentQRCodeImage = ref('')
+const emailQRCodeImage = ref('')
+const isLoading = ref(false)
+const isQRCodeLoading = ref(false)
 
 const characterImage = ref('https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=400&h=600&fit=crop&q=80&auto=format')
 
 const formData = reactive({
-  currentLevel: '银',
-  recruitmentLink: 'https://voyagewest.game/register?refid=11898525444',
-  playerId: '11898525444',
+  currentLevel: '',
+  recruitmentLink: '',
+  playerId: '',
   bep20Address: '',
-  email: '155155@163.COM',
+  email: '',
   loginPassword: '',
   newPassword: '',
   confirmPassword: ''
@@ -242,6 +260,16 @@ const formData = reactive({
 
 const handleImageError = () => {
   characterImage.value = 'https://via.placeholder.com/400x600/FFD700/000000?text=孙悟空'
+}
+
+// 处理二维码加载错误
+const handleQRCodeError = (type) => {
+  console.error(`${type} 二维码加载失败`)
+  if (type === 'recruitment') {
+    recruitmentQRCodeImage.value = ''
+  } else if (type === 'email') {
+    emailQRCodeImage.value = ''
+  }
 }
 
 const toggleSidebar = () => {
@@ -284,98 +312,200 @@ const copyToClipboard = async (text) => {
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!formData.bep20Address.trim()) {
     alert(t('profile.pleaseEnterBep20Address'))
     return
   }
-  console.log('提交BEP20地址:', formData.bep20Address)
-  alert(t('profile.bep20AddressSubmitted'))
+  isLoading.value = true
+  try {
+    const response = await updateUserExtInfo(
+      formData.recruitmentLink || '',
+      formData.currentLevel || '',
+      formData.playerId || '',
+      formData.bep20Address
+    )
+    if (response.code === 200) {
+      alert(t('profile.bep20AddressSubmitted') || response.msg || '提交成功')
+      // 重新加载扩展信息和二维码
+      await loadUserExtInfo()
+      await loadRecruitmentQRCode()
+    } else {
+      alert(response.msg || t('profile.updateFailed') || '提交失败')
+    }
+  } catch (error) {
+    console.error('提交扩展信息错误:', error)
+    alert(error.message || t('profile.updateFailed') || '提交失败，请重试')
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const handleSavePassword = () => {
+const handleSave = async () => {
   if (!formData.loginPassword) {
-    alert(t('profile.pleaseEnterLoginPassword'))
+    alert(t('profile.pleaseEnterLoginPassword') || '请输入当前密码')
     return
   }
   if (!formData.newPassword) {
-    alert(t('profile.pleaseEnterNewPassword'))
+    alert(t('profile.pleaseEnterNewPassword') || '请输入新密码')
     return
   }
   if (formData.newPassword !== formData.confirmPassword) {
-    alert(t('profile.passwordMismatch'))
+    alert(t('profile.passwordMismatch') || '新密码和确认密码不一致')
     return
   }
-  console.log('保存修改密码:', {
-    loginPassword: formData.loginPassword,
-    newPassword: formData.newPassword
-  })
-  alert(t('profile.passwordChangedSuccessfully'))
-  // 清空密码字段
-  formData.loginPassword = ''
-  formData.newPassword = ''
-  formData.confirmPassword = ''
-}
-
-const handleSave = () => {
-  console.log('保存个人资料:', formData)
-  alert(t('profile.profileSaved'))
-}
-
-// 生成二维码
-const generateQRCode = () => {
-  if (!qrCanvas.value) return
-  
-  const canvas = qrCanvas.value
-  const ctx = canvas.getContext('2d')
-  const size = 200
-  canvas.width = size
-  canvas.height = size
-  
-  // 简单的二维码生成（使用简单的方块图案模拟）
-  // 实际项目中可以使用 qrcode 库
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(0, 0, size, size)
-  
-  // 绘制白色背景
-  ctx.fillStyle = '#FFFFFF'
-  ctx.fillRect(10, 10, size - 20, size - 20)
-  
-  // 绘制简单的二维码图案（模拟）
-  ctx.fillStyle = '#000000'
-  const moduleSize = 8
-  const padding = 20
-  
-  // 绘制定位图案（左上、右上、左下）
-  const drawFinderPattern = (x, y) => {
-    ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7)
-    ctx.fillStyle = '#FFFFFF'
-    ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5)
-    ctx.fillStyle = '#000000'
-    ctx.fillRect(x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3)
+  isLoading.value = true
+  try {
+    const response = await updatePassword(
+      formData.loginPassword,
+      formData.newPassword,
+      formData.confirmPassword
+    )
+    if (response.code === 200) {
+      alert(t('profile.passwordChangedSuccessfully') || response.msg || '密码更新成功')
+      // 清空密码字段
+      formData.loginPassword = ''
+      formData.newPassword = ''
+      formData.confirmPassword = ''
+    } else {
+      alert(response.msg || t('profile.updateFailed') || '密码更新失败')
+    }
+  } catch (error) {
+    console.error('更新密码错误:', error)
+    alert(error.message || t('profile.updateFailed') || '密码更新失败，请重试')
+  } finally {
+    isLoading.value = false
   }
-  
-  drawFinderPattern(padding, padding)
-  drawFinderPattern(size - padding - moduleSize * 7, padding)
-  drawFinderPattern(padding, size - padding - moduleSize * 7)
-  
-  // 绘制数据模块（随机图案模拟）
-  for (let i = 0; i < 20; i++) {
-    for (let j = 0; j < 20; j++) {
-      if (Math.random() > 0.5) {
-        ctx.fillRect(
-          padding + moduleSize * 9 + i * moduleSize,
-          padding + moduleSize * 9 + j * moduleSize,
-          moduleSize - 1,
-          moduleSize - 1
-        )
+}
+
+// 加载用户信息
+const loadUserInfo = async () => {
+  try {
+    // 先从本地获取用户信息（如果有）
+    const localUserInfo = getLocalUserInfo()
+    if (localUserInfo && localUserInfo.user) {
+      formData.email = localUserInfo.user.email || ''
+    }
+    
+    // 从API获取最新用户信息
+    const response = await getApiUserInfo()
+    if (response.code === 200 && response.data && response.data.user) {
+      formData.email = response.data.user.email || ''
+      // 更新本地存储的用户信息
+      if (localUserInfo) {
+        localUserInfo.user = response.data.user
+        // 这里可以调用 setUserInfo 更新本地存储
       }
     }
+  } catch (error) {
+    console.error('加载用户信息错误:', error)
+    // 如果API调用失败，使用本地存储的用户信息
+    const localUserInfo = getLocalUserInfo()
+    if (localUserInfo && localUserInfo.user) {
+      formData.email = localUserInfo.user.email || ''
+    }
+  }
+  
+  // 生成电子邮箱二维码
+  await loadEmailQRCode()
+}
+
+// 加载电子邮箱二维码
+const loadEmailQRCode = async () => {
+  if (!formData.email) {
+    emailQRCodeImage.value = ''
+    return
+  }
+  
+  isQRCodeLoading.value = true
+  try {
+    const response = await generateQRCodeApi(formData.email)
+    console.log('生成电子邮箱二维码响应:', response)
+    if (response.code === 200 && response.data) {
+      // 确保 base64 字符串包含 data URI 前缀
+      let base64Data = response.data
+      if (typeof base64Data === 'string') {
+        // 如果返回的字符串已经包含 data URI 前缀，直接使用
+        if (!base64Data.startsWith('data:image')) {
+          base64Data = 'data:image/png;base64,' + base64Data
+        }
+        emailQRCodeImage.value = base64Data
+        console.log('设置电子邮箱二维码:', base64Data.substring(0, 50) + '...')
+      } else {
+        console.error('二维码数据格式错误:', typeof base64Data)
+        emailQRCodeImage.value = ''
+      }
+    } else {
+      console.error('生成电子邮箱二维码失败:', response.msg)
+      emailQRCodeImage.value = ''
+    }
+  } catch (error) {
+    console.error('生成电子邮箱二维码错误:', error)
+    emailQRCodeImage.value = ''
+  } finally {
+    isQRCodeLoading.value = false
   }
 }
 
-onMounted(() => {
-  generateQRCode()
+// 加载用户扩展信息
+const loadUserExtInfo = async () => {
+  try {
+    const response = await getUserExtInfo()
+    if (response.code === 200 && response.data) {
+      formData.recruitmentLink = response.data.recruitmentLink || ''
+      formData.currentLevel = response.data.currentLevel || ''
+      formData.playerId = response.data.playerId || ''
+      formData.bep20Address = response.data.bep20Address || ''
+    }
+  } catch (error) {
+    console.error('加载用户扩展信息错误:', error)
+  }
+  
+  // 生成招聘二维码
+  await loadRecruitmentQRCode()
+}
+
+// 加载招聘二维码
+const loadRecruitmentQRCode = async () => {
+  if (!formData.recruitmentLink) {
+    recruitmentQRCodeImage.value = ''
+    return
+  }
+  
+  isQRCodeLoading.value = true
+  try {
+    const response = await generateQRCodeApi(formData.recruitmentLink)
+    console.log('生成招聘二维码响应:', response)
+    if (response.code === 200 && response.data) {
+      // 确保 base64 字符串包含 data URI 前缀
+      let base64Data = response.data
+      if (typeof base64Data === 'string') {
+        // 如果返回的字符串已经包含 data URI 前缀，直接使用
+        if (!base64Data.startsWith('data:image')) {
+          base64Data = 'data:image/png;base64,' + base64Data
+        }
+        recruitmentQRCodeImage.value = base64Data
+        console.log('设置招聘二维码:', base64Data.substring(0, 50) + '...')
+      } else {
+        console.error('二维码数据格式错误:', typeof base64Data)
+        recruitmentQRCodeImage.value = ''
+      }
+    } else {
+      console.error('生成招聘二维码失败:', response.msg)
+      recruitmentQRCodeImage.value = ''
+    }
+  } catch (error) {
+    console.error('生成招聘二维码错误:', error)
+    recruitmentQRCodeImage.value = ''
+  } finally {
+    isQRCodeLoading.value = false
+  }
+}
+
+
+onMounted(async () => {
+  await loadUserInfo()
+  await loadUserExtInfo()
 })
 </script>
 
@@ -614,6 +744,25 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-code-loading {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+}
+
+.qr-code-placeholder-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  text-align: center;
 }
 
 .qr-canvas {

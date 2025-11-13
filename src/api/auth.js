@@ -96,3 +96,65 @@ export function forgotPassword(email, code, uuid) {
   })
 }
 
+/**
+ * 获取用户扩展信息
+ */
+export function getUserExtInfo() {
+  return request({
+    url: '/profile/getExtInfo',
+    method: 'get'
+  })
+}
+
+/**
+ * 更新用户扩展信息
+ * @param {string} recruitmentLink 招聘链接
+ * @param {string} currentLevel 当前旅程等级
+ * @param {string} playerId 玩家ID
+ * @param {string} bep20Address BEP20地址
+ */
+export function updateUserExtInfo(recruitmentLink, currentLevel, playerId, bep20Address) {
+  return request({
+    url: '/profile/updateExtInfo',
+    method: 'post',
+    data: {
+      recruitmentLink,
+      currentLevel,
+      playerId,
+      bep20Address
+    }
+  })
+}
+
+/**
+ * 更新用户密码
+ * @param {string} oldPassword 旧密码
+ * @param {string} newPassword 新密码
+ * @param {string} confirmPassword 确认密码
+ */
+export function updatePassword(oldPassword, newPassword, confirmPassword) {
+  return request({
+    url: '/profile/updatePassword',
+    method: 'post',
+    data: {
+      oldPassword,
+      newPassword,
+      confirmPassword
+    }
+  })
+}
+
+/**
+ * 生成二维码
+ * @param {string} content 二维码内容
+ */
+export function generateQRCode(content) {
+  return request({
+    url: '/profile/generateQRCode',
+    method: 'get',
+    params: {
+      content
+    }
+  })
+}
+
