@@ -64,6 +64,7 @@
     "confirmPassword": "비밀번호 확인",
     "verificationCode": "인증 코드",
     "register": "등록",
+    "registering": "등록 중...",
     "hasAccount": "이미 계정이 있으신가요? 로그인",
     "passwordMismatch": "비밀번호와 확인 비밀번호가 일치하지 않습니다!",
     "registerSuccess": "등록이 완료되었습니다!"
@@ -73,6 +74,7 @@
     "registeredEmail": "등록된 이메일",
     "verificationCode": "인증 코드",
     "requestResetLink": "재설정 링크 요청",
+    "sending": "전송 중...",
     "backToLogin": "로그인 페이지로 돌아가기",
     "resetLinkSent": "재설정 링크가 이메일로 전송되었습니다!"
   },

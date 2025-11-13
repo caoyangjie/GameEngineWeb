@@ -64,6 +64,7 @@
     "confirmPassword": "ยืนยันรหัสผ่าน",
     "verificationCode": "รหัสยืนยัน",
     "register": "ลงทะเบียน",
+    "registering": "กำลังลงทะเบียน...",
     "hasAccount": "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ",
     "passwordMismatch": "รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน!",
     "registerSuccess": "ลงทะเบียนสำเร็จ!"
@@ -73,6 +74,7 @@
     "registeredEmail": "อีเมลที่ลงทะเบียน",
     "verificationCode": "รหัสยืนยัน",
     "requestResetLink": "ขอลิงก์รีเซ็ต",
+    "sending": "กำลังส่ง...",
     "backToLogin": "กลับไปเข้าสู่ระบบ",
     "resetLinkSent": "ลิงก์รีเซ็ตถูกส่งไปยังอีเมลของคุณแล้ว!"
   },

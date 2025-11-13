@@ -50,3 +50,49 @@ export function logout() {
   })
 }
 
+/**
+ * 用户注册
+ * @param {string} firstName 名字
+ * @param {string} lastName 姓氏
+ * @param {string} email 邮箱
+ * @param {string} password 密码
+ * @param {string} confirmPassword 确认密码
+ * @param {string} code 验证码
+ * @param {string} uuid 唯一标识
+ * @param {string} recruiterId 招聘者ID（可选）
+ */
+export function register(firstName, lastName, email, password, confirmPassword, code, uuid, recruiterId = '') {
+  return request({
+    url: '/register',
+    method: 'post',
+    data: {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      code,
+      uuid,
+      recruiterId
+    }
+  })
+}
+
+/**
+ * 忘记密码
+ * @param {string} email 邮箱
+ * @param {string} code 验证码
+ * @param {string} uuid 唯一标识
+ */
+export function forgotPassword(email, code, uuid) {
+  return request({
+    url: '/forgotPassword',
+    method: 'post',
+    data: {
+      email,
+      code,
+      uuid
+    }
+  })
+}
+

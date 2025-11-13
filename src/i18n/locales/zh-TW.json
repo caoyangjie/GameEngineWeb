@@ -64,6 +64,7 @@
     "confirmPassword": "確認密碼",
     "verificationCode": "驗證碼",
     "register": "註冊",
+    "registering": "註冊中...",
     "hasAccount": "已有賬戶?登錄",
     "passwordMismatch": "密碼和確認密碼不匹配！",
     "registerSuccess": "註冊成功！"
@@ -73,6 +74,7 @@
     "registeredEmail": "註冊電子郵箱",
     "verificationCode": "驗證碼",
     "requestResetLink": "請求重置鏈接",
+    "sending": "發送中...",
     "backToLogin": "返回登錄頁面",
     "resetLinkSent": "重置鏈接已發送到您的郵箱！"
   },

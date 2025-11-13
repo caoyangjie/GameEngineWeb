@@ -64,6 +64,7 @@
     "confirmPassword": "Confirm Password",
     "verificationCode": "Verification Code",
     "register": "Register",
+    "registering": "Registering...",
     "hasAccount": "Already have an account? Login",
     "passwordMismatch": "Password and confirm password do not match!",
     "registerSuccess": "Registration successful!"
@@ -73,6 +74,7 @@
     "registeredEmail": "Registered Email",
     "verificationCode": "Verification Code",
     "requestResetLink": "Request Reset Link",
+    "sending": "Sending...",
     "backToLogin": "Back to Login",
     "resetLinkSent": "Reset link has been sent to your email!"
   },

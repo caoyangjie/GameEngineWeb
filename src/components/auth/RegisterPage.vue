@@ -201,19 +201,32 @@
               required
             />
             <div class="verification-code">
-              <span class="code-text">{{ verificationCode }}</span>
+              <img 
+                v-if="captchaImage && !isCaptchaLoading" 
+                :src="captchaImage" 
+                alt="验证码" 
+                class="captcha-image"
+                @click="refreshVerificationCode"
+              />
+              <div v-if="isCaptchaLoading" class="captcha-loading">{{ t('login.captchaLoading') || '加载中...' }}</div>
               <button
                 type="button"
                 class="refresh-code"
                 @click="refreshVerificationCode"
+                :disabled="isCaptchaLoading"
               >
                 🔄
               </button>
             </div>
           </div>
 
+          <!-- 错误提示 -->
+          <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+          
           <!-- 注册按钮 -->
-          <button type="submit" class="login-button">{{ t('register.register') }}</button>
+          <button type="submit" class="login-button" :disabled="isLoading">
+            {{ isLoading ? (t('register.registering') || '注册中...') : t('register.register') }}
+          </button>
 
           <!-- 返回登录链接 -->
           <div class="register-link">
@@ -234,6 +247,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { register, getCaptchaImage } from '../../api/auth.js'
 
 const { locale, t } = useI18n()
 
@@ -241,9 +255,13 @@ const router = useRouter()
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
-const verificationCode = ref('2318')
+const verificationCodeUuid = ref('')
+const captchaImage = ref('')
 const isLanguageMenuOpen = ref(false)
 const currentLocale = computed(() => locale.value)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const isCaptchaLoading = ref(false)
 
 // 语言列表
 const languages = [
@@ -282,6 +300,7 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  loadCaptcha()
 })
 
 onUnmounted(() => {
@@ -298,20 +317,79 @@ const formData = reactive({
   verificationCode: ''
 })
 
-const refreshVerificationCode = () => {
-  verificationCode.value = Math.floor(1000 + Math.random() * 9000).toString()
+const loadCaptcha = async () => {
+  isCaptchaLoading.value = true
+  try {
+    const response = await getCaptchaImage()
+    if (response.code === 200 && response.data) {
+      verificationCodeUuid.value = response.data.uuid
+      captchaImage.value = response.data.img
+      if (response.data.code) {
+        formData.verificationCode = response.data.code
+      }
+    } else {
+      console.error('获取验证码失败:', response.msg)
+      errorMessage.value = response.msg || '获取验证码失败'
+    }
+  } catch (error) {
+    console.error('获取验证码错误:', error)
+    errorMessage.value = error.message || '获取验证码失败'
+  } finally {
+    isCaptchaLoading.value = false
+  }
 }
 
-const handleRegister = () => {
-  // 验证密码是否匹配
-  if (formData.password !== formData.confirmPassword) {
-    alert(t('register.passwordMismatch'))
+const refreshVerificationCode = () => {
+  loadCaptcha()
+}
+
+const handleRegister = async () => {
+  errorMessage.value = ''
+  
+  // 验证必填项
+  if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
+    errorMessage.value = t('register.requiredFields') || '请填写所有必填项'
     return
   }
   
-  console.log('Register data:', formData)
-  // 这里可以添加实际的注册逻辑
-  alert(t('register.registerSuccess'))
+  // 验证密码是否匹配
+  if (formData.password !== formData.confirmPassword) {
+    errorMessage.value = t('register.passwordMismatch') || '两次输入的密码不一致'
+    return
+  }
+  
+  // 验证验证码
+  if (!formData.verificationCode || !verificationCodeUuid.value) {
+    errorMessage.value = t('login.invalidCode') || '请填写验证码'
+    return
+  }
+  
+  isLoading.value = true
+  try {
+    const response = await register(
+      formData.firstName,
+      formData.lastName,
+      formData.email,
+      formData.password,
+      formData.confirmPassword,
+      formData.verificationCode,
+      verificationCodeUuid.value,
+      formData.recruiterId
+    )
+    if (response.code === 200) {
+      alert(t('register.registerSuccess') || '注册成功')
+      router.goToLogin()
+    } else {
+      errorMessage.value = response.msg || t('register.failed') || '注册失败'
+      refreshVerificationCode()
+    }
+  } catch (error) {
+    console.error('注册错误:', error)
+    errorMessage.value = error.message || t('register.failed') || '注册失败，请重试'
+    refreshVerificationCode()
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const goToLogin = () => {
@@ -1536,24 +1614,40 @@ const getParticleStyle = (index) => {
   border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.code-text {
-  color: #ffd700;
-  font-size: 20px;
-  font-weight: bold;
+.captcha-image {
+  height: 40px;
+  max-width: 140px;
+  width: auto;
+  cursor: pointer;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 4px;
+  transition: all 0.3s;
+  object-fit: contain;
+}
+
+.captcha-image:hover {
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.captcha-loading {
+  color: rgba(255, 215, 0, 0.7);
+  font-size: 12px;
+  padding: 10px;
   min-width: 70px;
   text-align: center;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 215, 0, 0.2) 0%,
-    rgba(255, 140, 0, 0.15) 100%
-  );
-  border: 1px solid rgba(255, 215, 0, 0.5);
-  padding: 6px 12px;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
   border-radius: 6px;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
-  box-shadow: 
-    0 0 10px rgba(255, 215, 0, 0.3),
-    inset 0 0 10px rgba(255, 215, 0, 0.1);
+  margin-top: 10px;
+  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
 }
 
 .refresh-code {

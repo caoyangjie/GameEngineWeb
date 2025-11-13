@@ -64,6 +64,7 @@
     "confirmPassword": "Xác nhận Mật khẩu",
     "verificationCode": "Mã xác minh",
     "register": "Đăng ký",
+    "registering": "Đang đăng ký...",
     "hasAccount": "Đã có tài khoản? Đăng nhập",
     "passwordMismatch": "Mật khẩu và xác nhận mật khẩu không khớp!",
     "registerSuccess": "Đăng ký thành công!"
@@ -73,6 +74,7 @@
     "registeredEmail": "Email đã đăng ký",
     "verificationCode": "Mã xác minh",
     "requestResetLink": "Yêu cầu Liên kết Đặt lại",
+    "sending": "Đang gửi...",
     "backToLogin": "Quay lại Đăng nhập",
     "resetLinkSent": "Liên kết đặt lại đã được gửi đến email của bạn!"
   },

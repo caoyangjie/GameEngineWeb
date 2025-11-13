@@ -64,6 +64,7 @@
     "confirmPassword": "Confirmar Contraseña",
     "verificationCode": "Código de Verificación",
     "register": "Registrarse",
+    "registering": "Registrando...",
     "hasAccount": "¿Ya tienes una cuenta? Iniciar Sesión",
     "passwordMismatch": "¡La contraseña y la confirmación de contraseña no coinciden!",
     "registerSuccess": "¡Registro exitoso!"
@@ -73,6 +74,7 @@
     "registeredEmail": "Correo Electrónico Registrado",
     "verificationCode": "Código de Verificación",
     "requestResetLink": "Solicitar Enlace de Restablecimiento",
+    "sending": "Enviando...",
     "backToLogin": "Volver al Inicio de Sesión",
     "resetLinkSent": "¡El enlace de restablecimiento ha sido enviado a tu correo!"
   },
