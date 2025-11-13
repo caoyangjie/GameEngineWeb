@@ -48,7 +48,9 @@
     "verificationCode": "確認コード",
     "forgotPassword": "パスワードを忘れた?",
     "login": "ログイン",
+    "logging": "ログイン中...",
     "noAccount": "アカウントがない?登録",
+    "invalidCode": "確認コードが正しくありません",
     "simplifiedChinese": "簡体字中国語"
   },
   "register": {

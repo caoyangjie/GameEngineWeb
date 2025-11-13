@@ -160,8 +160,19 @@
           <a href="#" @click.prevent="goToForgot" class="forgot-link">{{ t('login.forgotPassword') }}</a>
         </div>
 
+        <!-- 错误提示 -->
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
         <!-- 登录按钮 -->
-        <button type="submit" class="login-button">{{ t('login.login') }}</button>
+        <button 
+          type="submit" 
+          class="login-button" 
+          :disabled="isLoading"
+        >
+          {{ isLoading ? (t('login.logging') || '登录中...') : t('login.login') }}
+        </button>
 
         <!-- 注册链接 -->
         <div class="register-link">
@@ -182,6 +193,8 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { login } from '../../api/auth.js'
+import { setToken, setUserInfo } from '../../utils/auth.js'
 
 const { locale, t } = useI18n()
 
@@ -191,6 +204,8 @@ const showPassword = ref(false)
 const verificationCode = ref('2318')
 const isLanguageMenuOpen = ref(false)
 const currentLocale = computed(() => locale.value)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 // 语言列表
 const languages = [
@@ -236,20 +251,73 @@ onUnmounted(() => {
 })
 
 const formData = reactive({
-  email: '',
-  password: '',
-  verificationCode: ''
+  email: 'admin@qq.com',
+  password: '123456',
+  verificationCode: '2318'
 })
 
 const refreshVerificationCode = () => {
   verificationCode.value = Math.floor(1000 + Math.random() * 9000).toString()
 }
 
-const handleLogin = () => {
-  console.log('Login data:', formData)
-  // 这里可以添加实际的登录逻辑
-  // 登录成功后跳转到首页
-  router.goToHome()
+const handleLogin = async () => {
+  // 重置错误信息
+  errorMessage.value = ''
+  
+  // 表单验证
+  if (!formData.email || !formData.password) {
+    errorMessage.value = t('login.requiredFields') || '请填写所有必填项'
+    return
+  }
+  
+  // 验证码验证（如果需要）
+  if (formData.verificationCode !== verificationCode.value) {
+    errorMessage.value = t('login.invalidCode') || '验证码错误'
+    refreshVerificationCode()
+    return
+  }
+  
+  // 设置加载状态
+  isLoading.value = true
+  
+  try {
+    // 调用登录接口
+    const response = await login(
+      formData.email, // 使用 email 作为 username
+      formData.password,
+      formData.verificationCode,
+      '' // uuid 暂时为空
+    )
+    
+    // 登录成功
+    if (response.code === 200 && response.data && response.data.token) {
+      // 保存 token
+      setToken(response.data.token)
+      
+      // 获取用户信息（可选）
+      try {
+        const { getUserInfo } = await import('../../api/auth.js')
+        const userInfoResponse = await getUserInfo()
+        if (userInfoResponse.code === 200 && userInfoResponse.data) {
+          setUserInfo(userInfoResponse.data)
+        }
+      } catch (err) {
+        console.warn('获取用户信息失败:', err)
+      }
+      
+      // 跳转到首页
+      router.goToHome()
+    } else {
+      errorMessage.value = response.msg || t('login.failed') || '登录失败'
+    }
+  } catch (error) {
+    // 登录失败
+    console.error('登录错误:', error)
+    errorMessage.value = error.message || t('login.failed') || '登录失败，请检查用户名和密码'
+    refreshVerificationCode()
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const goToForgot = () => {
@@ -1484,6 +1552,26 @@ const getParticleStyle = (index) => {
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
 
+/* 错误提示 */
+.error-message {
+  color: #ff6b6b;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 6px;
+  margin-top: 10px;
+  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 /* 登录按钮 */
 .login-button {
   width: 100%;
@@ -1551,6 +1639,20 @@ const getParticleStyle = (index) => {
   box-shadow: 
     0 0 20px rgba(255, 215, 0, 0.7),
     0 2px 10px rgba(255, 140, 0, 0.5);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-button:disabled:hover {
+  transform: none;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 4px 15px rgba(255, 140, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* 注册链接 */

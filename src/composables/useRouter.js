@@ -1,4 +1,5 @@
 import { ref, provide, inject } from 'vue'
+import { isAuthenticated, removeToken } from '../utils/auth.js'
 
 // 路由键，用于 provide/inject
 const ROUTER_KEY = Symbol('router')
@@ -36,6 +37,9 @@ export const ROUTES = {
   VIP_CARD_APPLICATION: 'vip-card-application'
 }
 
+// 不需要登录的路由
+const PUBLIC_ROUTES = [ROUTES.LOGIN, ROUTES.FORGOT, ROUTES.REGISTER]
+
 /**
  * 创建路由实例（在 App.vue 中使用）
  */
@@ -46,13 +50,29 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     // 当前路由
     currentRoute,
     
-    // 导航到指定路由
+    // 导航到指定路由（带路由守卫）
     navigate(route) {
-      if (Object.values(ROUTES).includes(route)) {
-        currentRoute.value = route
-      } else {
+      if (!Object.values(ROUTES).includes(route)) {
         console.warn(`Unknown route: ${route}`)
+        return false
       }
+      
+      // 路由守卫：检查是否需要登录
+      if (!PUBLIC_ROUTES.includes(route) && !isAuthenticated()) {
+        // 未登录，跳转到登录页
+        console.warn('未登录，跳转到登录页')
+        currentRoute.value = ROUTES.LOGIN
+        return false
+      }
+      
+      // 如果已登录，访问登录页则跳转到首页
+      if (route === ROUTES.LOGIN && isAuthenticated()) {
+        currentRoute.value = ROUTES.HOME
+        return true
+      }
+      
+      currentRoute.value = route
+      return true
     },
     
     // 便捷导航方法
@@ -146,6 +166,8 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     
     // 登出（跳转到登录页）
     logout() {
+      // 清除 token 和用户信息
+      removeToken()
       this.navigate(ROUTES.LOGIN)
     },
     

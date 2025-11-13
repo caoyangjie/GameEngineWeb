@@ -63,11 +63,12 @@
       <!-- 右侧用户信息面板 -->
       <div class="user-info-panel">
         <div class="panel-header">
-          <h2 class="panel-title">长赐变天</h2>
+          <h2 class="panel-title">{{ displayName }}</h2>
           <div class="panel-email">
             <span class="email-icon">📜</span>
-            <span class="email-text">155155@163.COM</span>
+            <span class="email-text">{{ displayEmail }}</span>
           </div>
+          <div v-if="loading" class="loading-indicator">加载中...</div>
         </div>
 
         <div class="balance-list">
@@ -124,11 +125,13 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { getUserInfo as getStoredUserInfo, setUserInfo } from '../../utils/auth.js'
+import { getUserInfo as fetchUserInfo } from '../../api/auth.js'
 // 导入角色图片
 import piggyImage from '../../images/Pigsy-Grey.png'
 import monkeyImage from '../../images/Monkey-King-Stronger.png'
@@ -139,6 +142,8 @@ const { t } = useI18n()
 const router = useRouter()
 
 const sidebarOpen = ref(false)
+const userInfo = ref(null)
+const loading = ref(false)
 
 // 角色图片 - 使用本地图片资源
 const characterImages = reactive({
@@ -179,6 +184,54 @@ const handleGoToDeposit = () => {
 const handleGoToVTWallet = () => {
   router.goToVTWallet()
 }
+
+// 计算显示的用户名
+const displayName = computed(() => {
+  if (!userInfo.value || !userInfo.value.user) {
+    return '...'
+  }
+  // 优先显示昵称，如果没有则显示用户名
+  return userInfo.value.user.nickName || userInfo.value.user.userName || '...'
+})
+
+// 计算显示的邮箱
+const displayEmail = computed(() => {
+  if (!userInfo.value || !userInfo.value.user) {
+    return '...'
+  }
+  return userInfo.value.user.email || '...'
+})
+
+// 加载用户信息
+const loadUserInfo = async () => {
+  loading.value = true
+  try {
+    // 先从本地存储获取
+    let storedInfo = getStoredUserInfo()
+    
+    // 如果本地没有，或者需要刷新，则从服务器获取
+    if (!storedInfo) {
+      const response = await fetchUserInfo()
+      if (response.code === 200 && response.data) {
+        storedInfo = response.data
+        setUserInfo(storedInfo)
+      }
+    }
+    
+    userInfo.value = storedInfo
+  } catch (error) {
+    console.error('加载用户信息失败:', error)
+    // 如果获取失败，尝试从本地存储获取
+    userInfo.value = getStoredUserInfo()
+  } finally {
+    loading.value = false
+  }
+}
+
+// 组件挂载时加载用户信息
+onMounted(() => {
+  loadUserInfo()
+})
 
 </script>
 
@@ -524,6 +577,13 @@ const handleGoToVTWallet = () => {
 
 .email-icon {
   font-size: 16px;
+}
+
+.loading-indicator {
+  font-size: 12px;
+  color: rgba(255, 215, 0, 0.7);
+  margin-top: 8px;
+  text-align: center;
 }
 
 .balance-list {

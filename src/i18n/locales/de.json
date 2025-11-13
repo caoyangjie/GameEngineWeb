@@ -48,7 +48,9 @@
     "verificationCode": "Bestätigungscode",
     "forgotPassword": "Passwort vergessen?",
     "login": "Anmelden",
+    "logging": "Anmeldung läuft...",
     "noAccount": "Kein Konto? Registrieren",
+    "invalidCode": "Ungültiger Bestätigungscode",
     "simplifiedChinese": "Vereinfachtes Chinesisch"
   },
   "register": {

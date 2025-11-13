@@ -48,7 +48,9 @@
     "verificationCode": "驗證碼",
     "forgotPassword": "忘記密碼?",
     "login": "登錄",
+    "logging": "登錄中...",
     "noAccount": "沒有用戶?註冊",
+    "invalidCode": "驗證碼錯誤",
     "simplifiedChinese": "簡體中文"
   },
   "register": {

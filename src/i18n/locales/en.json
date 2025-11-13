@@ -48,7 +48,9 @@
     "verificationCode": "Verification Code",
     "forgotPassword": "Forgot Password?",
     "login": "Login",
+    "logging": "Logging in...",
     "noAccount": "No account? Register",
+    "invalidCode": "Invalid verification code",
     "simplifiedChinese": "Simplified Chinese"
   },
   "register": {

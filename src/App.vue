@@ -32,6 +32,7 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import LoginPage from './components/auth/LoginPage.vue'
 import ForgotPasswordPage from './components/auth/ForgotPasswordPage.vue'
 import RegisterPage from './components/auth/RegisterPage.vue'
@@ -61,9 +62,23 @@ import PassCardManagementPage from './components/passCard/PassCardManagementPage
 import MidoxPage from './components/midox/MidoxPage.vue'
 import VipCardApplicationPage from './components/vipCard/VipCardApplicationPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
+import { isAuthenticated } from './utils/auth.js'
 
 // 创建路由实例
-const router = createRouter(ROUTES.LOGIN)
+const router = createRouter()
+
+// 初始化路由：根据登录状态决定初始路由
+onMounted(() => {
+  // 将 router 挂载到 window，供 request.js 使用
+  window.router = router
+  
+  // 如果已登录，跳转到首页；否则跳转到登录页
+  if (isAuthenticated()) {
+    router.goToHome()
+  } else {
+    router.goToLogin()
+  }
+})
 </script>
 
 <style>

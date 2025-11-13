@@ -48,7 +48,9 @@
     "verificationCode": "Mã xác minh",
     "forgotPassword": "Quên mật khẩu?",
     "login": "Đăng nhập",
+    "logging": "Đang đăng nhập...",
     "noAccount": "Chưa có tài khoản? Đăng ký",
+    "invalidCode": "Mã xác minh không hợp lệ",
     "simplifiedChinese": "Tiếng Trung Giản thể"
   },
   "register": {

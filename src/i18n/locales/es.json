@@ -48,7 +48,9 @@
     "verificationCode": "Código de Verificación",
     "forgotPassword": "¿Olvidaste tu Contraseña?",
     "login": "Iniciar Sesión",
+    "logging": "Iniciando sesión...",
     "noAccount": "¿No tienes cuenta? Regístrate",
+    "invalidCode": "Código de verificación inválido",
     "simplifiedChinese": "Chino Simplificado"
   },
   "register": {
