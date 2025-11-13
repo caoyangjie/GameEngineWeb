@@ -49,6 +49,7 @@
     "forgotPassword": "忘记密码?",
     "login": "登录",
     "logging": "登录中...",
+    "captchaLoading": "加载中...",
     "noAccount": "没有用户?注册",
     "invalidCode": "验证码错误",
     "simplifiedChinese": "简体中文"

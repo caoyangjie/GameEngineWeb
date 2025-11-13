@@ -49,6 +49,7 @@
     "forgotPassword": "Passwort vergessen?",
     "login": "Anmelden",
     "logging": "Anmeldung läuft...",
+    "captchaLoading": "Lädt...",
     "noAccount": "Kein Konto? Registrieren",
     "invalidCode": "Ungültiger Bestätigungscode",
     "simplifiedChinese": "Vereinfachtes Chinesisch"

@@ -31,6 +31,16 @@ export function getUserInfo() {
 }
 
 /**
+ * 获取验证码
+ */
+export function getCaptchaImage() {
+  return request({
+    url: '/captchaImage',
+    method: 'get'
+  })
+}
+
+/**
  * 退出登录
  */
 export function logout() {

@@ -49,6 +49,7 @@
     "forgotPassword": "비밀번호를 잊으셨나요?",
     "login": "로그인",
     "logging": "로그인 중...",
+    "captchaLoading": "로딩 중...",
     "noAccount": "계정이 없으신가요? 등록",
     "invalidCode": "인증 코드가 올바르지 않습니다",
     "simplifiedChinese": "간체 중국어"

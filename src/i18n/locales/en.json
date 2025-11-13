@@ -49,6 +49,7 @@
     "forgotPassword": "Forgot Password?",
     "login": "Login",
     "logging": "Logging in...",
+    "captchaLoading": "Loading...",
     "noAccount": "No account? Register",
     "invalidCode": "Invalid verification code",
     "simplifiedChinese": "Simplified Chinese"

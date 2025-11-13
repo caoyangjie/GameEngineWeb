@@ -49,6 +49,7 @@
     "forgotPassword": "ลืมรหัสผ่าน?",
     "login": "เข้าสู่ระบบ",
     "logging": "กำลังเข้าสู่ระบบ...",
+    "captchaLoading": "กำลังโหลด...",
     "noAccount": "ไม่มีบัญชี? ลงทะเบียน",
     "invalidCode": "รหัสยืนยันไม่ถูกต้อง",
     "simplifiedChinese": "ภาษาจีนตัวย่อ"
