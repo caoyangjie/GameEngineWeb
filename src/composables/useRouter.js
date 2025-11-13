@@ -34,7 +34,8 @@ export const ROUTES = {
   TEAM_OVERVIEW: 'team-overview',
   PASS_CARD_MANAGEMENT: 'pass-card-management',
   MIDOX: 'midox',
-  VIP_CARD_APPLICATION: 'vip-card-application'
+  VIP_CARD_APPLICATION: 'vip-card-application',
+  MEMBER_CENTER: 'member-center'
 }
 
 // 不需要登录的路由
@@ -162,6 +163,10 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToVipCardApplication() {
       this.navigate(ROUTES.VIP_CARD_APPLICATION)
+    },
+    
+    goToMemberCenter() {
+      this.navigate(ROUTES.MEMBER_CENTER)
     },
     
     // 登出（跳转到登录页）

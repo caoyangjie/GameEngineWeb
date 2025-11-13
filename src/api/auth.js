@@ -158,3 +158,13 @@ export function generateQRCode(content) {
   })
 }
 
+/**
+ * 获取存款地址和二维码
+ */
+export function getDepositAddresses() {
+  return request({
+    url: '/deposit/getAddresses',
+    method: 'get'
+  })
+}
+

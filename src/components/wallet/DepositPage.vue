@@ -42,7 +42,8 @@
         <div class="qr-code-item">
           <div class="qr-label">{{ t('deposit.bep20Address') }}</div>
           <div class="qr-code-wrapper">
-            <canvas ref="bep20QrCanvas" class="qr-canvas"></canvas>
+            <img v-if="bep20QRCode" :src="bep20QRCode" alt="BEP20 QR Code" class="qr-image" />
+            <div v-else class="qr-loading">{{ t('deposit.loadingQRCode') || '加载中...' }}</div>
           </div>
           <div class="address-wrapper">
             <span class="address-text">{{ bep20Address }}</span>
@@ -56,7 +57,8 @@
         <div class="qr-code-item">
           <div class="qr-label">{{ t('deposit.trc20Address') }}</div>
           <div class="qr-code-wrapper">
-            <canvas ref="trc20QrCanvas" class="qr-canvas"></canvas>
+            <img v-if="trc20QRCode" :src="trc20QRCode" alt="TRC20 QR Code" class="qr-image" />
+            <div v-else class="qr-loading">{{ t('deposit.loadingQRCode') || '加载中...' }}</div>
           </div>
           <div class="address-wrapper">
             <span class="address-text">{{ trc20Address }}</span>
@@ -158,6 +160,7 @@ import CustomNumberInput from '../common/CustomNumberInput.vue'
 import WithdrawalModal from '../common/WithdrawalModal.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { getDepositAddresses } from '../../api/auth.js'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -187,12 +190,12 @@ const vtReceivable = computed(() => {
 
 
 // 地址
-const bep20Address = ref('0xCc3df0Ccdec9D6ADCD3AfD999D1282Bd1939d8cd')
-const trc20Address = ref('TQfvBWeQwkvHXaaZZbdfZ6YGxENgyqqwMn')
+const bep20Address = ref('')
+const trc20Address = ref('')
 
-// 二维码 canvas 引用
-const bep20QrCanvas = ref(null)
-const trc20QrCanvas = ref(null)
+// 二维码
+const bep20QRCode = ref('')
+const trc20QRCode = ref('')
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -283,61 +286,27 @@ const copyAddress = async (address) => {
   }
 }
 
-// 生成二维码
-const generateQRCode = (canvas, text) => {
-  if (!canvas) return
-  
-  const ctx = canvas.getContext('2d')
-  const size = 200
-  canvas.width = size
-  canvas.height = size
-  
-  // 简单的二维码生成（使用简单的方块图案模拟）
-  // 实际项目中应该使用专业的二维码库，如 qrcode.js
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(0, 0, size, size)
-  
-  // 绘制简单的二维码图案
-  ctx.fillStyle = '#FFFFFF'
-  const blockSize = size / 25
-  for (let i = 0; i < 25; i++) {
-    for (let j = 0; j < 25; j++) {
-      // 模拟二维码的随机模式
-      if ((i + j) % 3 === 0 || (i * j) % 7 === 0) {
-        ctx.fillRect(i * blockSize, j * blockSize, blockSize, blockSize)
-      }
+// 加载存款地址和二维码
+const loadDepositAddresses = async () => {
+  try {
+    const response = await getDepositAddresses()
+    if (response.code === 200 && response.data) {
+      bep20Address.value = response.data.bep20Address || ''
+      trc20Address.value = response.data.trc20Address || ''
+      bep20QRCode.value = response.data.bep20QRCode || ''
+      trc20QRCode.value = response.data.trc20QRCode || ''
+    } else {
+      console.error('获取存款地址失败:', response.msg)
+      alert(response.msg || t('deposit.loadAddressFailed') || '获取存款地址失败')
     }
+  } catch (error) {
+    console.error('获取存款地址错误:', error)
+    alert(error.message || t('deposit.loadAddressFailed') || '获取存款地址失败，请重试')
   }
-  
-  // 绘制定位标记（二维码的三个角）
-  ctx.fillStyle = '#000000'
-  // 左上角
-  ctx.fillRect(0, 0, blockSize * 7, blockSize * 7)
-  ctx.fillStyle = '#FFFFFF'
-  ctx.fillRect(blockSize, blockSize, blockSize * 5, blockSize * 5)
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(blockSize * 2, blockSize * 2, blockSize * 3, blockSize * 3)
-  
-  // 右上角
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(size - blockSize * 7, 0, blockSize * 7, blockSize * 7)
-  ctx.fillStyle = '#FFFFFF'
-  ctx.fillRect(size - blockSize * 6, blockSize, blockSize * 5, blockSize * 5)
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(size - blockSize * 5, blockSize * 2, blockSize * 3, blockSize * 3)
-  
-  // 左下角
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(0, size - blockSize * 7, blockSize * 7, blockSize * 7)
-  ctx.fillStyle = '#FFFFFF'
-  ctx.fillRect(blockSize, size - blockSize * 6, blockSize * 5, blockSize * 5)
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(blockSize * 2, size - blockSize * 5, blockSize * 3, blockSize * 3)
 }
 
 onMounted(() => {
-  generateQRCode(bep20QrCanvas.value, bep20Address.value)
-  generateQRCode(trc20QrCanvas.value, trc20Address.value)
+  loadDepositAddresses()
 })
 </script>
 
@@ -603,10 +572,20 @@ onMounted(() => {
   border-radius: 8px;
 }
 
-.qr-canvas {
+.qr-image {
   width: 200px;
   height: 200px;
   display: block;
+}
+
+.qr-loading {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 215, 0, 0.8);
+  font-size: 14px;
 }
 
 .address-wrapper {

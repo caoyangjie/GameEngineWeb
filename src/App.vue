@@ -28,6 +28,7 @@
     <PassCardManagementPage v-if="router.currentRoute.value === ROUTES.PASS_CARD_MANAGEMENT" />
     <MidoxPage v-if="router.currentRoute.value === ROUTES.MIDOX" />
     <VipCardApplicationPage v-if="router.currentRoute.value === ROUTES.VIP_CARD_APPLICATION" />
+    <MemberCenterPage v-if="router.currentRoute.value === ROUTES.MEMBER_CENTER" />
   </div>
 </template>
 
@@ -61,6 +62,7 @@ import TeamOverviewPage from './components/team/TeamOverviewPage.vue'
 import PassCardManagementPage from './components/passCard/PassCardManagementPage.vue'
 import MidoxPage from './components/midox/MidoxPage.vue'
 import VipCardApplicationPage from './components/vipCard/VipCardApplicationPage.vue'
+import MemberCenterPage from './components/member/MemberCenterPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

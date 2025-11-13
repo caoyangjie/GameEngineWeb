@@ -208,6 +208,14 @@
           <span class="sidebar-icon midox-icon">M</span>
           <span class="sidebar-text">MIDOX</span>
         </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.MEMBER_CENTER }" 
+          @click="handleNavigate(ROUTES.MEMBER_CENTER)"
+        >
+          <span class="sidebar-icon">👑</span>
+          <span class="sidebar-text">{{ t('sidebar.memberCenter') }}</span>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -348,6 +356,8 @@ const handleNavigate = (route) => {
     router.goToPassCardManagement()
   } else if (route === ROUTES.MIDOX || route === 'midox') {
     router.goToMidox()
+  } else if (route === ROUTES.MEMBER_CENTER) {
+    router.goToMemberCenter()
   }
   
   // 通知父组件关闭侧边栏
