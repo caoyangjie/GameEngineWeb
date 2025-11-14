@@ -59,8 +59,8 @@
         >
           <div class="canvas-header">
             <h3 class="canvas-title">{{ canvas.title }}</h3>
-            <div class="header-badges">
-              <span v-if="canvas.version" class="version-badge">
+            <div class="canvas-header-right">
+              <span class="version-badge" v-if="canvas.version">
                 {{ t('businessModelCanvas.detail.version') }}: {{ canvas.version }}
               </span>
               <span :class="['status-badge', canvas.status === '0' ? 'status-normal' : 'status-disabled']">
@@ -68,31 +68,81 @@
               </span>
             </div>
           </div>
-          <div class="canvas-info-row" v-if="canvas.valuePropositions || canvas.customerSegments">
-            <div class="canvas-info-item" v-if="canvas.valuePropositions">
-              <div class="info-label">{{ t('businessModelCanvas.detail.valuePropositions') }}:</div>
-              <div class="info-content">{{ canvas.valuePropositions }}</div>
-            </div>
-            <div class="canvas-info-item" v-if="canvas.customerSegments">
-              <div class="info-label">{{ t('businessModelCanvas.detail.customerSegments') }}:</div>
-              <div class="info-content">{{ canvas.customerSegments }}</div>
+          
+          <!-- 价值主张和关键活动 -->
+          <div class="canvas-content-section" v-if="canvas.valuePropositions || canvas.keyActivities">
+            <div class="content-row">
+              <div class="content-item" v-if="canvas.valuePropositions">
+                <div class="content-label">{{ t('businessModelCanvas.detail.valuePropositions') }}</div>
+                <div class="content-value">{{ truncateText(canvas.valuePropositions, 150) }}</div>
+              </div>
+              <div class="content-item" v-if="canvas.keyActivities">
+                <div class="content-label">{{ t('businessModelCanvas.detail.keyActivities') }}</div>
+                <div class="content-value">{{ truncateText(canvas.keyActivities, 150) }}</div>
+              </div>
             </div>
           </div>
-          <div class="canvas-meta">
-            <span class="meta-item">
-              {{ t('businessModelCanvas.list.createTime') }}: {{ formatDate(canvas.createTime) }}
-            </span>
-            <span class="meta-item" v-if="canvas.updateTime">
-              {{ t('businessModelCanvas.list.updateTime') }}: {{ formatDate(canvas.updateTime) }}
-            </span>
+          
+          <!-- 用户画像卡片列表 -->
+          <div class="persona-cards-section">
+            <div class="persona-cards-grid">
+              <div
+                v-for="(persona, index) in getPersonaListWithDemo(canvas)"
+                :key="persona.personaId || `demo-${index}`"
+                class="persona-card"
+                :class="{ 'persona-card-demo': persona.isDemo }"
+                @click.stop="!persona.isDemo && handlePersonaCardClick(canvas.canvasId, persona.personaId)"
+              >
+                <div class="persona-card-avatar">
+                  <img v-if="persona.avatar" :src="persona.avatar" :alt="persona.name" />
+                  <div v-else class="avatar-placeholder">{{ getAvatarInitial(persona.name) }}</div>
+                </div>
+                <div class="persona-card-info">
+                  <h4 class="persona-card-name">{{ persona.name }}</h4>
+                  <div class="persona-card-basic">
+                    <span v-if="persona.age" class="info-badge">{{ persona.age }}岁</span>
+                    <span v-if="persona.gender" class="info-badge">{{ getGenderLabel(persona.gender) }}</span>
+                    <span v-if="persona.identity" class="info-badge">{{ persona.identity }}</span>
+                  </div>
+                  <div class="persona-card-desc" v-if="persona.hobbies || persona.usageScenario">
+                    <span v-if="persona.hobbies" class="desc-text">{{ persona.hobbies }}</span>
+                    <span v-if="persona.usageScenario" class="desc-text">{{ persona.usageScenario }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 更多按钮 -->
+              <div 
+                v-if="canvas.personaTotal > 3" 
+                class="persona-card-more"
+                @click.stop="handlePersona(canvas.canvasId)"
+              >
+                <div class="more-icon">+</div>
+                <div class="more-text">{{ t('businessModelCanvas.list.morePersona') }}</div>
+                <div class="more-count">{{ canvas.personaTotal - 3 }}</div>
+              </div>
+            </div>
           </div>
+          
           <div class="canvas-actions">
-            <button class="btn-action" @click.stop="handleEdit(canvas.canvasId)">
-              {{ t('businessModelCanvas.list.edit') }}
-            </button>
-            <button class="btn-action btn-danger" @click.stop="handleDelete(canvas.canvasId)">
-              {{ t('businessModelCanvas.list.delete') }}
-            </button>
+            <div class="canvas-actions-left">
+              <button class="btn-action btn-persona" @click.stop="handlePersona(canvas.canvasId)">
+                {{ t('businessModelCanvas.list.persona') }}
+              </button>
+              <button class="btn-action" @click.stop="handleEdit(canvas.canvasId)">
+                {{ t('businessModelCanvas.list.edit') }}
+              </button>
+              <button class="btn-action btn-danger" @click.stop="handleDelete(canvas.canvasId)">
+                {{ t('businessModelCanvas.list.delete') }}
+              </button>
+            </div>
+            <div class="canvas-actions-right">
+              <span class="meta-item">
+                {{ t('businessModelCanvas.list.createTime') }}: {{ formatDate(canvas.createTime) }}
+              </span>
+              <span class="meta-item" v-if="canvas.updateTime">
+                {{ t('businessModelCanvas.list.updateTime') }}: {{ formatDate(canvas.updateTime) }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -148,6 +198,7 @@ import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import { getCanvasList, deleteCanvas } from '../../api/businessModelCanvas.js'
+import { getPersonaList } from '../../api/persona.js'
 import { showAlert } from '../../utils/alert.js'
 
 const { t } = useI18n()
@@ -187,6 +238,9 @@ const loadList = async () => {
       canvasList.value = response.data.records || []
       total.value = response.data.total || 0
       totalPages.value = response.data.pages || 0
+      
+      // 为每个画布加载用户画像数据（最多4个）
+      await loadPersonasForCanvases()
     } else {
       showAlert(response.msg || '加载失败', 'error')
     }
@@ -194,6 +248,53 @@ const loadList = async () => {
     showAlert(error.message || '加载失败', 'error')
   } finally {
     loading.value = false
+  }
+}
+
+// 为所有画布加载用户画像数据
+const loadPersonasForCanvases = async () => {
+  if (!canvasList.value || canvasList.value.length === 0) {
+    return
+  }
+  
+  try {
+    // 并行加载所有画布的用户画像数据
+    const personaPromises = canvasList.value.map(async (canvas, index) => {
+      try {
+        const personaParams = {
+          canvasId: canvas.canvasId,
+          pageNum: 1,
+          pageSize: 3  // 最多加载3个
+        }
+        const personaResponse = await getPersonaList(personaParams)
+        if (personaResponse.code === 200) {
+          const personas = personaResponse.data.records || []
+          const total = personaResponse.data.total || 0
+          // 将用户画像数据关联到画布对象（使用响应式更新）
+          if (canvasList.value[index]) {
+            canvasList.value[index] = {
+              ...canvasList.value[index],
+              personas: personas,
+              personaTotal: total
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`加载画布 ${canvas.canvasId} 的用户画像失败:`, error)
+        // 如果加载失败，设置为空数组
+        if (canvasList.value[index]) {
+          canvasList.value[index] = {
+            ...canvasList.value[index],
+            personas: [],
+            personaTotal: 0
+          }
+        }
+      }
+    })
+    
+    await Promise.all(personaPromises)
+  } catch (error) {
+    console.error('加载用户画像数据失败:', error)
   }
 }
 
@@ -267,6 +368,92 @@ const formatDate = (dateStr) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+// 截断文本
+const truncateText = (text, maxLength = 200) => {
+  if (!text) return ''
+  if (text.length <= maxLength) return text
+  return text.substring(0, maxLength) + '...'
+}
+
+// 获取用户画像列表（包含demo数据，确保始终显示3个）
+const getPersonaListWithDemo = (canvas) => {
+  const personas = canvas.personas || []
+  const maxDisplay = 3
+  
+  // 如果已经有3个或更多，只取前3个
+  if (personas.length >= maxDisplay) {
+    return personas.slice(0, maxDisplay).map(p => ({ ...p, isDemo: false }))
+  }
+  
+  // 否则，用demo数据填充到3个
+  const result = personas.map(p => ({ ...p, isDemo: false }))
+  
+  // Demo数据
+  const demoData = [
+    {
+      personaId: null,
+      name: '示例用户A',
+      age: 28,
+      gender: 'M',
+      identity: '产品经理',
+      hobbies: '阅读、旅行',
+      usageScenario: '在办公室使用产品进行项目管理',
+      isDemo: true
+    },
+    {
+      personaId: null,
+      name: '示例用户B',
+      age: 32,
+      gender: 'F',
+      identity: '设计师',
+      hobbies: '绘画、音乐',
+      usageScenario: '在家中使用产品进行创意设计',
+      isDemo: true
+    },
+    {
+      personaId: null,
+      name: '示例用户C',
+      age: 25,
+      gender: 'M',
+      identity: '开发者',
+      hobbies: '编程、游戏',
+      usageScenario: '在开发环境中使用产品进行开发工作',
+      isDemo: true
+    }
+  ]
+  
+  // 填充demo数据，直到有3个
+  while (result.length < maxDisplay) {
+    const demoIndex = result.length % demoData.length
+    result.push({ ...demoData[demoIndex] })
+  }
+  
+  return result
+}
+
+// 用户画像相关方法
+const handlePersona = (canvasId) => {
+  router.navigate(ROUTES.PERSONA_LIST)
+  window.canvasId = canvasId
+}
+
+const handlePersonaCardClick = (canvasId, personaId) => {
+  router.navigate(ROUTES.PERSONA_DETAIL)
+  window.canvasId = canvasId
+  window.personaId = personaId
+}
+
+const getAvatarInitial = (name) => {
+  if (!name) return '?'
+  return name.charAt(0).toUpperCase()
+}
+
+const getGenderLabel = (gender) => {
+  if (gender === 'M') return t('persona.detail.genderMale')
+  if (gender === 'F') return t('persona.detail.genderFemale')
+  return gender
 }
 
 // 侧边栏切换
@@ -508,10 +695,18 @@ onMounted(() => {
   margin-bottom: 15px;
 }
 
-.header-badges {
+.canvas-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.canvas-header-right {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
 .version-badge {
@@ -519,17 +714,9 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
-  background: rgba(33, 150, 243, 0.3);
-  color: #2196f3;
-  border: 1px solid rgba(33, 150, 243, 0.5);
-}
-
-.canvas-title {
-  font-size: 20px;
-  font-weight: bold;
+  background: rgba(255, 215, 0, 0.2);
   color: #ffd700;
-  margin: 0;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .status-badge {
@@ -551,52 +738,253 @@ onMounted(() => {
   border: 1px solid rgba(244, 67, 54, 0.5);
 }
 
-.canvas-info-row {
+
+/* 价值主张和关键活动展示区域 */
+.canvas-content-section {
+  margin-bottom: 15px;
+}
+
+.content-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  margin-bottom: 15px;
 }
 
-.canvas-info-item {
-  padding: 12px;
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.3);
+.content-item {
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 8px;
+  padding: 12px 15px;
+  transition: all 0.3s;
 }
 
-.info-label {
-  font-size: 14px;
+.content-item:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.4);
+}
+
+.content-label {
+  font-size: 13px;
   font-weight: bold;
   color: #ffd700;
   margin-bottom: 8px;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
 }
 
-.info-content {
+.content-value {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
-  max-height: 60px;
+  word-wrap: break-word;
+  max-height: 80px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.content-value::-webkit-scrollbar {
+  width: 4px;
+}
+
+.content-value::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.content-value::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.4);
+  border-radius: 2px;
+}
+
+.content-value::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.6);
+}
+
+/* 用户画像卡片区域 */
+.persona-cards-section {
+  margin-bottom: 15px;
+}
+
+.persona-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.persona-card {
+  display: flex;
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  height: 240px;
+  overflow: hidden;
+}
+
+.persona-card:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.persona-card-demo {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.persona-card-demo:hover {
+  opacity: 0.8;
+  transform: none;
+}
+
+.persona-card-avatar {
+  width: 33.333%;
+  flex-basis: 33.333%;
+  flex-shrink: 0;
+  height: 220px;
+  margin-right: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.persona-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: bold;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.persona-card-info {
+  flex: 1;
+  flex-basis: calc(66.667% - 12px);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.persona-card-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
+  margin: 0 0 12px 0;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  word-break: break-word;
+  white-space: nowrap;
 }
 
-.canvas-meta {
+.persona-card-basic {
   display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.info-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+.persona-card-desc {
+  flex: 1;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  margin-top: 8px;
+}
+
+.desc-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.persona-card-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px dashed rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  height: 240px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.persona-card-more:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.5);
+  border-style: solid;
+}
+
+.more-icon {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 4px;
+}
+
+.more-text {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.more-count {
+  font-size: 11px;
+  color: rgba(255, 215, 0, 0.8);
 }
 
 .canvas-actions {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.canvas-actions-left {
+  display: flex;
   gap: 10px;
+}
+
+.canvas-actions-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.canvas-actions-right .meta-item {
+  white-space: nowrap;
 }
 
 .btn-action {
@@ -702,12 +1090,36 @@ onMounted(() => {
     width: 100%;
   }
 
-  .canvas-info-row {
+  .canvas-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .canvas-actions-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .canvas-header-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .content-row {
     grid-template-columns: 1fr;
   }
 
-  .canvas-actions {
-    flex-direction: column;
+  .persona-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .persona-cards-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -33,6 +33,8 @@
     <MonthlyReportEndPage v-if="router.currentRoute.value === ROUTES.MONTHLY_REPORT_END" />
     <BusinessModelCanvasListPage v-if="router.currentRoute.value === ROUTES.BUSINESS_MODEL_CANVAS_LIST" />
     <BusinessModelCanvasDetailPage v-if="router.currentRoute.value === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL" />
+    <PersonaListPage v-if="router.currentRoute.value === ROUTES.PERSONA_LIST" />
+    <PersonaDetailPage v-if="router.currentRoute.value === ROUTES.PERSONA_DETAIL" />
   </div>
 </template>
 
@@ -71,6 +73,8 @@ import MonthlyReportStartPage from './components/monthlyReport/MonthlyReportStar
 import MonthlyReportEndPage from './components/monthlyReport/MonthlyReportEndPage.vue'
 import BusinessModelCanvasListPage from './components/businessModelCanvas/BusinessModelCanvasListPage.vue'
 import BusinessModelCanvasDetailPage from './components/businessModelCanvas/BusinessModelCanvasDetailPage.vue'
+import PersonaListPage from './components/persona/PersonaListPage.vue'
+import PersonaDetailPage from './components/persona/PersonaDetailPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

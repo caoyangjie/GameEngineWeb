@@ -39,7 +39,9 @@ export const ROUTES = {
   MONTHLY_REPORT_START: 'monthly-report-start',
   MONTHLY_REPORT_END: 'monthly-report-end',
   BUSINESS_MODEL_CANVAS_LIST: 'business-model-canvas-list',
-  BUSINESS_MODEL_CANVAS_DETAIL: 'business-model-canvas-detail'
+  BUSINESS_MODEL_CANVAS_DETAIL: 'business-model-canvas-detail',
+  PERSONA_LIST: 'persona-list',
+  PERSONA_DETAIL: 'persona-detail'
 }
 
 // 不需要登录的路由
@@ -183,6 +185,12 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToBusinessModelCanvasDetail() {
       this.navigate(ROUTES.BUSINESS_MODEL_CANVAS_DETAIL)
+    },
+    goToPersonaList() {
+      this.navigate(ROUTES.PERSONA_LIST)
+    },
+    goToPersonaDetail() {
+      this.navigate(ROUTES.PERSONA_DETAIL)
     },
     
     // 登出（跳转到登录页）
