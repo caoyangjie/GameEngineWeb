@@ -22,62 +22,65 @@
       <!-- 表单 -->
       <div class="persona-form">
         <!-- 基本信息 -->
-        <div class="form-section">
+        <div class="form-section basic-info-card">
           <h2 class="section-title">{{ t('persona.detail.basicInfo') }}</h2>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="persona-name" class="form-label">{{ t('persona.detail.name') }} *</label>
-              <CustomInput
-                id="persona-name"
-                v-model="formData.name"
-                :disabled="isViewMode"
-                :placeholder="t('persona.detail.namePlaceholder')"
-              />
+          <div class="basic-info-content">
+            <!-- 左侧信息区域 -->
+            <div class="info-section">
+              <div class="info-row">
+                <div class="info-group">
+                  <label for="persona-name" class="form-label">{{ t('persona.detail.name') }} *</label>
+                  <CustomInput
+                    id="persona-name"
+                    v-model="formData.name"
+                    :disabled="isViewMode"
+                    :placeholder="t('persona.detail.namePlaceholder')"
+                  />
+                </div>
+                <div class="info-group">
+                  <label for="persona-age" class="form-label">{{ t('persona.detail.age') }}</label>
+                  <CustomInput
+                    id="persona-age"
+                    v-model="formData.age"
+                    :disabled="isViewMode"
+                    :placeholder="t('persona.detail.agePlaceholder')"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-group">
+                  <label for="persona-gender" class="form-label">{{ t('persona.detail.gender') }}</label>
+                  <CustomSelect
+                    id="persona-gender"
+                    v-model="formData.gender"
+                    :options="genderOptions"
+                    :disabled="isViewMode"
+                    :placeholder="t('persona.detail.genderPlaceholder')"
+                  />
+                </div>
+                <div class="info-group">
+                  <label for="persona-identity" class="form-label">{{ t('persona.detail.identity') }}</label>
+                  <CustomInput
+                    id="persona-identity"
+                    v-model="formData.identity"
+                    :disabled="isViewMode"
+                    :placeholder="t('persona.detail.identityPlaceholder')"
+                  />
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="persona-age" class="form-label">{{ t('persona.detail.age') }}</label>
-              <CustomInput
-                id="persona-age"
-                v-model="formData.age"
-                :disabled="isViewMode"
-                :placeholder="t('persona.detail.agePlaceholder')"
-                type="number"
-              />
-            </div>
-            <div class="form-group">
-              <label for="persona-gender" class="form-label">{{ t('persona.detail.gender') }}</label>
-              <CustomSelect
-                id="persona-gender"
-                v-model="formData.gender"
-                :options="genderOptions"
-                :disabled="isViewMode"
-                :placeholder="t('persona.detail.genderPlaceholder')"
-              />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="persona-identity" class="form-label">{{ t('persona.detail.identity') }}</label>
-              <CustomInput
-                id="persona-identity"
-                v-model="formData.identity"
-                :disabled="isViewMode"
-                :placeholder="t('persona.detail.identityPlaceholder')"
-              />
-            </div>
-            <div class="form-group">
-              <label for="persona-avatar" class="form-label">{{ t('persona.detail.avatar') }}</label>
-              <CustomInput
+            <!-- 右侧头像区域 -->
+            <div class="avatar-section">
+              <div class="avatar-label">{{ t('persona.detail.avatar') }}</div>
+              <AvatarDisplay
                 id="persona-avatar"
                 v-model="formData.avatar"
                 :disabled="isViewMode"
+                :is-view-mode="isViewMode"
                 :placeholder="t('persona.detail.avatarPlaceholder')"
               />
             </div>
-          </div>
-          <div class="form-group" v-if="formData.createTime">
-            <div class="form-label">{{ t('persona.list.createTime') }}</div>
-            <div class="form-readonly">{{ formatDate(formData.createTime) }}</div>
           </div>
         </div>
 
@@ -138,6 +141,7 @@ import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import CustomTextarea from '../common/CustomTextarea.vue'
+import AvatarDisplay from '../common/AvatarDisplay.vue'
 import { getPersonaById, createPersona, updatePersona } from '../../api/persona.js'
 import { showAlert } from '../../utils/alert.js'
 
@@ -478,12 +482,61 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
 }
 
+.basic-info-card {
+  padding: 30px;
+}
+
 .section-title {
   font-size: 24px;
   color: #ffd700;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   border-bottom: 2px solid rgba(255, 215, 0, 0.3);
   padding-bottom: 10px;
+}
+
+.basic-info-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.avatar-section {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  min-width: 180px;
+}
+
+.avatar-label {
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-row {
@@ -523,6 +576,20 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
+  }
+
+  .basic-info-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .avatar-section {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .info-row {
+    grid-template-columns: 1fr;
   }
 
   .form-row {
