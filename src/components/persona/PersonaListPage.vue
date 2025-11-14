@@ -158,6 +158,7 @@
       :persona-id="currentPersonaId"
       :initial-content="scenarioContent"
       @save="handleScenarioSave"
+      @close="handleScenarioModalClose"
     />
   </div>
 </template>
@@ -171,7 +172,7 @@ import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import ScenarioAnalysisModal from './ScenarioAnalysisModal.vue'
-import { getPersonaList, deletePersona } from '../../api/persona.js'
+import { getPersonaList, getPersonaById, updatePersona, deletePersona } from '../../api/persona.js'
 import { showAlert, showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
@@ -285,22 +286,84 @@ const handleEdit = (personaId) => {
 }
 
 // 场景分析
-const handleScenarioAnalysis = (personaId) => {
+const handleScenarioAnalysis = async (personaId) => {
   currentPersonaId.value = personaId
-  // TODO: 从服务器加载已保存的场景分析内容
-  scenarioContent.value = ''
-  showScenarioModal.value = true
+  
+  try {
+    // 从列表中查找对应的 persona，获取 usageScenario
+    const persona = personaList.value.find(p => p.personaId === personaId)
+    if (persona && persona.usageScenario) {
+      scenarioContent.value = persona.usageScenario
+    } else {
+      // 如果列表中没有，则从服务器加载完整数据
+      const response = await getPersonaById(personaId)
+      if (response.code === 200 && response.data) {
+        scenarioContent.value = response.data.usageScenario || ''
+      } else {
+        scenarioContent.value = ''
+      }
+    }
+    showScenarioModal.value = true
+  } catch (error) {
+    console.error('加载场景分析内容失败:', error)
+    scenarioContent.value = ''
+    showScenarioModal.value = true
+  }
 }
 
 // 保存场景分析
 const handleScenarioSave = async (data) => {
   try {
-    // TODO: 调用API保存场景分析内容
-    // const response = await saveScenarioAnalysis(data.personaId, data.content)
-    showAlert(t('persona.scenarioAnalysis.saveSuccess'), { type: 'success' })
+    // 先从列表或服务器获取完整的 persona 数据
+    let persona = personaList.value.find(p => p.personaId === data.personaId)
+    
+    // 如果列表中没有完整数据，则从服务器加载
+    if (!persona || !persona.name) {
+      const getResponse = await getPersonaById(data.personaId)
+      if (getResponse.code === 200 && getResponse.data) {
+        persona = getResponse.data
+      } else {
+        showAlert(t('persona.scenarioAnalysis.saveFailed') + ': ' + (getResponse.msg || '获取用户画像数据失败'), { type: 'error' })
+        return
+      }
+    }
+    
+    // 构建更新数据，保留所有原有字段，只更新 usageScenario
+    const updateData = {
+      personaId: persona.personaId,
+      canvasId: persona.canvasId,
+      name: persona.name,
+      age: persona.age,
+      gender: persona.gender,
+      identity: persona.identity,
+      hobbies: persona.hobbies,
+      usageScenario: data.content, // 更新场景分析内容
+      avatar: persona.avatar
+    }
+    
+    // 调用API更新用户画像
+    const response = await updatePersona(updateData)
+    
+    if (response.code === 200) {
+      showAlert(t('persona.scenarioAnalysis.saveSuccess'), { type: 'success' })
+      // 更新列表中的对应数据
+      const listPersona = personaList.value.find(p => p.personaId === data.personaId)
+      if (listPersona) {
+        listPersona.usageScenario = data.content
+      }
+    } else {
+      showAlert(response.msg || t('persona.scenarioAnalysis.saveFailed'), { type: 'error' })
+    }
   } catch (error) {
     showAlert(error.message || t('persona.scenarioAnalysis.saveFailed'), { type: 'error' })
   }
+}
+
+// 场景分析弹窗关闭
+const handleScenarioModalClose = () => {
+  // 清空场景内容，避免下次打开时显示旧数据
+  scenarioContent.value = ''
+  currentPersonaId.value = null
 }
 
 // 删除
