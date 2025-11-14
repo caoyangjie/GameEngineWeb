@@ -225,7 +225,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
@@ -378,6 +378,21 @@ const handleSave = async () => {
   }
 }
 
+// 回车键事件处理
+const handleKeydown = (event) => {
+  // 如果按的是回车键，且不在加载中，触发保存
+  if (event.key === 'Enter' && !isLoading.value) {
+    // 如果焦点在输入框中，不触发保存（避免与表单提交冲突）
+    const target = event.target
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      return
+    }
+    // 其他情况下，回车键触发保存
+    event.preventDefault()
+    handleSave()
+  }
+}
+
 // 加载用户信息
 const loadUserInfo = async () => {
   try {
@@ -506,6 +521,13 @@ const loadRecruitmentQRCode = async () => {
 onMounted(async () => {
   await loadUserInfo()
   await loadUserExtInfo()
+  // 添加键盘事件监听
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  // 移除键盘事件监听
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 

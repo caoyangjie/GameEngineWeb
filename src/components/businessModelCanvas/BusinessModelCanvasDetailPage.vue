@@ -24,30 +24,45 @@
         <!-- 基本信息 -->
         <div class="form-section">
           <h2 class="section-title">{{ t('businessModelCanvas.detail.basicInfo') }}</h2>
-          <div class="form-group">
-            <label for="canvas-title" class="form-label">{{ t('businessModelCanvas.detail.title') }} *</label>
-            <CustomInput
-              id="canvas-title"
-              v-model="formData.title"
-              :disabled="isViewMode"
-              :placeholder="t('businessModelCanvas.detail.titlePlaceholder')"
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="canvas-title" class="form-label">{{ t('businessModelCanvas.detail.title') }} *</label>
+              <CustomInput
+                id="canvas-title"
+                v-model="formData.title"
+                :disabled="isViewMode"
+                :placeholder="t('businessModelCanvas.detail.titlePlaceholder')"
+              />
+            </div>
+            <div class="form-group">
+              <label for="canvas-version" class="form-label">{{ t('businessModelCanvas.detail.version') }}</label>
+              <CustomInput
+                id="canvas-version"
+                v-model="formData.version"
+                :disabled="isViewMode"
+                :placeholder="t('businessModelCanvas.detail.versionPlaceholder')"
+              />
+            </div>
+            <div class="form-group">
+              <label for="canvas-status" class="form-label">{{ t('businessModelCanvas.detail.status') }}</label>
+              <CustomSelect
+                id="canvas-status"
+                v-model="formData.status"
+                :options="statusOptions"
+                :disabled="isViewMode"
+                :placeholder="t('businessModelCanvas.detail.statusPlaceholder')"
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="canvas-status" class="form-label">{{ t('businessModelCanvas.detail.status') }}</label>
-            <CustomSelect
-              id="canvas-status"
-              v-model="formData.status"
-              :options="statusOptions"
-              :disabled="isViewMode"
-              :placeholder="t('businessModelCanvas.detail.statusPlaceholder')"
-            />
+          <div class="form-group" v-if="formData.createTime">
+            <div class="form-label">{{ t('businessModelCanvas.detail.createTime') }}</div>
+            <div class="form-readonly">{{ formatDate(formData.createTime) }}</div>
           </div>
         </div>
 
         <!-- 商业模式画布9要素 -->
         <div class="canvas-grid">
-          <!-- 左侧：关键合作、关键活动、关键资源、价值主张 -->
+          <!-- 左侧：关键合作、关键活动、关键资源 -->
           <div class="canvas-left">
             <div class="canvas-block">
               <h3 class="block-title">{{ t('businessModelCanvas.detail.keyPartners') }}</h3>
@@ -76,7 +91,11 @@
                 :rows="6"
               />
             </div>
-            <div class="canvas-block highlight">
+          </div>
+
+          <!-- 中间：价值主张（居中） -->
+          <div class="canvas-center">
+            <div class="canvas-block">
               <h3 class="block-title">{{ t('businessModelCanvas.detail.valuePropositions') }}</h3>
               <CustomTextarea
                 v-model="formData.valuePropositions"
@@ -87,8 +106,8 @@
             </div>
           </div>
 
-          <!-- 中间：客户关系、渠道通路、客户细分 -->
-          <div class="canvas-center">
+          <!-- 右侧：客户关系、渠道通路、客户细分 -->
+          <div class="canvas-right">
             <div class="canvas-block">
               <h3 class="block-title">{{ t('businessModelCanvas.detail.customerRelationships') }}</h3>
               <CustomTextarea
@@ -117,10 +136,13 @@
               />
             </div>
           </div>
+        </div>
 
-          <!-- 右侧：成本构成、售卖途径 -->
-          <div class="canvas-right">
-            <div class="canvas-block">
+        <!-- 成本构成和售卖途径 -->
+        <div class="form-section">
+          <h2 class="section-title">{{ t('businessModelCanvas.detail.financialInfo') }}</h2>
+          <div class="financial-row">
+            <div class="financial-field">
               <h3 class="block-title">{{ t('businessModelCanvas.detail.costStructure') }}</h3>
               <CustomTextarea
                 v-model="formData.costStructure"
@@ -129,7 +151,7 @@
                 :rows="6"
               />
             </div>
-            <div class="canvas-block">
+            <div class="financial-field">
               <h3 class="block-title">{{ t('businessModelCanvas.detail.revenueStreams') }}</h3>
               <CustomTextarea
                 v-model="formData.revenueStreams"
@@ -139,17 +161,6 @@
               />
             </div>
           </div>
-        </div>
-
-        <!-- 备注 -->
-        <div class="form-section">
-          <h2 class="section-title">{{ t('businessModelCanvas.detail.remark') }}</h2>
-          <CustomTextarea
-            v-model="formData.remark"
-            :disabled="isViewMode"
-            :placeholder="t('businessModelCanvas.detail.remarkPlaceholder')"
-            :rows="4"
-          />
         </div>
       </div>
 
@@ -177,7 +188,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import TopHeader from '../common/TopHeader.vue'
@@ -207,6 +218,7 @@ const loading = ref(false)
 const formData = ref({
   canvasId: null,
   title: '',
+  version: '',
   keyPartners: '',
   keyActivities: '',
   keyResources: '',
@@ -217,7 +229,7 @@ const formData = ref({
   costStructure: '',
   revenueStreams: '',
   status: '0',
-  remark: ''
+  createTime: null
 })
 
 // 计算属性
@@ -296,6 +308,20 @@ const handleBack = () => {
   delete window.canvasEditMode
 }
 
+// 格式化日期
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
 // 侧边栏切换
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -306,12 +332,43 @@ const handleSidebarClose = () => {
   sidebarOpen.value = false
 }
 
+// 回车键事件处理
+const handleKeydown = (event) => {
+  // 如果按的是回车键，且不在只读模式下，触发保存
+  if (event.key === 'Enter' && !isViewMode.value && !loading.value) {
+    // 如果焦点在输入框或文本框中，不触发保存（避免与表单提交冲突）
+    const target = event.target
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      // 如果是在文本框中，允许回车触发保存
+      if (target.tagName === 'TEXTAREA') {
+        // 对于 textarea，Ctrl+Enter 或 Cmd+Enter 触发保存
+        if (event.ctrlKey || event.metaKey) {
+          event.preventDefault()
+          handleSave()
+        }
+      }
+      return
+    }
+    // 其他情况下，回车键触发保存
+    event.preventDefault()
+    handleSave()
+  }
+}
+
 // 初始化
 onMounted(() => {
   mode.value = window.canvasEditMode || 'create'
   if (window.canvasId) {
     loadData()
   }
+  // 添加键盘事件监听
+  window.addEventListener('keydown', handleKeydown)
+})
+
+// 清理
+onUnmounted(() => {
+  // 移除键盘事件监听
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -465,8 +522,24 @@ onMounted(() => {
   padding-bottom: 10px;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .form-group {
   margin-bottom: 20px;
+}
+
+.form-readonly {
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
 }
 
 .form-label {
@@ -521,6 +594,52 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
+  align-items: stretch;
+}
+
+/* 左右列也需要使用flex布局以确保高度一致 */
+.canvas-left,
+.canvas-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+/* 中间列（价值主张）需要与左侧对齐，高度与左右三个输入框一致 */
+.canvas-center {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.canvas-center .canvas-block {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-center .canvas-block :deep(.custom-textarea-wrapper) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-center .canvas-block :deep(.custom-textarea) {
+  flex: 1;
+  min-height: 0;
+}
+
+.financial-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.financial-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .canvas-block {
@@ -597,6 +716,18 @@ onMounted(() => {
   .canvas-grid {
     grid-template-columns: 1fr 1fr;
   }
+  
+  .canvas-center {
+    grid-column: 1 / -1;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .financial-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -610,7 +741,23 @@ onMounted(() => {
     align-items: flex-start;
   }
 
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
   .canvas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .canvas-center {
+    grid-column: 1;
+  }
+  
+  .canvas-center .canvas-block :deep(.custom-textarea) {
+    min-height: 200px;
+  }
+
+  .financial-row {
     grid-template-columns: 1fr;
   }
 

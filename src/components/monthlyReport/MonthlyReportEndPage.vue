@@ -371,7 +371,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
@@ -461,6 +461,26 @@ const saveReport = () => {
   alert(t('monthlyReport.end.saveSuccess'))
 }
 
+// 回车键事件处理
+const handleKeydown = (event) => {
+  // 如果按的是回车键，触发保存
+  if (event.key === 'Enter') {
+    // 如果焦点在输入框或文本框中，不触发保存（避免与表单提交冲突）
+    const target = event.target
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      // 对于 textarea，Ctrl+Enter 或 Cmd+Enter 触发保存
+      if (target.tagName === 'TEXTAREA' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault()
+        saveReport()
+      }
+      return
+    }
+    // 其他情况下，回车键触发保存
+    event.preventDefault()
+    saveReport()
+  }
+}
+
 const resetReport = () => {
   if (confirm(t('monthlyReport.end.resetConfirm'))) {
     reportData.revenueGoals = {
@@ -507,6 +527,13 @@ const resetReport = () => {
 // 加载保存的报告数据
 onMounted(() => {
   // TODO: 从服务器或本地存储加载数据
+  // 添加键盘事件监听
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  // 移除键盘事件监听
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
