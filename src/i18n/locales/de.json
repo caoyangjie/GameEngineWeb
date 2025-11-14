@@ -11,7 +11,8 @@
     "teamDungeon": "Team-Dungeon wird bald eröffnet",
     "appName": "Reise nach Westen",
     "appSubtitle": "Grenzen Herausfordern • Über Grenzen Hinaus",
-    "alertConfirm": "OK"
+    "alertConfirm": "OK",
+    "alertCancel": "Abbrechen"
   },
   "sidebar": {
     "backToHome": "Zurück zur Startseite",

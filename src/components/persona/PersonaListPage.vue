@@ -62,6 +62,11 @@
           class="persona-item"
           @click="handleView(persona.personaId)"
         >
+          <button class="persona-delete-btn" @click.stop="handleDelete(persona.personaId)" :title="t('persona.list.delete')">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <div class="persona-header">
             <div class="persona-avatar">
               <img v-if="persona.avatar" :src="persona.avatar" :alt="persona.name" />
@@ -87,19 +92,21 @@
             </div>
           </div>
           <div class="persona-meta">
-            <span class="meta-item">
-              {{ t('persona.list.createTime') }}: {{ formatDate(persona.createTime) }}
-            </span>
-          </div>
-          <div class="persona-actions">
+            <div class="meta-item">
+              <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="meta-label">{{ t('persona.list.createTime') }}:</span>
+              <span class="meta-value">{{ formatDate(persona.createTime) }}</span>
+            </div>
             <button class="btn-action btn-scenario" @click.stop="handleScenarioAnalysis(persona.personaId)">
-              {{ t('persona.list.scenarioAnalysis') }}
-            </button>
-            <button class="btn-action" @click.stop="handleEdit(persona.personaId)">
-              {{ t('persona.list.edit') }}
-            </button>
-            <button class="btn-action btn-danger" @click.stop="handleDelete(persona.personaId)">
-              {{ t('persona.list.delete') }}
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18 17l-5-5-5 5-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 11l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{{ t('persona.list.scenarioAnalysis') }}</span>
             </button>
           </div>
         </div>
@@ -156,7 +163,7 @@ import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import { getPersonaList, deletePersona } from '../../api/persona.js'
-import { showAlert } from '../../utils/alert.js'
+import { showAlert, showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -275,7 +282,8 @@ const handleScenarioAnalysis = (personaId) => {
 
 // 删除
 const handleDelete = async (personaId) => {
-  if (!confirm(t('persona.list.confirmDelete'))) {
+  const confirmed = await showConfirm(t('persona.list.confirmDelete'), { type: 'error' })
+  if (!confirmed) {
     return
   }
   try {
@@ -552,9 +560,14 @@ onMounted(() => {
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   margin-bottom: 30px;
+  align-items: stretch;
 }
 
 .persona-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.7) 0%,
@@ -571,6 +584,48 @@ onMounted(() => {
   backdrop-filter: blur(10px);
 }
 
+.persona-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 2px 8px rgba(244, 67, 54, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  padding: 0;
+}
+
+.persona-delete-btn:hover {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.35) 0%, rgba(244, 67, 54, 0.25) 100%);
+  border-color: rgba(244, 67, 54, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(244, 67, 54, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(1.1) rotate(90deg);
+}
+
+.persona-delete-btn:active {
+  transform: scale(0.95);
+}
+
+.persona-delete-btn svg {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 1px 2px rgba(244, 67, 54, 0.3));
+}
+
 .persona-item:hover {
   border-color: rgba(255, 215, 0, 0.7);
   box-shadow: 
@@ -584,6 +639,12 @@ onMounted(() => {
   gap: 15px;
   margin-bottom: 15px;
   align-items: center;
+  justify-content: space-between;
+}
+
+.persona-header .btn-scenario {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .persona-avatar {
@@ -641,7 +702,8 @@ onMounted(() => {
 }
 
 .persona-content {
-  margin-bottom: 15px;
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .persona-field {
@@ -671,51 +733,107 @@ onMounted(() => {
 
 .persona-meta {
   display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: auto;
+  padding-top: 15px;
+  min-height: 50px;
 }
 
-.persona-actions {
+.meta-item {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.04) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.meta-item:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.08) 100%);
+  border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.meta-icon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 215, 0, 0.9);
+  flex-shrink: 0;
+}
+
+.meta-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .btn-action {
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
   border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   color: white;
   cursor: pointer;
-  font-size: 12px;
-  transition: all 0.3s;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
 .btn-action:hover {
-  background: rgba(255, 215, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
   border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .btn-scenario {
   color: #4caf50;
   border-color: rgba(76, 175, 80, 0.5);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
 }
 
 .btn-scenario:hover {
-  background: rgba(76, 175, 80, 0.2);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
   border-color: rgba(76, 175, 80, 0.7);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
-.btn-danger {
-  color: #f44336;
-  border-color: rgba(244, 67, 54, 0.5);
-}
-
-.btn-danger:hover {
-  background: rgba(244, 67, 54, 0.2);
-  border-color: rgba(244, 67, 54, 0.7);
+.btn-scenario .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(76, 175, 80, 0.3));
 }
 
 .empty-state,
@@ -800,8 +918,40 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 
-  .persona-actions {
+  .persona-header {
+    flex-wrap: wrap;
+  }
+
+  .persona-header .btn-scenario {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .persona-meta {
     flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .persona-meta .meta-item {
+    justify-content: center;
+  }
+
+  .persona-meta .btn-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .persona-delete-btn {
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .persona-delete-btn svg {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>

@@ -11,7 +11,8 @@
     "teamDungeon": "团队副本即将开启",
     "appName": "西域旅",
     "appSubtitle": "挑战边界 • 超越极限",
-    "alertConfirm": "确定"
+    "alertConfirm": "确定",
+    "alertCancel": "取消"
   },
   "sidebar": {
     "backToHome": "返回首页",

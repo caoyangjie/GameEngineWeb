@@ -11,7 +11,8 @@
     "teamDungeon": "ดันเจี้ยนทีมจะเปิดเร็วๆ นี้",
     "appName": "การเดินทางไปทางตะวันตก",
     "appSubtitle": "ท้าทายขอบเขต • ก้าวข้ามขีดจำกัด",
-    "alertConfirm": "ตกลง"
+    "alertConfirm": "ตกลง",
+    "alertCancel": "ยกเลิก"
   },
   "sidebar": {
     "backToHome": "กลับหน้าหลัก",

@@ -11,7 +11,8 @@
     "teamDungeon": "Hầm ngục nhóm sắp mở",
     "appName": "Hành trình Tây Du",
     "appSubtitle": "Thách thức Ranh giới • Vượt qua Giới hạn",
-    "alertConfirm": "OK"
+    "alertConfirm": "OK",
+    "alertCancel": "Hủy"
   },
   "sidebar": {
     "backToHome": "Về Trang chủ",

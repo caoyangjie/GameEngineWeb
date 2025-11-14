@@ -11,7 +11,8 @@
     "teamDungeon": "Team dungeon opening soon",
     "appName": "Journey to the West",
     "appSubtitle": "Challenge Boundaries • Beyond Limits",
-    "alertConfirm": "OK"
+    "alertConfirm": "OK",
+    "alertCancel": "Cancel"
   },
   "sidebar": {
     "backToHome": "Back to Home",

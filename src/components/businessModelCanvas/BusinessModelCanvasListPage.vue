@@ -60,12 +60,27 @@
           <div class="canvas-header">
             <h3 class="canvas-title">{{ canvas.title }}</h3>
             <div class="canvas-header-right">
-              <span class="version-badge" v-if="canvas.version">
-                {{ t('businessModelCanvas.detail.version') }}: {{ canvas.version }}
-              </span>
-              <span :class="['status-badge', canvas.status === '0' ? 'status-normal' : 'status-disabled']">
-                {{ canvas.status === '0' ? t('businessModelCanvas.list.statusNormal') : t('businessModelCanvas.list.statusDisabled') }}
-              </span>
+              <button class="btn-action btn-persona" @click.stop="handlePersona(canvas.canvasId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>{{ t('businessModelCanvas.list.persona') }}</span>
+              </button>
+              <button class="btn-action" @click.stop="handleEdit(canvas.canvasId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('businessModelCanvas.list.edit') }}</span>
+              </button>
+              <button class="btn-action btn-danger" @click.stop="handleDelete(canvas.canvasId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('businessModelCanvas.list.delete') }}</span>
+              </button>
             </div>
           </div>
           
@@ -124,24 +139,44 @@
           </div>
           
           <div class="canvas-actions">
-            <div class="canvas-actions-left">
-              <button class="btn-action btn-persona" @click.stop="handlePersona(canvas.canvasId)">
-                {{ t('businessModelCanvas.list.persona') }}
-              </button>
-              <button class="btn-action" @click.stop="handleEdit(canvas.canvasId)">
-                {{ t('businessModelCanvas.list.edit') }}
-              </button>
-              <button class="btn-action btn-danger" @click.stop="handleDelete(canvas.canvasId)">
-                {{ t('businessModelCanvas.list.delete') }}
-              </button>
-            </div>
             <div class="canvas-actions-right">
-              <span class="meta-item">
-                {{ t('businessModelCanvas.list.createTime') }}: {{ formatDate(canvas.createTime) }}
-              </span>
-              <span class="meta-item" v-if="canvas.updateTime">
-                {{ t('businessModelCanvas.list.updateTime') }}: {{ formatDate(canvas.updateTime) }}
-              </span>
+              <div class="info-items-row">
+                <div class="meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="meta-label">{{ t('businessModelCanvas.list.createTime') }}:</span>
+                  <span class="meta-value">{{ formatDate(canvas.createTime) }}</span>
+                </div>
+                <div class="meta-item" v-if="canvas.updateTime">
+                  <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                  </svg>
+                  <span class="meta-label">{{ t('businessModelCanvas.list.updateTime') }}:</span>
+                  <span class="meta-value">{{ formatDate(canvas.updateTime) }}</span>
+                </div>
+                <div class="version-badge" v-if="canvas.version">
+                  <svg class="badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="badge-label">{{ t('businessModelCanvas.detail.version') }}</span>
+                  <span class="badge-value">{{ canvas.version }}</span>
+                </div>
+                <div :class="['status-badge', canvas.status === '0' ? 'status-normal' : 'status-disabled']">
+                  <svg v-if="canvas.status === '0'" class="badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg v-else class="badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="badge-text">{{ canvas.status === '0' ? t('businessModelCanvas.list.statusNormal') : t('businessModelCanvas.list.statusDisabled') }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -199,7 +234,7 @@ import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import { getCanvasList, deleteCanvas } from '../../api/businessModelCanvas.js'
 import { getPersonaList } from '../../api/persona.js'
-import { showAlert } from '../../utils/alert.js'
+import { showAlert, showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -341,7 +376,8 @@ const handleEdit = (canvasId) => {
 
 // 删除
 const handleDelete = async (canvasId) => {
-  if (!confirm(t('businessModelCanvas.list.confirmDelete'))) {
+  const confirmed = await showConfirm(t('businessModelCanvas.list.confirmDelete'), { type: 'error' })
+  if (!confirmed) {
     return
   }
   try {
@@ -709,34 +745,6 @@ onMounted(() => {
   gap: 10px;
 }
 
-.version-badge {
-  padding: 6px 14px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: bold;
-  background: rgba(255, 215, 0, 0.2);
-  color: #ffd700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.status-badge {
-  padding: 6px 14px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.status-normal {
-  background: rgba(76, 175, 80, 0.3);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.5);
-}
-
-.status-disabled {
-  background: rgba(244, 67, 54, 0.3);
-  color: #f44336;
-  border: 1px solid rgba(244, 67, 54, 0.5);
-}
 
 
 /* 价值主张和关键活动展示区域 */
@@ -964,53 +972,248 @@ onMounted(() => {
 
 .canvas-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
+  align-items: flex-start;
   gap: 15px;
   margin-top: 15px;
 }
 
-.canvas-actions-left {
-  display: flex;
-  gap: 10px;
-}
-
 .canvas-actions-right {
   display: flex;
-  gap: 20px;
   align-items: center;
+  justify-content: flex-end;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.canvas-actions-right .meta-item {
+.info-items-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.04) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.meta-item:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.08) 100%);
+  border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.meta-icon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 215, 0, 0.9);
+  flex-shrink: 0;
+}
+
+.meta-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.version-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.15) 100%);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 
+    0 2px 8px rgba(255, 215, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.version-badge:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0.25) 100%);
+  border-color: rgba(255, 215, 0, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(255, 215, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.badge-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.badge-label {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.badge-value {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.status-normal {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(76, 175, 80, 0.15) 100%);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  box-shadow: 
+    0 2px 8px rgba(76, 175, 80, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.status-normal:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.35) 0%, rgba(76, 175, 80, 0.25) 100%);
+  border-color: rgba(76, 175, 80, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(76, 175, 80, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.status-normal .badge-icon {
+  color: #4caf50;
+}
+
+.status-disabled {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.25) 0%, rgba(244, 67, 54, 0.15) 100%);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  box-shadow: 
+    0 2px 8px rgba(244, 67, 54, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.status-disabled:hover {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.35) 0%, rgba(244, 67, 54, 0.25) 100%);
+  border-color: rgba(244, 67, 54, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(244, 67, 54, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.status-disabled .badge-icon {
+  color: #f44336;
+}
+
+.badge-text {
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .btn-action {
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
   border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   color: white;
   cursor: pointer;
-  font-size: 12px;
-  transition: all 0.3s;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
 .btn-action:hover {
-  background: rgba(255, 215, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
   border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.btn-persona {
+  color: #4caf50;
+  border-color: rgba(76, 175, 80, 0.5);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+}
+
+.btn-persona:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
+  border-color: rgba(76, 175, 80, 0.7);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-persona .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(76, 175, 80, 0.3));
 }
 
 .btn-danger {
   color: #f44336;
   border-color: rgba(244, 67, 54, 0.5);
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
 }
 
 .btn-danger:hover {
-  background: rgba(244, 67, 54, 0.2);
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
   border-color: rgba(244, 67, 54, 0.7);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.btn-danger .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(244, 67, 54, 0.3));
 }
 
 .empty-state,
@@ -1091,21 +1294,27 @@ onMounted(() => {
   }
 
   .canvas-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: flex-end;
   }
 
   .canvas-actions-right {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .info-items-row {
+    justify-content: flex-end;
+    gap: 10px;
   }
 
   .canvas-header-right {
     flex-direction: column;
     align-items: flex-end;
     gap: 8px;
+  }
+
+  .canvas-header-right .btn-action {
+    width: 100%;
+    min-width: auto;
   }
 
   .content-row {

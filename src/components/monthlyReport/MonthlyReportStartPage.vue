@@ -280,6 +280,7 @@ import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -374,8 +375,9 @@ const handleKeydown = (event) => {
   }
 }
 
-const resetReport = () => {
-  if (confirm(t('monthlyReport.start.resetConfirm'))) {
+const resetReport = async () => {
+  const confirmed = await showConfirm(t('monthlyReport.start.resetConfirm'), { type: 'info' })
+  if (confirmed) {
     reportData.revenueGoals = {
       targetMRR: null,
       currentMRR: null,

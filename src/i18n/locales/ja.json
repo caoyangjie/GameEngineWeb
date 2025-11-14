@@ -11,7 +11,8 @@
     "teamDungeon": "チームダンジョン間もなく開始",
     "appName": "西域の旅",
     "appSubtitle": "境界に挑戦 • 限界を超える",
-    "alertConfirm": "OK"
+    "alertConfirm": "OK",
+    "alertCancel": "キャンセル"
   },
   "sidebar": {
     "backToHome": "ホームに戻る",

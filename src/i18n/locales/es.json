@@ -11,7 +11,8 @@
     "teamDungeon": "La mazmorra de equipo se abrirá pronto",
     "appName": "Viaje al Oeste",
     "appSubtitle": "Desafiar Límites • Más Allá de los Límites",
-    "alertConfirm": "OK"
+    "alertConfirm": "OK",
+    "alertCancel": "Cancelar"
   },
   "sidebar": {
     "backToHome": "Volver al Inicio",
