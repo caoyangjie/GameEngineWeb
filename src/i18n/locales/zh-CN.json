@@ -929,6 +929,7 @@
       "detailTitle": "场景详情",
       "allPersona": "全部用户画像",
       "personaName": "用户画像名",
+      "personaNamePlaceholder": "请输入用户画像名称",
       "titlePlaceholder": "请输入场景标题",
       "goalPlaceholder": "请输入目标关键词",
       "createTime": "创建时间",

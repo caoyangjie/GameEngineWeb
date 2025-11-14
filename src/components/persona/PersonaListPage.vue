@@ -27,10 +27,10 @@
       <div class="search-section">
         <div class="filter-row">
           <div class="filter-field">
-            <div class="filter-label">{{ t('persona.detail.name') }}</div>
+            <div class="filter-label">{{ t('persona.scenarioList.personaName') }}</div>
             <CustomInput
               v-model="nameFilter"
-              :placeholder="t('persona.detail.namePlaceholder')"
+              :placeholder="t('persona.scenarioList.personaNamePlaceholder')"
               @keyup.enter="handleSearch"
             />
           </div>
