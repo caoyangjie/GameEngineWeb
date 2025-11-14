@@ -20,7 +20,6 @@
         <div class="wallet-title">{{ t('deposit.usdWallet') }}</div>
         <div class="wallet-balance">
           <div class="balance-icon">💰</div>
-          <div class="balance-icon">💰</div>
           <div class="balance-info">
             <div class="balance-label">{{ t('deposit.usdBalance') }}</div>
             <div class="balance-value">{{ usdBalance }} USD</div>

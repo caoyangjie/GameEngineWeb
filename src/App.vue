@@ -29,6 +29,10 @@
     <MidoxPage v-if="router.currentRoute.value === ROUTES.MIDOX" />
     <VipCardApplicationPage v-if="router.currentRoute.value === ROUTES.VIP_CARD_APPLICATION" />
     <MemberCenterPage v-if="router.currentRoute.value === ROUTES.MEMBER_CENTER" />
+    <MonthlyReportStartPage v-if="router.currentRoute.value === ROUTES.MONTHLY_REPORT_START" />
+    <MonthlyReportEndPage v-if="router.currentRoute.value === ROUTES.MONTHLY_REPORT_END" />
+    <BusinessModelCanvasListPage v-if="router.currentRoute.value === ROUTES.BUSINESS_MODEL_CANVAS_LIST" />
+    <BusinessModelCanvasDetailPage v-if="router.currentRoute.value === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL" />
   </div>
 </template>
 
@@ -63,6 +67,10 @@ import PassCardManagementPage from './components/passCard/PassCardManagementPage
 import MidoxPage from './components/midox/MidoxPage.vue'
 import VipCardApplicationPage from './components/vipCard/VipCardApplicationPage.vue'
 import MemberCenterPage from './components/member/MemberCenterPage.vue'
+import MonthlyReportStartPage from './components/monthlyReport/MonthlyReportStartPage.vue'
+import MonthlyReportEndPage from './components/monthlyReport/MonthlyReportEndPage.vue'
+import BusinessModelCanvasListPage from './components/businessModelCanvas/BusinessModelCanvasListPage.vue'
+import BusinessModelCanvasDetailPage from './components/businessModelCanvas/BusinessModelCanvasDetailPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

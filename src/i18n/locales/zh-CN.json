@@ -41,6 +41,10 @@
     "teamOverview": "团队详情",
     "passCardManagement": "PASS卡/优惠卷管理",
     "memberCenter": "会员中心",
+    "monthlyReport": "一人企业月报",
+    "monthlyReportStart": "月初月报",
+    "monthlyReportEnd": "月末月报",
+    "businessModelCanvas": "商业模式画布",
     "logout": "登出",
     "simplifiedChinese": "简体中文"
   },
@@ -616,5 +620,174 @@
     "unifiPrice": "UNIFI 价格",
     "percentage": "百分比",
     "purchaseValue": "购买价值"
+  },
+  "monthlyReport": {
+    "start": {
+      "title": "一人企业月报 - 月初版本",
+      "revenueGoals": {
+        "title": "收益目标",
+        "targetMRR": "收益目标",
+        "targetMRRDesc": "本期规划希望达到的目标·MRR",
+        "currentMRR": "当前资产收益",
+        "currentMRRDesc": "本期开始前的MRR",
+        "mvpProfit": "最低可行利润",
+        "mvpProfitDesc": "维持业务的最小利润",
+        "workFreedom": "工作自由",
+        "workFreedomDesc": "被动收入超过主业或超过家庭日常花销"
+      },
+      "assetChanges": {
+        "title": "资产变动",
+        "newAssets": "新增资产",
+        "optimizedAssets": "优化资产",
+        "disposedAssets": "处理资产",
+        "score": "评分",
+        "notes": "备注",
+        "addAsset": "添加资产"
+      },
+      "userPool": {
+        "title": "用户池",
+        "description": "可以触达的用户·K",
+        "nativeUsers": "原生用户",
+        "nativeUsersDesc": "自有平台上,拥有手机号或安装APP,可以无限制触达的用户",
+        "thirdPartyUsers": "第三方平台用户",
+        "thirdPartyUsersDesc": "第三方平台上,受限可触达的用户",
+        "spreadingUsers": "传播用户",
+        "spreadingUsersDesc": "参与二次传播的用户数",
+        "payingUsers": "付费用户",
+        "payingUsersDesc": "购买过付费产品的用户"
+      },
+      "contentPool": {
+        "title": "内容池",
+        "description": "可以带来收入或流量的内容",
+        "placeholder": "请输入内容池相关信息..."
+      },
+      "infrastructure": {
+        "title": "基础设施",
+        "description": "多资产共用的基建",
+        "placeholder": "请输入基础设施相关信息..."
+      },
+      "save": "保存",
+      "reset": "重置",
+      "dateFormat": "{year}年{month}月",
+      "saveSuccess": "报告已保存！",
+      "resetConfirm": "确定要重置所有数据吗？"
+    },
+    "end": {
+      "title": "一人企业月报 - 月末版本",
+      "revenueGoals": {
+        "title": "收益目标",
+        "targetMRR": "收益目标",
+        "targetMRRDesc": "本期规划希望达到的目标·MRR",
+        "currentMRR": "当前资产收益",
+        "currentMRRDesc": "本期开始前的MRR",
+        "mvpProfit": "最低可行利润",
+        "mvpProfitDesc": "维持业务的最小利润",
+        "workFreedom": "工作自由",
+        "workFreedomDesc": "被动收入超过主业或超过家庭日常花销"
+      },
+      "assetComposition": {
+        "title": "资产构成",
+        "primaryAssets": "首要资产",
+        "secondaryAssets": "次要资产",
+        "otherAssets": "其他资产（合计）",
+        "positiveAssets": "正向资产",
+        "negativeAssets": "负向资产",
+        "score": "评分",
+        "notes": "备注",
+        "addAsset": "添加资产"
+      },
+      "userPool": {
+        "title": "用户池",
+        "description": "可以触达的用户·K",
+        "nativeUsers": "原生用户",
+        "nativeUsersDesc": "自有平台上,拥有手机号或安装APP,可以无限制触达的用户",
+        "thirdPartyUsers": "第三方平台用户",
+        "thirdPartyUsersDesc": "第三方平台上,受限可触达的用户",
+        "spreadingUsers": "传播用户",
+        "spreadingUsersDesc": "参与二次传播的用户数",
+        "payingUsers": "付费用户",
+        "payingUsersDesc": "购买过付费产品的用户",
+        "total": "总数",
+        "monthlyActive": "月活",
+        "monthlyChange": "月增减",
+        "quantity": "数量",
+        "thisMonth": "本月"
+      },
+      "contentPool": {
+        "title": "内容池",
+        "description": "可以带来收入或流量的内容",
+        "placeholder": "请输入内容池相关信息..."
+      },
+      "infrastructure": {
+        "title": "基础设施",
+        "description": "多资产共用的基建",
+        "placeholder": "请输入基础设施相关信息..."
+      },
+      "save": "保存",
+      "reset": "重置",
+      "dateFormat": "{year}年{month}月",
+      "saveSuccess": "报告已保存！",
+      "resetConfirm": "确定要重置所有数据吗？"
+    }
+  },
+  "businessModelCanvas": {
+    "list": {
+      "title": "商业模式画布",
+      "create": "创建画布",
+      "searchPlaceholder": "搜索标题、关键合作、价值主张...",
+      "allStatus": "全部状态",
+      "statusNormal": "正常",
+      "statusDisabled": "停用",
+      "search": "搜索",
+      "reset": "重置",
+      "createTime": "创建时间",
+      "updateTime": "更新时间",
+      "edit": "编辑",
+      "delete": "删除",
+      "empty": "暂无数据",
+      "loading": "加载中...",
+      "prevPage": "上一页",
+      "nextPage": "下一页",
+      "pageInfo": "第 {current} 页 / 共 {total} 页",
+      "confirmDelete": "确定要删除这条记录吗？",
+      "deleteSuccess": "删除成功"
+    },
+    "detail": {
+      "createTitle": "创建商业模式画布",
+      "editTitle": "编辑商业模式画布",
+      "viewTitle": "查看商业模式画布",
+      "back": "返回",
+      "save": "保存",
+      "edit": "编辑",
+      "basicInfo": "基本信息",
+      "title": "标题",
+      "titlePlaceholder": "请输入画布标题",
+      "status": "状态",
+      "statusNormal": "正常",
+      "statusDisabled": "停用",
+      "keyPartners": "关键合作",
+      "keyPartnersPlaceholder": "请输入关键合作伙伴信息...",
+      "keyActivities": "关键活动",
+      "keyActivitiesPlaceholder": "请输入关键业务活动...",
+      "keyResources": "关键资源",
+      "keyResourcesPlaceholder": "请输入关键资源信息...",
+      "valuePropositions": "价值主张",
+      "valuePropositionsPlaceholder": "请输入价值主张...",
+      "customerRelationships": "客户关系",
+      "customerRelationshipsPlaceholder": "请输入客户关系信息...",
+      "channels": "渠道通路",
+      "channelsPlaceholder": "请输入渠道通路信息...",
+      "customerSegments": "客户细分",
+      "customerSegmentsPlaceholder": "请输入客户细分信息...",
+      "costStructure": "成本构成",
+      "costStructurePlaceholder": "请输入成本构成信息...",
+      "revenueStreams": "售卖途径",
+      "revenueStreamsPlaceholder": "请输入售卖途径信息...",
+      "remark": "备注",
+      "remarkPlaceholder": "请输入备注信息...",
+      "titleRequired": "标题不能为空",
+      "createSuccess": "创建成功",
+      "updateSuccess": "更新成功"
+    }
   }
 }

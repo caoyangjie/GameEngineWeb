@@ -3,15 +3,15 @@
     <!-- 右侧边栏菜单 -->
     <aside class="sidebar" :class="{ open: isOpen }">
       <div class="sidebar-content">
-        <div class="sidebar-item" :class="{ active: activeRoute === 'home' }" @click="handleNavigate('home')">
+        <div class="sidebar-item" :class="{ active: activeRoute === ROUTES.HOME || activeRoute === 'home' }" @click="handleNavigate(ROUTES.HOME)">
           <span class="sidebar-icon">🏯</span>
           <span class="sidebar-text">{{ t('sidebar.backToHome') }}</span>
         </div>
-        <div class="sidebar-item" :class="{ active: activeRoute === 'profile' }" @click="handleNavigate('profile')">
+        <div class="sidebar-item" :class="{ active: activeRoute === ROUTES.PROFILE || activeRoute === 'profile' }" @click="handleNavigate(ROUTES.PROFILE)">
           <span class="sidebar-icon">👤</span>
           <span class="sidebar-text">{{ t('sidebar.profile') }}</span>
         </div>
-        <div class="sidebar-item" :class="{ active: activeRoute === 'tasks' }" @click="handleNavigate('tasks')">
+        <div class="sidebar-item" :class="{ active: activeRoute === ROUTES.TASKS || activeRoute === 'tasks' }" @click="handleNavigate(ROUTES.TASKS)">
           <span class="sidebar-icon">📜</span>
           <span class="sidebar-text">{{ t('sidebar.taskLog') }}</span>
         </div>
@@ -216,6 +216,38 @@
           <span class="sidebar-icon">👑</span>
           <span class="sidebar-text">{{ t('sidebar.memberCenter') }}</span>
         </div>
+        <div class="sidebar-item" @click="toggleMonthlyReportSubmenu">
+          <span class="sidebar-icon">📊</span>
+          <span class="sidebar-text">{{ t('sidebar.monthlyReport') }}</span>
+          <span class="sidebar-arrow" :class="{ rotated: showMonthlyReportSubmenu }">→</span>
+        </div>
+        <!-- 月报二级菜单 -->
+        <div v-if="showMonthlyReportSubmenu" class="submenu">
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.MONTHLY_REPORT_START }" 
+            @click="handleNavigate(ROUTES.MONTHLY_REPORT_START)"
+          >
+            <span class="submenu-icon">📅</span>
+            <span class="submenu-text">{{ t('sidebar.monthlyReportStart') }}</span>
+          </div>
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.MONTHLY_REPORT_END }" 
+            @click="handleNavigate(ROUTES.MONTHLY_REPORT_END)"
+          >
+            <span class="submenu-icon">📈</span>
+            <span class="submenu-text">{{ t('sidebar.monthlyReportEnd') }}</span>
+          </div>
+        </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.BUSINESS_MODEL_CANVAS_LIST || activeRoute === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL }" 
+          @click="handleNavigate(ROUTES.BUSINESS_MODEL_CANVAS_LIST)"
+        >
+          <span class="sidebar-icon">📋</span>
+          <span class="sidebar-text">{{ t('sidebar.businessModelCanvas') }}</span>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -254,6 +286,7 @@ const showJourneySubmenu = ref(false)
 const showVaultSubmenu = ref(false)
 const showVaultHistorySubmenu = ref(false)
 const showIncomeHistorySubmenu = ref(false)
+const showMonthlyReportSubmenu = ref(false)
 
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
@@ -273,6 +306,9 @@ watch(() => props.activeRoute, (newRoute) => {
       newRoute === ROUTES.UNIFI_RELEASE_HISTORY || newRoute === ROUTES.UNIFI_LOCK_HISTORY) {
     showIncomeHistorySubmenu.value = true
   }
+  if (newRoute === ROUTES.MONTHLY_REPORT_START || newRoute === ROUTES.MONTHLY_REPORT_END) {
+    showMonthlyReportSubmenu.value = true
+  }
 }, { immediate: true })
 
 const toggleJourneySubmenu = () => {
@@ -291,6 +327,10 @@ const toggleIncomeHistorySubmenu = () => {
   showIncomeHistorySubmenu.value = !showIncomeHistorySubmenu.value
 }
 
+const toggleMonthlyReportSubmenu = () => {
+  showMonthlyReportSubmenu.value = !showMonthlyReportSubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
@@ -307,6 +347,9 @@ const handleNavigate = (route) => {
       route === ROUTES.RECRUITMENT_BOUNTY_HISTORY || route === ROUTES.UPGRADE_BOUNTY_HISTORY ||
       route === ROUTES.UNIFI_RELEASE_HISTORY || route === ROUTES.UNIFI_LOCK_HISTORY) {
     showIncomeHistorySubmenu.value = false
+  }
+  if (route === ROUTES.MONTHLY_REPORT_START || route === ROUTES.MONTHLY_REPORT_END) {
+    showMonthlyReportSubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -358,6 +401,14 @@ const handleNavigate = (route) => {
     router.goToMidox()
   } else if (route === ROUTES.MEMBER_CENTER) {
     router.goToMemberCenter()
+  } else if (route === ROUTES.MONTHLY_REPORT_START) {
+    router.goToMonthlyReportStart()
+  } else if (route === ROUTES.MONTHLY_REPORT_END) {
+    router.goToMonthlyReportEnd()
+  } else if (route === ROUTES.BUSINESS_MODEL_CANVAS_LIST) {
+    router.goToBusinessModelCanvasList()
+  } else if (route === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL) {
+    router.goToBusinessModelCanvasDetail()
   }
   
   // 通知父组件关闭侧边栏

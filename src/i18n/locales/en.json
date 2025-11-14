@@ -40,6 +40,11 @@
     "unifiLockHistory": "UNIFI Lock History",
     "teamOverview": "Team Overview",
     "passCardManagement": "PASS Card/Coupon Management",
+    "memberCenter": "Member Center",
+    "monthlyReport": "Solo Business Monthly Report",
+    "monthlyReportStart": "Start of Month Report",
+    "monthlyReportEnd": "End of Month Report",
+    "businessModelCanvas": "Business Model Canvas",
     "logout": "Logout",
     "simplifiedChinese": "Simplified Chinese"
   },
@@ -571,5 +576,174 @@
     "unifiPrice": "UNIFI Price",
     "percentage": "Percentage",
     "purchaseValue": "Purchase Value"
+  },
+  "monthlyReport": {
+    "start": {
+      "title": "Solo Business Monthly Report - Start of Month",
+      "revenueGoals": {
+        "title": "Revenue Goals",
+        "targetMRR": "Revenue Goal",
+        "targetMRRDesc": "Target MRR for this planning period",
+        "currentMRR": "Current Asset Revenue",
+        "currentMRRDesc": "MRR before the start of this period",
+        "mvpProfit": "Minimum Viable Profit",
+        "mvpProfitDesc": "Minimum profit to sustain the business",
+        "workFreedom": "Work Freedom",
+        "workFreedomDesc": "Passive income exceeds main income or daily household expenses"
+      },
+      "assetChanges": {
+        "title": "Asset Changes",
+        "newAssets": "New Assets",
+        "optimizedAssets": "Optimized Assets",
+        "disposedAssets": "Disposed Assets",
+        "score": "Score",
+        "notes": "Notes",
+        "addAsset": "Add Asset"
+      },
+      "userPool": {
+        "title": "User Pool",
+        "description": "Reachable users · K",
+        "nativeUsers": "Native Users",
+        "nativeUsersDesc": "Users on own platform, with phone numbers or installed APP, can be reached without restrictions",
+        "thirdPartyUsers": "Third-Party Platform Users",
+        "thirdPartyUsersDesc": "Users on third-party platforms, can be reached with restrictions",
+        "spreadingUsers": "Spreading Users",
+        "spreadingUsersDesc": "Number of users participating in secondary dissemination",
+        "payingUsers": "Paying Users",
+        "payingUsersDesc": "Users who have purchased paid products"
+      },
+      "contentPool": {
+        "title": "Content Pool",
+        "description": "Content that can bring revenue or traffic",
+        "placeholder": "Please enter content pool information..."
+      },
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Infrastructure shared by multiple assets",
+        "placeholder": "Please enter infrastructure information..."
+      },
+      "save": "Save",
+      "reset": "Reset",
+      "dateFormat": "{month}/{year}",
+      "saveSuccess": "Report saved successfully!",
+      "resetConfirm": "Are you sure you want to reset all data?"
+    },
+    "end": {
+      "title": "Solo Business Monthly Report - End of Month",
+      "revenueGoals": {
+        "title": "Revenue Goals",
+        "targetMRR": "Revenue Goal",
+        "targetMRRDesc": "Target MRR for this planning period",
+        "currentMRR": "Current Asset Revenue",
+        "currentMRRDesc": "MRR before the start of this period",
+        "mvpProfit": "Minimum Viable Profit",
+        "mvpProfitDesc": "Minimum profit to sustain the business",
+        "workFreedom": "Work Freedom",
+        "workFreedomDesc": "Passive income exceeds main income or daily household expenses"
+      },
+      "assetComposition": {
+        "title": "Asset Composition",
+        "primaryAssets": "Primary Assets",
+        "secondaryAssets": "Secondary Assets",
+        "otherAssets": "Other Assets (Total)",
+        "positiveAssets": "Positive Assets",
+        "negativeAssets": "Negative Assets",
+        "score": "Score",
+        "notes": "Notes",
+        "addAsset": "Add Asset"
+      },
+      "userPool": {
+        "title": "User Pool",
+        "description": "Reachable users · K",
+        "nativeUsers": "Native Users",
+        "nativeUsersDesc": "Users on own platform, with phone numbers or installed APP, can be reached without restrictions",
+        "thirdPartyUsers": "Third-Party Platform Users",
+        "thirdPartyUsersDesc": "Users on third-party platforms, can be reached with restrictions",
+        "spreadingUsers": "Spreading Users",
+        "spreadingUsersDesc": "Number of users participating in secondary spread",
+        "payingUsers": "Paying Users",
+        "payingUsersDesc": "Users who have purchased paid products",
+        "total": "Total",
+        "monthlyActive": "Monthly Active",
+        "monthlyChange": "Monthly Change",
+        "quantity": "Quantity",
+        "thisMonth": "This Month"
+      },
+      "contentPool": {
+        "title": "Content Pool",
+        "description": "Content that can bring revenue or traffic",
+        "placeholder": "Please enter content pool information..."
+      },
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Infrastructure shared by multiple assets",
+        "placeholder": "Please enter infrastructure information..."
+      },
+      "save": "Save",
+      "reset": "Reset",
+      "dateFormat": "{month}/{year}",
+      "saveSuccess": "Report saved successfully!",
+      "resetConfirm": "Are you sure you want to reset all data?"
+    }
+  },
+  "businessModelCanvas": {
+    "list": {
+      "title": "Business Model Canvas",
+      "create": "Create Canvas",
+      "searchPlaceholder": "Search title, key partners, value propositions...",
+      "allStatus": "All Status",
+      "statusNormal": "Normal",
+      "statusDisabled": "Disabled",
+      "search": "Search",
+      "reset": "Reset",
+      "createTime": "Create Time",
+      "updateTime": "Update Time",
+      "edit": "Edit",
+      "delete": "Delete",
+      "empty": "No data",
+      "loading": "Loading...",
+      "prevPage": "Previous",
+      "nextPage": "Next",
+      "pageInfo": "Page {current} / {total}",
+      "confirmDelete": "Are you sure you want to delete this record?",
+      "deleteSuccess": "Deleted successfully"
+    },
+    "detail": {
+      "createTitle": "Create Business Model Canvas",
+      "editTitle": "Edit Business Model Canvas",
+      "viewTitle": "View Business Model Canvas",
+      "back": "Back",
+      "save": "Save",
+      "edit": "Edit",
+      "basicInfo": "Basic Information",
+      "title": "Title",
+      "titlePlaceholder": "Please enter canvas title",
+      "status": "Status",
+      "statusNormal": "Normal",
+      "statusDisabled": "Disabled",
+      "keyPartners": "Key Partners",
+      "keyPartnersPlaceholder": "Please enter key partners information...",
+      "keyActivities": "Key Activities",
+      "keyActivitiesPlaceholder": "Please enter key activities...",
+      "keyResources": "Key Resources",
+      "keyResourcesPlaceholder": "Please enter key resources...",
+      "valuePropositions": "Value Propositions",
+      "valuePropositionsPlaceholder": "Please enter value propositions...",
+      "customerRelationships": "Customer Relationships",
+      "customerRelationshipsPlaceholder": "Please enter customer relationships...",
+      "channels": "Channels",
+      "channelsPlaceholder": "Please enter channels information...",
+      "customerSegments": "Customer Segments",
+      "customerSegmentsPlaceholder": "Please enter customer segments...",
+      "costStructure": "Cost Structure",
+      "costStructurePlaceholder": "Please enter cost structure...",
+      "revenueStreams": "Revenue Streams",
+      "revenueStreamsPlaceholder": "Please enter revenue streams...",
+      "remark": "Remark",
+      "remarkPlaceholder": "Please enter remark...",
+      "titleRequired": "Title is required",
+      "createSuccess": "Created successfully",
+      "updateSuccess": "Updated successfully"
+    }
   }
 }

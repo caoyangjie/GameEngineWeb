@@ -35,7 +35,11 @@ export const ROUTES = {
   PASS_CARD_MANAGEMENT: 'pass-card-management',
   MIDOX: 'midox',
   VIP_CARD_APPLICATION: 'vip-card-application',
-  MEMBER_CENTER: 'member-center'
+  MEMBER_CENTER: 'member-center',
+  MONTHLY_REPORT_START: 'monthly-report-start',
+  MONTHLY_REPORT_END: 'monthly-report-end',
+  BUSINESS_MODEL_CANVAS_LIST: 'business-model-canvas-list',
+  BUSINESS_MODEL_CANVAS_DETAIL: 'business-model-canvas-detail'
 }
 
 // 不需要登录的路由
@@ -167,6 +171,18 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     
     goToMemberCenter() {
       this.navigate(ROUTES.MEMBER_CENTER)
+    },
+    goToMonthlyReportStart() {
+      this.navigate(ROUTES.MONTHLY_REPORT_START)
+    },
+    goToMonthlyReportEnd() {
+      this.navigate(ROUTES.MONTHLY_REPORT_END)
+    },
+    goToBusinessModelCanvasList() {
+      this.navigate(ROUTES.BUSINESS_MODEL_CANVAS_LIST)
+    },
+    goToBusinessModelCanvasDetail() {
+      this.navigate(ROUTES.BUSINESS_MODEL_CANVAS_DETAIL)
     },
     
     // 登出（跳转到登录页）
