@@ -59,9 +59,24 @@
         >
           <div class="canvas-header">
             <h3 class="canvas-title">{{ canvas.title }}</h3>
-            <span :class="['status-badge', canvas.status === '0' ? 'status-normal' : 'status-disabled']">
-              {{ canvas.status === '0' ? t('businessModelCanvas.list.statusNormal') : t('businessModelCanvas.list.statusDisabled') }}
-            </span>
+            <div class="header-badges">
+              <span v-if="canvas.version" class="version-badge">
+                {{ t('businessModelCanvas.detail.version') }}: {{ canvas.version }}
+              </span>
+              <span :class="['status-badge', canvas.status === '0' ? 'status-normal' : 'status-disabled']">
+                {{ canvas.status === '0' ? t('businessModelCanvas.list.statusNormal') : t('businessModelCanvas.list.statusDisabled') }}
+              </span>
+            </div>
+          </div>
+          <div class="canvas-info-row" v-if="canvas.valuePropositions || canvas.customerSegments">
+            <div class="canvas-info-item" v-if="canvas.valuePropositions">
+              <div class="info-label">{{ t('businessModelCanvas.detail.valuePropositions') }}:</div>
+              <div class="info-content">{{ canvas.valuePropositions }}</div>
+            </div>
+            <div class="canvas-info-item" v-if="canvas.customerSegments">
+              <div class="info-label">{{ t('businessModelCanvas.detail.customerSegments') }}:</div>
+              <div class="info-content">{{ canvas.customerSegments }}</div>
+            </div>
           </div>
           <div class="canvas-meta">
             <span class="meta-item">
@@ -493,6 +508,22 @@ onMounted(() => {
   margin-bottom: 15px;
 }
 
+.header-badges {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.version-badge {
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  background: rgba(33, 150, 243, 0.3);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.5);
+}
+
 .canvas-title {
   font-size: 20px;
   font-weight: bold;
@@ -518,6 +549,41 @@ onMounted(() => {
   background: rgba(244, 67, 54, 0.3);
   color: #f44336;
   border: 1px solid rgba(244, 67, 54, 0.5);
+}
+
+.canvas-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.canvas-info-item {
+  padding: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+}
+
+.info-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 8px;
+}
+
+.info-content {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .canvas-meta {
@@ -634,6 +700,10 @@ onMounted(() => {
   
   .btn-reset {
     width: 100%;
+  }
+
+  .canvas-info-row {
+    grid-template-columns: 1fr;
   }
 
   .canvas-actions {
