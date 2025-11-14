@@ -127,6 +127,7 @@ const initMermaid = () => {
   if (mermaidInitialized) return
   
   try {
+    // Mermaid 11.x 的 initialize 是同步方法
     mermaid.initialize({
       startOnLoad: false,
       theme: 'dark',
@@ -150,8 +151,11 @@ const initMermaid = () => {
       securityLevel: 'loose'
     })
     mermaidInitialized = true
+    console.log('Mermaid 初始化完成')
   } catch (error) {
     console.error('Mermaid initialization error:', error)
+    // 初始化失败时，标记为已尝试，避免重复尝试
+    mermaidInitialized = true
   }
 }
 
@@ -178,13 +182,22 @@ renderer.code = function(code, language, escaped) {
     const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     // 将代码存储在 data 属性中，方便后续获取（使用 base64 编码避免 HTML 属性问题）
     try {
-      const encodedCode = btoa(unescape(encodeURIComponent(rawCode)))
+      // 修复 Base64 编码逻辑，确保正确处理 UTF-8
+      const utf8Bytes = new TextEncoder().encode(rawCode)
+      const binaryString = String.fromCharCode(...utf8Bytes)
+      const encodedCode = btoa(binaryString)
       // 使用 textContent 避免 HTML 转义
       return `<div class="diagram-container mermaid-container" data-type="mermaid" data-id="${id}" data-code-base64="${encodedCode}"><pre class="mermaid"></pre></div>`
     } catch (e) {
       // 如果 base64 编码失败，使用 URI 编码
-      const encodedCode = encodeURIComponent(rawCode)
-      return `<div class="diagram-container mermaid-container" data-type="mermaid" data-id="${id}" data-code="${encodedCode}"><pre class="mermaid"></pre></div>`
+      try {
+        const encodedCode = encodeURIComponent(rawCode)
+        return `<div class="diagram-container mermaid-container" data-type="mermaid" data-id="${id}" data-code="${encodedCode}"><pre class="mermaid"></pre></div>`
+      } catch (e2) {
+        // 如果都失败，直接存储（可能有问题，但总比没有好）
+        console.warn('Mermaid 代码编码失败，使用原始代码:', e2)
+        return `<div class="diagram-container mermaid-container" data-type="mermaid" data-id="${id}" data-raw-code="${rawCode.replace(/"/g, '&quot;')}"><pre class="mermaid"></pre></div>`
+      }
     }
   }
   
@@ -209,20 +222,36 @@ renderer.code = function(code, language, escaped) {
     if (rawCode.trim().startsWith('mindmap') || rawCode.trim().includes('root((')) {
       // 使用 Mermaid 渲染
       try {
-        const encodedCode = btoa(unescape(encodeURIComponent(rawCode)))
+        // 修复 Base64 编码逻辑，确保正确处理 UTF-8
+        const utf8Bytes = new TextEncoder().encode(rawCode)
+        const binaryString = String.fromCharCode(...utf8Bytes)
+        const encodedCode = btoa(binaryString)
         return `<div class="diagram-container mermaid-container" data-type="mermaid-mindmap" data-id="${id}" data-code-base64="${encodedCode}"><pre class="mermaid"></pre></div>`
       } catch (e) {
-        const encodedCode = encodeURIComponent(rawCode)
-        return `<div class="diagram-container mermaid-container" data-type="mermaid-mindmap" data-id="${id}" data-code="${encodedCode}"><pre class="mermaid"></pre></div>`
+        try {
+          const encodedCode = encodeURIComponent(rawCode)
+          return `<div class="diagram-container mermaid-container" data-type="mermaid-mindmap" data-id="${id}" data-code="${encodedCode}"><pre class="mermaid"></pre></div>`
+        } catch (e2) {
+          console.warn('Mermaid mindmap 代码编码失败:', e2)
+          return `<div class="diagram-container mermaid-container" data-type="mermaid-mindmap" data-id="${id}" data-raw-code="${rawCode.replace(/"/g, '&quot;')}"><pre class="mermaid"></pre></div>`
+        }
       }
     } else {
       // 使用 Markmap 渲染
       try {
-        const encodedCode = btoa(unescape(encodeURIComponent(rawCode)))
+        // 修复 Base64 编码逻辑，确保正确处理 UTF-8
+        const utf8Bytes = new TextEncoder().encode(rawCode)
+        const binaryString = String.fromCharCode(...utf8Bytes)
+        const encodedCode = btoa(binaryString)
         return `<div class="diagram-container mindmap-container" data-type="mindmap" data-id="${id}" data-code-base64="${encodedCode}"><svg class="mindmap-svg" id="mindmap-${id}"></svg></div>`
       } catch (e) {
-        const encodedCode = encodeURIComponent(rawCode)
-        return `<div class="diagram-container mindmap-container" data-type="mindmap" data-id="${id}" data-code="${encodedCode}"><svg class="mindmap-svg" id="mindmap-${id}"></svg></div>`
+        try {
+          const encodedCode = encodeURIComponent(rawCode)
+          return `<div class="diagram-container mindmap-container" data-type="mindmap" data-id="${id}" data-code="${encodedCode}"><svg class="mindmap-svg" id="mindmap-${id}"></svg></div>`
+        } catch (e2) {
+          console.warn('Mindmap 代码编码失败:', e2)
+          return `<div class="diagram-container mindmap-container" data-type="mindmap" data-id="${id}" data-raw-code="${rawCode.replace(/"/g, '&quot;')}"><svg class="mindmap-svg" id="mindmap-${id}"></svg></div>`
+        }
       }
     }
   }
@@ -288,9 +317,35 @@ const renderDiagrams = async () => {
       let code = ''
       if (container.dataset.codeBase64) {
         try {
-          code = decodeURIComponent(escape(atob(container.dataset.codeBase64)))
+          // 修复 Base64 解码逻辑，确保正确处理 UTF-8
+          const base64Data = container.dataset.codeBase64
+          // 先进行 Base64 解码
+          const binaryString = atob(base64Data)
+          // 将二进制字符串转换为 UTF-8 字符串
+          const bytes = new Uint8Array(binaryString.length)
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i)
+          }
+          code = new TextDecoder('utf-8').decode(bytes)
         } catch (e) {
           console.warn('Base64 解码失败，尝试其他方法:', e)
+          // 尝试简单的方式
+          try {
+            const binaryString = atob(container.dataset.codeBase64)
+            code = decodeURIComponent(
+              binaryString.split('').map(char => {
+                return '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)
+              }).join('')
+            )
+          } catch (e2) {
+            console.warn('简单 Base64 解码也失败:', e2)
+            // 最后尝试直接解码
+            try {
+              code = atob(container.dataset.codeBase64)
+            } catch (e3) {
+              console.error('所有 Base64 解码方式都失败:', e3)
+            }
+          }
         }
       }
       if (!code && container.dataset.code) {
@@ -298,7 +353,13 @@ const renderDiagrams = async () => {
           code = decodeURIComponent(container.dataset.code)
         } catch (e) {
           console.warn('URI 解码失败:', e)
+          // 如果解码失败，直接使用原值（可能已经是原始代码）
+          code = container.dataset.code
         }
+      }
+      if (!code && container.dataset.rawCode) {
+        // 如果存在原始代码属性（编码失败的情况）
+        code = container.dataset.rawCode
       }
       
       if (!code) {
@@ -320,38 +381,43 @@ const renderDiagrams = async () => {
       }
       
       // 设置 pre 元素的文本内容（使用 textContent 避免 HTML 转义）
-      pre.textContent = code
+      pre.textContent = code.trim()
       
       // 使用 Mermaid 渲染
       try {
-        // Mermaid 11.x 使用 run 方法
+        // Mermaid 11.x 优先使用 run 方法
         if (typeof mermaid.run === 'function') {
           // 确保 pre 元素有 mermaid 类
           if (!pre.classList.contains('mermaid')) {
             pre.classList.add('mermaid')
           }
           
-          // 使用 run 方法渲染
-          await mermaid.run({
+          // 使用 run 方法渲染 - Mermaid 11.x 的正确方式
+          const result = await mermaid.run({
             nodes: [pre],
             suppressErrors: false
           })
-          console.log('Mermaid 渲染成功（run 方法）')
+          console.log('Mermaid 渲染成功（run 方法）', result)
           container.dataset.rendered = 'true'
         } else if (typeof mermaid.render === 'function') {
           // 如果 run 不存在，使用 render 方法
           const id = `mermaid-diagram-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-          const result = await mermaid.render(id, code)
-          // 替换容器内容为渲染后的 SVG
-          if (result && result.svg) {
-            container.innerHTML = result.svg
-          } else if (typeof result === 'string') {
-            container.innerHTML = result
-          } else {
-            throw new Error('渲染结果格式不正确')
+          try {
+            const result = await mermaid.render(id, code.trim())
+            // 替换容器内容为渲染后的 SVG
+            if (result && result.svg) {
+              container.innerHTML = result.svg
+            } else if (typeof result === 'string') {
+              container.innerHTML = result
+            } else {
+              throw new Error('渲染结果格式不正确')
+            }
+            console.log('Mermaid 渲染成功（render 方法）')
+            container.dataset.rendered = 'true'
+          } catch (renderError) {
+            console.error('mermaid.render 错误:', renderError)
+            throw renderError
           }
-          console.log('Mermaid 渲染成功（render 方法）')
-          container.dataset.rendered = 'true'
         } else if (typeof mermaid.init === 'function') {
           // 旧版本使用 init 方法
           mermaid.init(undefined, pre)
@@ -363,6 +429,7 @@ const renderDiagrams = async () => {
       } catch (error) {
         console.error('Mermaid 渲染错误:', error)
         console.error('错误堆栈:', error.stack)
+        console.error('错误代码:', code.substring(0, 200))
         container.innerHTML = `<div class="diagram-error">${t('persona.scenarioAnalysis.mermaidError')}: ${error.message || 'Unknown error'}</div>`
         container.dataset.rendered = 'error'
       }
@@ -432,9 +499,26 @@ const renderDiagrams = async () => {
     let code = ''
     if (container.dataset.codeBase64) {
       try {
-        code = decodeURIComponent(escape(atob(container.dataset.codeBase64)))
+        // 修复 Base64 解码逻辑，确保正确处理 UTF-8
+        const binaryString = atob(container.dataset.codeBase64)
+        const bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        code = new TextDecoder('utf-8').decode(bytes)
       } catch (e) {
         console.warn('Base64 解码失败:', e)
+        // 尝试其他方式
+        try {
+          const binaryString = atob(container.dataset.codeBase64)
+          code = decodeURIComponent(
+            binaryString.split('').map(char => {
+              return '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)
+            }).join('')
+          )
+        } catch (e2) {
+          console.warn('备用 Base64 解码也失败:', e2)
+        }
       }
     }
     if (!code && container.dataset.code) {
@@ -442,7 +526,11 @@ const renderDiagrams = async () => {
         code = decodeURIComponent(container.dataset.code)
       } catch (e) {
         console.warn('URI 解码失败:', e)
+        code = container.dataset.code
       }
+    }
+    if (!code && container.dataset.rawCode) {
+      code = container.dataset.rawCode
     }
     
     if (svg && code) {
