@@ -200,11 +200,11 @@ const loadData = async () => {
       }
       mode.value = window.personaEditMode || 'view'
     } else {
-      showAlert(response.msg || '加载失败', 'error')
+      showAlert(response.msg || t('persona.detail.loadFailed'), { type: 'error' })
       handleBack()
     }
   } catch (error) {
-    showAlert(error.message || '加载失败', 'error')
+    showAlert(error.message || t('persona.detail.loadFailed'), { type: 'error' })
     handleBack()
   } finally {
     loading.value = false
@@ -214,12 +214,12 @@ const loadData = async () => {
 // 保存
 const handleSave = async () => {
   if (!formData.value.name || formData.value.name.trim() === '') {
-    showAlert(t('persona.detail.nameRequired'), 'error')
+    showAlert(t('persona.detail.nameRequired'), { type: 'error' })
     return
   }
 
   if (!formData.value.canvasId) {
-    showAlert('画布ID不能为空', 'error')
+    showAlert(t('persona.detail.canvasIdRequired'), { type: 'error' })
     return
   }
 
@@ -241,14 +241,14 @@ const handleSave = async () => {
     if (response.code === 200) {
       showAlert(
         isCreateMode.value ? t('persona.detail.createSuccess') : t('persona.detail.updateSuccess'),
-        'success'
+        { type: 'success' }
       )
       handleBack()
     } else {
-      showAlert(response.msg || '保存失败', 'error')
+      showAlert(response.msg || t('persona.detail.saveFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '保存失败', 'error')
+    showAlert(error.message || t('persona.detail.saveFailed'), { type: 'error' })
   } finally {
     loading.value = false
   }

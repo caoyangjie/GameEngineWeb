@@ -100,7 +100,7 @@
                 <div class="persona-card-info">
                   <h4 class="persona-card-name">{{ persona.name }}</h4>
                   <div class="persona-card-basic">
-                    <span v-if="persona.age" class="info-badge">{{ persona.age }}岁</span>
+                    <span v-if="persona.age" class="info-badge">{{ persona.age }}{{ t('businessModelCanvas.list.ageUnit') }}</span>
                     <span v-if="persona.gender" class="info-badge">{{ getGenderLabel(persona.gender) }}</span>
                     <span v-if="persona.identity" class="info-badge">{{ persona.identity }}</span>
                   </div>
@@ -242,10 +242,10 @@ const loadList = async () => {
       // 为每个画布加载用户画像数据（最多4个）
       await loadPersonasForCanvases()
     } else {
-      showAlert(response.msg || '加载失败', 'error')
+      showAlert(response.msg || t('businessModelCanvas.list.loadFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '加载失败', 'error')
+    showAlert(error.message || t('businessModelCanvas.list.loadFailed'), { type: 'error' })
   } finally {
     loading.value = false
   }
@@ -347,13 +347,13 @@ const handleDelete = async (canvasId) => {
   try {
     const response = await deleteCanvas([canvasId])
     if (response.code === 200) {
-      showAlert(t('businessModelCanvas.list.deleteSuccess'), 'success')
+      showAlert(t('businessModelCanvas.list.deleteSuccess'), { type: 'success' })
       loadList()
     } else {
-      showAlert(response.msg || '删除失败', 'error')
+      showAlert(response.msg || t('businessModelCanvas.list.deleteFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '删除失败', 'error')
+    showAlert(error.message || t('businessModelCanvas.list.deleteFailed'), { type: 'error' })
   }
 }
 
@@ -394,32 +394,32 @@ const getPersonaListWithDemo = (canvas) => {
   const demoData = [
     {
       personaId: null,
-      name: '示例用户A',
+      name: t('businessModelCanvas.list.demoUserA'),
       age: 28,
       gender: 'M',
-      identity: '产品经理',
-      hobbies: '阅读、旅行',
-      usageScenario: '在办公室使用产品进行项目管理',
+      identity: t('businessModelCanvas.list.demoIdentityA'),
+      hobbies: t('businessModelCanvas.list.demoHobbiesA'),
+      usageScenario: t('businessModelCanvas.list.demoScenarioA'),
       isDemo: true
     },
     {
       personaId: null,
-      name: '示例用户B',
+      name: t('businessModelCanvas.list.demoUserB'),
       age: 32,
       gender: 'F',
-      identity: '设计师',
-      hobbies: '绘画、音乐',
-      usageScenario: '在家中使用产品进行创意设计',
+      identity: t('businessModelCanvas.list.demoIdentityB'),
+      hobbies: t('businessModelCanvas.list.demoHobbiesB'),
+      usageScenario: t('businessModelCanvas.list.demoScenarioB'),
       isDemo: true
     },
     {
       personaId: null,
-      name: '示例用户C',
+      name: t('businessModelCanvas.list.demoUserC'),
       age: 25,
       gender: 'M',
-      identity: '开发者',
-      hobbies: '编程、游戏',
-      usageScenario: '在开发环境中使用产品进行开发工作',
+      identity: t('businessModelCanvas.list.demoIdentityC'),
+      hobbies: t('businessModelCanvas.list.demoHobbiesC'),
+      usageScenario: t('businessModelCanvas.list.demoScenarioC'),
       isDemo: true
     }
   ]

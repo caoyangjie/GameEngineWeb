@@ -70,7 +70,7 @@
             <div class="persona-info">
               <h3 class="persona-name">{{ persona.name }}</h3>
               <div class="persona-basic">
-                <span v-if="persona.age" class="info-badge">{{ persona.age }}岁</span>
+                <span v-if="persona.age" class="info-badge">{{ persona.age }}{{ t('persona.list.ageUnit') }}</span>
                 <span v-if="persona.gender" class="info-badge">{{ getGenderLabel(persona.gender) }}</span>
                 <span v-if="persona.identity" class="info-badge">{{ persona.identity }}</span>
               </div>
@@ -92,6 +92,9 @@
             </span>
           </div>
           <div class="persona-actions">
+            <button class="btn-action btn-scenario" @click.stop="handleScenarioAnalysis(persona.personaId)">
+              {{ t('persona.list.scenarioAnalysis') }}
+            </button>
             <button class="btn-action" @click.stop="handleEdit(persona.personaId)">
               {{ t('persona.list.edit') }}
             </button>
@@ -184,7 +187,7 @@ const genderOptions = computed(() => [
 // 加载列表
 const loadList = async () => {
   if (!canvasId.value) {
-    showAlert('画布ID不能为空', 'error')
+    showAlert(t('persona.list.canvasIdRequired'), { type: 'error' })
     return
   }
   
@@ -203,10 +206,10 @@ const loadList = async () => {
       total.value = response.data.total || 0
       totalPages.value = response.data.pages || 0
     } else {
-      showAlert(response.msg || '加载失败', 'error')
+      showAlert(response.msg || t('persona.list.loadFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '加载失败', 'error')
+    showAlert(error.message || t('persona.list.loadFailed'), { type: 'error' })
   } finally {
     loading.value = false
   }
@@ -260,6 +263,16 @@ const handleEdit = (personaId) => {
   window.canvasId = canvasId.value
 }
 
+// 场景分析
+const handleScenarioAnalysis = (personaId) => {
+  // TODO: 实现场景分析功能，暂时跳转到详情页
+  router.goToPersonaDetail()
+  window.personaId = personaId
+  window.personaEditMode = 'view'
+  window.canvasId = canvasId.value
+  showAlert(t('persona.list.scenarioAnalysisComingSoon'), { type: 'info' })
+}
+
 // 删除
 const handleDelete = async (personaId) => {
   if (!confirm(t('persona.list.confirmDelete'))) {
@@ -268,13 +281,13 @@ const handleDelete = async (personaId) => {
   try {
     const response = await deletePersona([personaId])
     if (response.code === 200) {
-      showAlert(t('persona.list.deleteSuccess'), 'success')
+      showAlert(t('persona.list.deleteSuccess'), { type: 'success' })
       loadList()
     } else {
-      showAlert(response.msg || '删除失败', 'error')
+      showAlert(response.msg || t('persona.list.deleteFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '删除失败', 'error')
+    showAlert(error.message || t('persona.list.deleteFailed'), { type: 'error' })
   }
 }
 
@@ -320,7 +333,7 @@ const handleSidebarClose = () => {
 // 初始化
 onMounted(() => {
   if (!canvasId.value) {
-    showAlert('画布ID不能为空', 'error')
+    showAlert(t('persona.list.canvasIdRequired'), { type: 'error' })
     router.goToBusinessModelCanvasList()
     return
   }
@@ -535,9 +548,9 @@ onMounted(() => {
 
 /* 列表区域 */
 .persona-list-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
   margin-bottom: 30px;
 }
 
@@ -685,6 +698,16 @@ onMounted(() => {
   border-color: rgba(255, 215, 0, 0.6);
 }
 
+.btn-scenario {
+  color: #4caf50;
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.btn-scenario:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.7);
+}
+
 .btn-danger {
   color: #f44336;
   border-color: rgba(244, 67, 54, 0.5);
@@ -697,6 +720,7 @@ onMounted(() => {
 
 .empty-state,
 .loading-state {
+  grid-column: 1 / -1;
   text-align: center;
   padding: 60px 20px;
   color: rgba(255, 255, 255, 0.6);
@@ -770,6 +794,10 @@ onMounted(() => {
   
   .btn-reset {
     width: 100%;
+  }
+
+  .persona-list-section {
+    grid-template-columns: 1fr;
   }
 
   .persona-actions {

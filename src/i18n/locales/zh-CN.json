@@ -751,8 +751,23 @@
       "pageInfo": "第 {current} 页 / 共 {total} 页",
       "confirmDelete": "确定要删除这条记录吗？",
       "deleteSuccess": "删除成功",
+      "loadFailed": "加载失败",
+      "deleteFailed": "删除失败",
       "persona": "用户画像",
-      "morePersona": "更多"
+      "morePersona": "更多",
+      "ageUnit": "岁",
+      "demoUserA": "示例用户A",
+      "demoUserB": "示例用户B",
+      "demoUserC": "示例用户C",
+      "demoIdentityA": "产品经理",
+      "demoIdentityB": "设计师",
+      "demoIdentityC": "开发者",
+      "demoHobbiesA": "阅读、旅行",
+      "demoHobbiesB": "绘画、音乐",
+      "demoHobbiesC": "编程、游戏",
+      "demoScenarioA": "在办公室使用产品进行项目管理",
+      "demoScenarioB": "在家中使用产品进行创意设计",
+      "demoScenarioC": "在开发环境中使用产品进行开发工作"
     },
     "detail": {
       "createTitle": "创建商业模式画布",
@@ -791,7 +806,9 @@
       "financialInfo": "财务信息",
       "titleRequired": "标题不能为空",
       "createSuccess": "创建成功",
-      "updateSuccess": "更新成功"
+      "updateSuccess": "更新成功",
+      "loadFailed": "加载失败",
+      "saveFailed": "保存失败"
     }
   },
   "persona": {
@@ -803,6 +820,8 @@
       "reset": "重置",
       "edit": "编辑",
       "delete": "删除",
+      "scenarioAnalysis": "场景分析",
+      "scenarioAnalysisComingSoon": "场景分析功能即将推出",
       "empty": "暂无数据",
       "loading": "加载中...",
       "createTime": "创建时间",
@@ -811,7 +830,11 @@
       "pageInfo": "第 {current} 页 / 共 {total} 页",
       "confirmDelete": "确定要删除这条记录吗？",
       "deleteSuccess": "删除成功",
-      "allGender": "全部性别"
+      "allGender": "全部性别",
+      "canvasIdRequired": "画布ID不能为空",
+      "loadFailed": "加载失败",
+      "deleteFailed": "删除失败",
+      "ageUnit": "岁"
     },
     "detail": {
       "createTitle": "创建用户画像",
@@ -840,7 +863,11 @@
       "avatarPlaceholder": "请输入头像地址",
       "nameRequired": "姓名不能为空",
       "createSuccess": "创建成功",
-      "updateSuccess": "更新成功"
+      "updateSuccess": "更新成功",
+      "canvasIdRequired": "画布ID不能为空",
+      "saveFailed": "保存失败",
+      "loadFailed": "加载失败",
+      "ageUnit": "岁"
     }
   }
 }

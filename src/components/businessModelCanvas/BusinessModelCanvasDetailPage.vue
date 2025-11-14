@@ -252,11 +252,11 @@ const loadData = async () => {
       Object.assign(formData.value, response.data)
       mode.value = window.canvasEditMode || 'view'
     } else {
-      showAlert(response.msg || '加载失败', 'error')
+      showAlert(response.msg || t('businessModelCanvas.detail.loadFailed'), { type: 'error' })
       handleBack()
     }
   } catch (error) {
-    showAlert(error.message || '加载失败', 'error')
+    showAlert(error.message || t('businessModelCanvas.detail.loadFailed'), { type: 'error' })
     handleBack()
   } finally {
     loading.value = false
@@ -266,7 +266,7 @@ const loadData = async () => {
 // 保存
 const handleSave = async () => {
   if (!formData.value.title) {
-    showAlert(t('businessModelCanvas.detail.titleRequired'), 'error')
+    showAlert(t('businessModelCanvas.detail.titleRequired'), { type: 'error' })
     return
   }
 
@@ -282,14 +282,14 @@ const handleSave = async () => {
     if (response.code === 200) {
       showAlert(
         isCreateMode.value ? t('businessModelCanvas.detail.createSuccess') : t('businessModelCanvas.detail.updateSuccess'),
-        'success'
+        { type: 'success' }
       )
       handleBack()
     } else {
-      showAlert(response.msg || '保存失败', 'error')
+      showAlert(response.msg || t('businessModelCanvas.detail.saveFailed'), { type: 'error' })
     }
   } catch (error) {
-    showAlert(error.message || '保存失败', 'error')
+    showAlert(error.message || t('businessModelCanvas.detail.saveFailed'), { type: 'error' })
   } finally {
     loading.value = false
   }
