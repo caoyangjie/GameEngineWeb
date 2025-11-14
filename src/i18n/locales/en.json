@@ -826,6 +826,25 @@
       "saveFailed": "Save failed",
       "loadFailed": "Load failed",
       "ageUnit": "years old"
+    },
+    "scenarioAnalysis": {
+      "title": "Scenario Analysis",
+      "editor": "Editor",
+      "preview": "Preview",
+      "editorPlaceholder": "Enter scenario analysis content in Markdown format...\n\nSupports Mermaid diagrams, PlantUML diagrams, and mindmaps:\n\n```mermaid\ngraph TD\n  A[Start] --> B[Process]\n  B --> C[End]\n```\n\n```plantuml\n@startuml\nAlice -> Bob: Hello\n@enduml\n```\n\n```mindmap\n- Mindmap\n  - Branch 1\n  - Branch 2\n```",
+      "emptyPreview": "Preview content will be displayed here",
+      "renderError": "Render error",
+      "loading": "Loading...",
+      "diagramLoadError": "Diagram load failed",
+      "mermaidError": "Mermaid diagram render failed",
+      "mindmapError": "Mindmap render failed",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveSuccess": "Saved successfully",
+      "saveFailed": "Save failed"
     }
   }
 }

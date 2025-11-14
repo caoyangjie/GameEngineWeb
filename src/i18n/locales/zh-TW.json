@@ -712,6 +712,25 @@
       "saveFailed": "保存失敗",
       "loadFailed": "加載失敗",
       "ageUnit": "歲"
+    },
+    "scenarioAnalysis": {
+      "title": "場景分析",
+      "editor": "編輯器",
+      "preview": "預覽",
+      "editorPlaceholder": "請輸入 Markdown 格式的場景分析內容...\n\n支持 Mermaid 圖表、PlantUML 圖表和思維導圖：\n\n```mermaid\ngraph TD\n  A[開始] --> B[處理]\n  B --> C[結束]\n```\n\n```plantuml\n@startuml\nAlice -> Bob: 你好\n@enduml\n```\n\n```mindmap\n- 思維導圖\n  - 分支1\n  - 分支2\n```",
+      "emptyPreview": "預覽內容將在這裡顯示",
+      "renderError": "渲染錯誤",
+      "loading": "載入中...",
+      "diagramLoadError": "圖表加載失敗",
+      "mermaidError": "Mermaid 圖表渲染失敗",
+      "mindmapError": "思維導圖渲染失敗",
+      "maximize": "最大化",
+      "restore": "還原",
+      "close": "關閉",
+      "cancel": "取消",
+      "save": "保存",
+      "saveSuccess": "保存成功",
+      "saveFailed": "保存失敗"
     }
   }
 }

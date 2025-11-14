@@ -151,6 +151,14 @@
       :active-route="router.currentRoute.value"
       @close="handleSidebarClose"
     />
+
+    <!-- 场景分析弹窗 -->
+    <ScenarioAnalysisModal
+      v-model="showScenarioModal"
+      :persona-id="currentPersonaId"
+      :initial-content="scenarioContent"
+      @save="handleScenarioSave"
+    />
   </div>
 </template>
 
@@ -162,6 +170,7 @@ import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
+import ScenarioAnalysisModal from './ScenarioAnalysisModal.vue'
 import { getPersonaList, deletePersona } from '../../api/persona.js'
 import { showAlert, showConfirm } from '../../utils/alert.js'
 
@@ -172,6 +181,11 @@ const sidebarOpen = ref(false)
 
 // 从window获取canvasId
 const canvasId = ref(window.canvasId ? Number(window.canvasId) : null)
+
+// 场景分析弹窗
+const showScenarioModal = ref(false)
+const currentPersonaId = ref(null)
+const scenarioContent = ref('')
 
 // 数据
 const personaList = ref([])
@@ -272,12 +286,21 @@ const handleEdit = (personaId) => {
 
 // 场景分析
 const handleScenarioAnalysis = (personaId) => {
-  // TODO: 实现场景分析功能，暂时跳转到详情页
-  router.goToPersonaDetail()
-  window.personaId = personaId
-  window.personaEditMode = 'view'
-  window.canvasId = canvasId.value
-  showAlert(t('persona.list.scenarioAnalysisComingSoon'), { type: 'info' })
+  currentPersonaId.value = personaId
+  // TODO: 从服务器加载已保存的场景分析内容
+  scenarioContent.value = ''
+  showScenarioModal.value = true
+}
+
+// 保存场景分析
+const handleScenarioSave = async (data) => {
+  try {
+    // TODO: 调用API保存场景分析内容
+    // const response = await saveScenarioAnalysis(data.personaId, data.content)
+    showAlert(t('persona.scenarioAnalysis.saveSuccess'), { type: 'success' })
+  } catch (error) {
+    showAlert(error.message || t('persona.scenarioAnalysis.saveFailed'), { type: 'error' })
+  }
 }
 
 // 删除
