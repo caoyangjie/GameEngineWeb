@@ -41,7 +41,8 @@ export const ROUTES = {
   BUSINESS_MODEL_CANVAS_LIST: 'business-model-canvas-list',
   BUSINESS_MODEL_CANVAS_DETAIL: 'business-model-canvas-detail',
   PERSONA_LIST: 'persona-list',
-  PERSONA_DETAIL: 'persona-detail'
+  PERSONA_DETAIL: 'persona-detail',
+  SCENARIO_LIST: 'scenario-list'
 }
 
 // 不需要登录的路由
@@ -191,6 +192,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToPersonaDetail() {
       this.navigate(ROUTES.PERSONA_DETAIL)
+    },
+    goToScenarioList() {
+      this.navigate(ROUTES.SCENARIO_LIST)
     },
     
     // 登出（跳转到登录页）

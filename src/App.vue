@@ -35,6 +35,7 @@
     <BusinessModelCanvasDetailPage v-if="router.currentRoute.value === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL" />
     <PersonaListPage v-if="router.currentRoute.value === ROUTES.PERSONA_LIST" />
     <PersonaDetailPage v-if="router.currentRoute.value === ROUTES.PERSONA_DETAIL" />
+    <ScenarioListPage v-if="router.currentRoute.value === ROUTES.SCENARIO_LIST" />
   </div>
 </template>
 
@@ -75,6 +76,7 @@ import BusinessModelCanvasListPage from './components/businessModelCanvas/Busine
 import BusinessModelCanvasDetailPage from './components/businessModelCanvas/BusinessModelCanvasDetailPage.vue'
 import PersonaListPage from './components/persona/PersonaListPage.vue'
 import PersonaDetailPage from './components/persona/PersonaDetailPage.vue'
+import ScenarioListPage from './components/persona/ScenarioListPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

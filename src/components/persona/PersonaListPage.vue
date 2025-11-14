@@ -100,14 +100,70 @@
               <span class="meta-label">{{ t('persona.list.createTime') }}:</span>
               <span class="meta-value">{{ formatDate(persona.createTime) }}</span>
             </div>
-            <button class="btn-action btn-scenario" @click.stop="handleScenarioAnalysis(persona.personaId)">
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18 17l-5-5-5 5-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M7 11l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>{{ t('persona.list.scenarioAnalysis') }}</span>
-            </button>
+            <div class="persona-actions">
+              <button class="btn-action btn-scenario" @click.stop="handleScenarioAnalysis(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18 17l-5-5-5 5-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 11l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('persona.list.scenarioAnalysis') }}</span>
+              </button>
+              <button class="btn-action btn-create-scenario" @click.stop="handleCreateScenario(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('persona.list.createScenario') }}</span>
+              </button>
+              <button class="btn-action btn-toggle-scenarios" @click.stop="toggleScenarioList(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" :class="{ 'rotated': expandedScenarios[persona.personaId] }">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ expandedScenarios[persona.personaId] ? t('persona.list.hideScenarios') : t('persona.list.showScenarios') }}</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 场景列表 -->
+          <div v-if="expandedScenarios[persona.personaId]" class="scenario-list-wrapper">
+            <div v-if="scenarioLoading[persona.personaId]" class="scenario-loading">
+              {{ t('persona.list.loading') }}
+            </div>
+            <div v-else-if="personaScenarios[persona.personaId] && personaScenarios[persona.personaId].length > 0" class="scenario-list">
+              <div
+                v-for="scenario in personaScenarios[persona.personaId].slice(0, 5)"
+                :key="scenario.scenarioId"
+                class="scenario-item-mini"
+                @click.stop="handleScenarioClick(persona.personaId, scenario.scenarioId)"
+              >
+                <button class="scenario-item-close-btn" @click.stop="handleDeleteScenario(persona.personaId, scenario.scenarioId)" :title="t('persona.scenarioList.delete')">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="scenario-item-header">
+                  <h4 class="scenario-item-title">{{ scenario.title || t('persona.scenarioList.noTitle') }}</h4>
+                </div>
+                <div class="scenario-item-content">
+                  <div class="scenario-item-field">
+                    <span class="field-label">{{ t('persona.scenarioManagement.goal') }}:</span>
+                    <span class="field-value">{{ scenario.goal || t('persona.scenarioList.noData') }}</span>
+                  </div>
+                  <div class="scenario-item-field">
+                    <span class="field-label">{{ t('persona.scenarioManagement.resultExpectation') }}:</span>
+                    <span class="field-value">{{ scenario.resultExpectation || t('persona.scenarioList.noData') }}</span>
+                  </div>
+                </div>
+              </div>
+              <div v-if="personaScenarios[persona.personaId].length > 5" class="scenario-more">
+                <button class="btn-more" @click.stop="handleViewMoreScenarios(persona.personaId)">
+                  {{ t('persona.list.viewMoreScenarios') }}
+                </button>
+              </div>
+            </div>
+            <div v-else class="scenario-empty">
+              {{ t('persona.list.noScenarios') }}
+            </div>
           </div>
         </div>
 
@@ -160,6 +216,17 @@
       @save="handleScenarioSave"
       @close="handleScenarioModalClose"
     />
+
+    <!-- 场景管理弹窗 -->
+    <ScenarioManagementModal
+      v-model="showScenarioManagementModal"
+      :persona-id="currentPersonaId"
+      :canvas-id="canvasId"
+      :scenario-id="currentScenarioId"
+      :initial-data="scenarioData"
+      @save="handleScenarioManagementSave"
+      @close="handleScenarioManagementClose"
+    />
   </div>
 </template>
 
@@ -172,7 +239,9 @@ import Sidebar from '../common/Sidebar.vue'
 import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import ScenarioAnalysisModal from './ScenarioAnalysisModal.vue'
+import ScenarioManagementModal from './ScenarioManagementModal.vue'
 import { getPersonaList, getPersonaById, updatePersona, deletePersona } from '../../api/persona.js'
+import { getScenarioById, createScenario, updateScenario, getScenarioList, deleteScenario } from '../../api/scenario.js'
 import { showAlert, showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
@@ -187,6 +256,16 @@ const canvasId = ref(window.canvasId ? Number(window.canvasId) : null)
 const showScenarioModal = ref(false)
 const currentPersonaId = ref(null)
 const scenarioContent = ref('')
+
+// 场景管理弹窗
+const showScenarioManagementModal = ref(false)
+const currentScenarioId = ref(null)
+const scenarioData = ref({})
+
+// 场景列表相关
+const expandedScenarios = ref({}) // 记录哪些用户画像的场景列表已展开
+const personaScenarios = ref({}) // 存储每个用户画像的场景列表
+const scenarioLoading = ref({}) // 记录场景列表加载状态
 
 // 数据
 const personaList = ref([])
@@ -364,6 +443,122 @@ const handleScenarioModalClose = () => {
   // 清空场景内容，避免下次打开时显示旧数据
   scenarioContent.value = ''
   currentPersonaId.value = null
+}
+
+// 创建场景
+const handleCreateScenario = (personaId) => {
+  currentPersonaId.value = personaId
+  currentScenarioId.value = null
+  scenarioData.value = {}
+  showScenarioManagementModal.value = true
+}
+
+// 保存场景管理
+const handleScenarioManagementSave = async (data) => {
+  try {
+    let response
+    if (data.scenarioId) {
+      // 更新场景
+      response = await updateScenario(data)
+    } else {
+      // 创建场景
+      response = await createScenario(data)
+    }
+    
+    if (response.code === 200) {
+      showAlert(t('persona.scenarioManagement.saveSuccess'), { type: 'success' })
+      // 刷新对应用户画像的场景列表
+      if (data.personaId && expandedScenarios.value[data.personaId]) {
+        await loadScenariosForPersona(data.personaId)
+      }
+    } else {
+      showAlert(response.msg || t('persona.scenarioManagement.saveFailed'), { type: 'error' })
+    }
+  } catch (error) {
+    showAlert(error.message || t('persona.scenarioManagement.saveFailed'), { type: 'error' })
+  }
+}
+
+// 场景管理弹窗关闭
+const handleScenarioManagementClose = () => {
+  scenarioData.value = {}
+  currentPersonaId.value = null
+  currentScenarioId.value = null
+}
+
+// 切换场景列表显示
+const toggleScenarioList = async (personaId) => {
+  const isExpanded = expandedScenarios.value[personaId]
+  expandedScenarios.value[personaId] = !isExpanded
+  
+  // 如果展开且还没有加载过场景列表，则加载
+  if (!isExpanded && !personaScenarios.value[personaId]) {
+    await loadScenariosForPersona(personaId)
+  }
+}
+
+// 加载指定用户画像的场景列表
+const loadScenariosForPersona = async (personaId) => {
+  if (!canvasId.value) {
+    return
+  }
+  
+  scenarioLoading.value[personaId] = true
+  try {
+    const params = {
+      pageNum: 1,
+      pageSize: 10, // 加载更多，但只显示前5条
+      personaId: personaId,
+      canvasId: canvasId.value
+    }
+    const response = await getScenarioList(params)
+    if (response.code === 200) {
+      personaScenarios.value[personaId] = response.data.records || []
+    } else {
+      personaScenarios.value[personaId] = []
+    }
+  } catch (error) {
+    console.error('加载场景列表失败:', error)
+    personaScenarios.value[personaId] = []
+  } finally {
+    scenarioLoading.value[personaId] = false
+  }
+}
+
+// 查看更多场景
+const handleViewMoreScenarios = (personaId) => {
+  router.goToScenarioList()
+  window.personaId = personaId
+  window.canvasId = canvasId.value
+}
+
+// 点击场景项跳转
+const handleScenarioClick = (personaId, scenarioId) => {
+  router.goToScenarioList()
+  window.personaId = personaId
+  window.canvasId = canvasId.value
+  // 可选：如果需要定位到特定场景，可以传递 scenarioId
+  // window.scenarioId = scenarioId
+}
+
+// 删除场景
+const handleDeleteScenario = async (personaId, scenarioId) => {
+  const confirmed = await showConfirm(t('persona.scenarioList.confirmDelete'), { type: 'error' })
+  if (!confirmed) {
+    return
+  }
+  try {
+    const response = await deleteScenario([scenarioId])
+    if (response.code === 200) {
+      showAlert(t('persona.scenarioList.deleteSuccess'), { type: 'success' })
+      // 刷新场景列表
+      await loadScenariosForPersona(personaId)
+    } else {
+      showAlert(response.msg || t('persona.scenarioList.deleteFailed'), { type: 'error' })
+    }
+  } catch (error) {
+    showAlert(error.message || t('persona.scenarioList.deleteFailed'), { type: 'error' })
+  }
 }
 
 // 删除
@@ -728,9 +923,32 @@ onMounted(() => {
   justify-content: space-between;
 }
 
-.persona-header .btn-scenario {
+.persona-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.persona-header .btn-scenario,
+.persona-header .btn-create-scenario {
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.btn-create-scenario {
+  color: #2196f3;
+  border-color: rgba(33, 150, 243, 0.5);
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+}
+
+.btn-create-scenario:hover {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+  border-color: rgba(33, 150, 243, 0.7);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn-create-scenario .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(33, 150, 243, 0.3));
 }
 
 .persona-avatar {
@@ -922,6 +1140,172 @@ onMounted(() => {
   filter: drop-shadow(0 1px 2px rgba(76, 175, 80, 0.3));
 }
 
+.btn-toggle-scenarios {
+  color: #9c27b0;
+  border-color: rgba(156, 39, 176, 0.5);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
+}
+
+.btn-toggle-scenarios:hover {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.1) 100%);
+  border-color: rgba(156, 39, 176, 0.7);
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+}
+
+.btn-toggle-scenarios .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(156, 39, 176, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.btn-toggle-scenarios .btn-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* 场景列表区域 */
+.scenario-list-wrapper {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.scenario-loading,
+.scenario-empty {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.scenario-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.scenario-item-mini {
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.scenario-item-mini:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 215, 0, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
+}
+
+.scenario-item-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 2px 8px rgba(244, 67, 54, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  padding: 0;
+}
+
+.scenario-item-close-btn:hover {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.35) 0%, rgba(244, 67, 54, 0.25) 100%);
+  border-color: rgba(244, 67, 54, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(244, 67, 54, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(1.1) rotate(90deg);
+}
+
+.scenario-item-close-btn:active {
+  transform: scale(0.95);
+}
+
+.scenario-item-close-btn svg {
+  width: 14px;
+  height: 14px;
+  filter: drop-shadow(0 1px 2px rgba(244, 67, 54, 0.3));
+}
+
+.scenario-item-header {
+  margin-bottom: 8px;
+  padding-right: 30px;
+}
+
+.scenario-item-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffd700;
+  margin: 0;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.scenario-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scenario-item-field {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.scenario-item-field .field-label {
+  color: rgba(255, 215, 0, 0.8);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.scenario-item-field .field-value {
+  color: rgba(255, 255, 255, 0.85);
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scenario-more {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.btn-more {
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-more:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  transform: translateY(-1px);
+}
+
 .empty-state,
 .loading-state {
   grid-column: 1 / -1;
@@ -1008,9 +1392,14 @@ onMounted(() => {
     flex-wrap: wrap;
   }
 
-  .persona-header .btn-scenario {
+  .persona-actions {
     width: 100%;
     margin-top: 10px;
+  }
+
+  .persona-header .btn-scenario,
+  .persona-header .btn-create-scenario {
+    width: 100%;
   }
 
   .persona-meta {
@@ -1026,6 +1415,14 @@ onMounted(() => {
   .persona-meta .btn-action {
     width: 100%;
     justify-content: center;
+  }
+
+  .scenario-list {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-item-header {
+    padding-right: 30px;
   }
 
   .persona-delete-btn {
