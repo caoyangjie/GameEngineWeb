@@ -121,6 +121,26 @@
                 </svg>
                 <span>{{ expandedScenarios[persona.personaId] ? t('persona.list.hideScenarios') : t('persona.list.showScenarios') }}</span>
               </button>
+              <button class="btn-action btn-requirement" @click.stop="handleRequirementAnalysis(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18 17l-5-5-5 5-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 11l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('persona.list.requirementAnalysis') }}</span>
+              </button>
+              <button class="btn-action btn-create-requirement" @click.stop="handleCreateRequirement(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ t('persona.list.createRequirement') }}</span>
+              </button>
+              <button class="btn-action btn-toggle-requirements" @click.stop="toggleRequirementList(persona.personaId)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" :class="{ 'rotated': expandedRequirements[persona.personaId] }">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ expandedRequirements[persona.personaId] ? t('persona.list.hideRequirements') : t('persona.list.showRequirements') }}</span>
+              </button>
             </div>
           </div>
           
@@ -163,6 +183,48 @@
             </div>
             <div v-else class="scenario-empty">
               {{ t('persona.list.noScenarios') }}
+            </div>
+          </div>
+          
+          <!-- 需求列表 -->
+          <div v-if="expandedRequirements[persona.personaId]" class="requirement-list-wrapper">
+            <div v-if="requirementLoading[persona.personaId]" class="requirement-loading">
+              {{ t('persona.list.loading') }}
+            </div>
+            <div v-else-if="personaRequirements[persona.personaId] && personaRequirements[persona.personaId].length > 0" class="requirement-list">
+              <div
+                v-for="requirement in personaRequirements[persona.personaId].slice(0, 5)"
+                :key="requirement.requirementId"
+                class="requirement-item-mini"
+                @click.stop="handleRequirementClick(persona.personaId, requirement.requirementId)"
+              >
+                <button class="requirement-item-close-btn" @click.stop="handleDeleteRequirement(persona.personaId, requirement.requirementId)" :title="t('persona.list.delete')">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="requirement-item-header">
+                  <h4 class="requirement-item-title">{{ requirement.title || t('persona.requirementManagement.noTitle') }}</h4>
+                </div>
+                <div class="requirement-item-content">
+                  <div class="requirement-item-field" v-if="requirement.priority">
+                    <span class="field-label">{{ t('persona.requirementManagement.priority') }}:</span>
+                    <span class="field-value">{{ getPriorityLabel(requirement.priority) }}</span>
+                  </div>
+                  <div class="requirement-item-field" v-if="requirement.explicitRequirement">
+                    <span class="field-label">{{ t('persona.requirementManagement.explicitRequirement') }}:</span>
+                    <span class="field-value">{{ requirement.explicitRequirement }}</span>
+                  </div>
+                </div>
+              </div>
+              <div v-if="personaRequirements[persona.personaId].length > 5" class="requirement-more">
+                <button class="btn-more" @click.stop="handleViewMoreRequirements(persona.personaId)">
+                  {{ t('persona.list.viewMoreRequirements') }}
+                </button>
+              </div>
+            </div>
+            <div v-else class="requirement-empty">
+              {{ t('persona.list.noRequirements') }}
             </div>
           </div>
         </div>
@@ -227,11 +289,31 @@
       @save="handleScenarioManagementSave"
       @close="handleScenarioManagementClose"
     />
+
+    <!-- 需求分析弹窗 -->
+    <RequirementAnalysisModal
+      v-model="showRequirementModal"
+      :persona-id="currentPersonaId"
+      :initial-content="requirementContent"
+      @save="handleRequirementSave"
+      @close="handleRequirementModalClose"
+    />
+
+    <!-- 需求管理弹窗 -->
+    <RequirementManagementModal
+      v-model="showRequirementManagementModal"
+      :persona-id="currentPersonaId"
+      :canvas-id="canvasId"
+      :requirement-id="currentRequirementId"
+      :initial-data="requirementData"
+      @save="handleRequirementManagementSave"
+      @close="handleRequirementManagementClose"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import TopHeader from '../common/TopHeader.vue'
@@ -240,8 +322,11 @@ import CustomSelect from '../common/CustomSelect.vue'
 import CustomInput from '../common/CustomInput.vue'
 import ScenarioAnalysisModal from './ScenarioAnalysisModal.vue'
 import ScenarioManagementModal from './ScenarioManagementModal.vue'
+import RequirementAnalysisModal from './RequirementAnalysisModal.vue'
+import RequirementManagementModal from './RequirementManagementModal.vue'
 import { getPersonaList, getPersonaById, updatePersona, deletePersona } from '../../api/persona.js'
 import { getScenarioById, createScenario, updateScenario, getScenarioList, deleteScenario } from '../../api/scenario.js'
+import { getRequirementById, createRequirement, updateRequirement, getRequirementList, deleteRequirement } from '../../api/requirement.js'
 import { showAlert, showConfirm } from '../../utils/alert.js'
 
 const { t } = useI18n()
@@ -266,6 +351,20 @@ const scenarioData = ref({})
 const expandedScenarios = ref({}) // 记录哪些用户画像的场景列表已展开
 const personaScenarios = ref({}) // 存储每个用户画像的场景列表
 const scenarioLoading = ref({}) // 记录场景列表加载状态
+
+// 需求列表相关
+const expandedRequirements = ref({}) // 记录哪些用户画像的需求列表已展开
+const personaRequirements = ref({}) // 存储每个用户画像的需求列表
+const requirementLoading = ref({}) // 记录需求列表加载状态
+
+// 需求分析弹窗
+const showRequirementModal = ref(false)
+const requirementContent = ref('')
+
+// 需求管理弹窗
+const showRequirementManagementModal = ref(false)
+const currentRequirementId = ref(null)
+const requirementData = ref({})
 
 // 数据
 const personaList = ref([])
@@ -578,6 +677,221 @@ const handleDelete = async (personaId) => {
   } catch (error) {
     showAlert(error.message || t('persona.list.deleteFailed'), { type: 'error' })
   }
+}
+
+// 需求分析
+const handleRequirementAnalysis = async (personaId) => {
+  currentPersonaId.value = personaId
+  
+  try {
+    // 从列表中查找对应的 persona，获取需求分析内容
+    const persona = personaList.value.find(p => p.personaId === personaId)
+    if (persona && persona.requirementAnalysis) {
+      requirementContent.value = persona.requirementAnalysis
+    } else {
+      // 如果列表中没有，则从服务器加载完整数据
+      const response = await getPersonaById(personaId)
+      if (response.code === 200 && response.data) {
+        requirementContent.value = response.data.requirementAnalysis || ''
+      } else {
+        requirementContent.value = ''
+      }
+    }
+    // 确保内容设置后再打开弹窗
+    await nextTick()
+    showRequirementModal.value = true
+  } catch (error) {
+    console.error('加载需求分析内容失败:', error)
+    requirementContent.value = ''
+    await nextTick()
+    showRequirementModal.value = true
+  }
+}
+
+// 保存需求分析
+const handleRequirementSave = async (data) => {
+  try {
+    // 先从列表或服务器获取完整的 persona 数据
+    let persona = personaList.value.find(p => p.personaId === data.personaId)
+    
+    // 如果列表中没有完整数据，则从服务器加载
+    if (!persona || !persona.name) {
+      const getResponse = await getPersonaById(data.personaId)
+      if (getResponse.code === 200 && getResponse.data) {
+        persona = getResponse.data
+      } else {
+        showAlert(t('persona.requirementAnalysis.saveFailed') + ': ' + (getResponse.msg || '获取用户画像数据失败'), { type: 'error' })
+        return
+      }
+    }
+    
+    // 构建更新数据，保留所有原有字段，只更新 requirementAnalysis
+    const updateData = {
+      personaId: persona.personaId,
+      canvasId: persona.canvasId,
+      name: persona.name,
+      age: persona.age,
+      gender: persona.gender,
+      identity: persona.identity,
+      hobbies: persona.hobbies,
+      usageScenario: persona.usageScenario,
+      requirementAnalysis: data.content, // 更新需求分析内容
+      avatar: persona.avatar
+    }
+    
+    // 调用API更新用户画像
+    const response = await updatePersona(updateData)
+    
+    if (response.code === 200) {
+      showAlert(t('persona.requirementAnalysis.saveSuccess'), { type: 'success' })
+      // 更新列表中的对应数据
+      const listPersona = personaList.value.find(p => p.personaId === data.personaId)
+      if (listPersona) {
+        listPersona.requirementAnalysis = data.content
+      }
+    } else {
+      showAlert(response.msg || t('persona.requirementAnalysis.saveFailed'), { type: 'error' })
+    }
+  } catch (error) {
+    showAlert(error.message || t('persona.requirementAnalysis.saveFailed'), { type: 'error' })
+  }
+}
+
+// 需求分析弹窗关闭
+const handleRequirementModalClose = () => {
+  requirementContent.value = ''
+  currentPersonaId.value = null
+}
+
+// 创建需求
+const handleCreateRequirement = (personaId) => {
+  currentPersonaId.value = personaId
+  currentRequirementId.value = null
+  requirementData.value = {}
+  showRequirementManagementModal.value = true
+}
+
+// 保存需求管理
+const handleRequirementManagementSave = async (data) => {
+  try {
+    let response
+    if (data.requirementId) {
+      // 更新需求
+      response = await updateRequirement(data)
+    } else {
+      // 创建需求
+      response = await createRequirement(data)
+    }
+    
+    if (response.code === 200) {
+      showAlert(t('persona.requirementManagement.saveSuccess'), { type: 'success' })
+      // 刷新对应用户画像的需求列表
+      if (data.personaId && expandedRequirements.value[data.personaId]) {
+        await loadRequirementsForPersona(data.personaId)
+      }
+    } else {
+      showAlert(response.msg || t('persona.requirementManagement.saveFailed'), { type: 'error' })
+    }
+  } catch (error) {
+    showAlert(error.message || t('persona.requirementManagement.saveFailed'), { type: 'error' })
+  }
+}
+
+// 需求管理弹窗关闭
+const handleRequirementManagementClose = () => {
+  requirementData.value = {}
+  currentPersonaId.value = null
+  currentRequirementId.value = null
+}
+
+// 切换需求列表显示
+const toggleRequirementList = async (personaId) => {
+  const isExpanded = expandedRequirements.value[personaId]
+  expandedRequirements.value[personaId] = !isExpanded
+  
+  // 如果展开且还没有加载过需求列表，则加载
+  if (!isExpanded && !personaRequirements.value[personaId]) {
+    await loadRequirementsForPersona(personaId)
+  }
+}
+
+// 加载指定用户画像的需求列表
+const loadRequirementsForPersona = async (personaId) => {
+  if (!canvasId.value) {
+    return
+  }
+  
+  requirementLoading.value[personaId] = true
+  try {
+    const params = {
+      pageNum: 1,
+      pageSize: 10, // 加载更多，但只显示前5条
+      personaId: personaId,
+      canvasId: canvasId.value
+    }
+    const response = await getRequirementList(params)
+    if (response.code === 200) {
+      personaRequirements.value[personaId] = response.data.records || []
+    } else {
+      personaRequirements.value[personaId] = []
+    }
+  } catch (error) {
+    console.error('加载需求列表失败:', error)
+    personaRequirements.value[personaId] = []
+  } finally {
+    requirementLoading.value[personaId] = false
+  }
+}
+
+// 点击需求项
+const handleRequirementClick = (personaId, requirementId) => {
+  // 可以打开需求详情或编辑
+  currentPersonaId.value = personaId
+  currentRequirementId.value = requirementId
+  // 加载需求详情
+  getRequirementById(requirementId).then(response => {
+    if (response.code === 200 && response.data) {
+      requirementData.value = response.data
+      showRequirementManagementModal.value = true
+    }
+  })
+}
+
+// 删除需求
+const handleDeleteRequirement = async (personaId, requirementId) => {
+  const confirmed = await showConfirm(t('persona.list.confirmDelete'), { type: 'error' })
+  if (!confirmed) {
+    return
+  }
+  try {
+    const response = await deleteRequirement([requirementId])
+    if (response.code === 200) {
+      showAlert(t('persona.list.deleteSuccess'), { type: 'success' })
+      // 刷新需求列表
+      await loadRequirementsForPersona(personaId)
+    } else {
+      showAlert(response.msg || t('persona.list.deleteFailed'), { type: 'error' })
+    }
+  } catch (error) {
+    showAlert(error.message || t('persona.list.deleteFailed'), { type: 'error' })
+  }
+}
+
+// 查看更多需求
+const handleViewMoreRequirements = (personaId) => {
+  // TODO: 跳转到需求列表页面
+  showAlert(t('persona.list.requirementFeatureComingSoon'), { type: 'info' })
+}
+
+// 获取优先级标签
+const getPriorityLabel = (priority) => {
+  const map = {
+    'Must': t('persona.requirementManagement.priorityMust'),
+    'Should': t('persona.requirementManagement.priorityShould'),
+    'Could': t('persona.requirementManagement.priorityCould'),
+    'Wont': t('persona.requirementManagement.priorityWont')
+  }
+  return map[priority] || priority
 }
 
 // 格式化日期
@@ -1161,11 +1475,190 @@ onMounted(() => {
   transform: rotate(180deg);
 }
 
+.btn-requirement {
+  color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.5);
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+}
+
+.btn-requirement:hover {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%);
+  border-color: rgba(255, 152, 0, 0.7);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.btn-requirement .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(255, 152, 0, 0.3));
+}
+
+.btn-create-requirement {
+  color: #00bcd4;
+  border-color: rgba(0, 188, 212, 0.5);
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%);
+}
+
+.btn-create-requirement:hover {
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.2) 0%, rgba(0, 188, 212, 0.1) 100%);
+  border-color: rgba(0, 188, 212, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.btn-create-requirement .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(0, 188, 212, 0.3));
+}
+
+.btn-toggle-requirements {
+  color: #e91e63;
+  border-color: rgba(233, 30, 99, 0.5);
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(233, 30, 99, 0.05) 100%);
+}
+
+.btn-toggle-requirements:hover {
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.2) 0%, rgba(233, 30, 99, 0.1) 100%);
+  border-color: rgba(233, 30, 99, 0.7);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.btn-toggle-requirements .btn-icon {
+  filter: drop-shadow(0 1px 2px rgba(233, 30, 99, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.btn-toggle-requirements .btn-icon.rotated {
+  transform: rotate(180deg);
+}
+
 /* 场景列表区域 */
 .scenario-list-wrapper {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* 需求列表区域 */
+.requirement-list-wrapper {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.requirement-loading,
+.requirement-empty {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.requirement-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.requirement-item-mini {
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.requirement-item-mini:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 152, 0, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+}
+
+.requirement-item-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 2px 8px rgba(244, 67, 54, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  padding: 0;
+}
+
+.requirement-item-close-btn:hover {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.35) 0%, rgba(244, 67, 54, 0.25) 100%);
+  border-color: rgba(244, 67, 54, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(244, 67, 54, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(1.1) rotate(90deg);
+}
+
+.requirement-item-close-btn:active {
+  transform: scale(0.95);
+}
+
+.requirement-item-close-btn svg {
+  width: 14px;
+  height: 14px;
+  filter: drop-shadow(0 1px 2px rgba(244, 67, 54, 0.3));
+}
+
+.requirement-item-header {
+  margin-bottom: 8px;
+  padding-right: 30px;
+}
+
+.requirement-item-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff9800;
+  margin: 0;
+  text-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+}
+
+.requirement-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.requirement-item-field {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.requirement-item-field .field-label {
+  color: rgba(255, 152, 0, 0.8);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.requirement-item-field .field-value {
+  color: rgba(255, 255, 255, 0.85);
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.requirement-more {
+  margin-top: 8px;
+  text-align: center;
 }
 
 .scenario-loading,
@@ -1418,6 +1911,10 @@ onMounted(() => {
   }
 
   .scenario-list {
+    grid-template-columns: 1fr;
+  }
+
+  .requirement-list {
     grid-template-columns: 1fr;
   }
 
