@@ -186,42 +186,24 @@
             </div>
           </div>
           
-          <!-- 需求列表 -->
+          <!-- 需求列表（树状） -->
           <div v-if="expandedRequirements[persona.personaId]" class="requirement-list-wrapper">
             <div v-if="requirementLoading[persona.personaId]" class="requirement-loading">
               {{ t('persona.list.loading') }}
             </div>
-            <div v-else-if="personaRequirements[persona.personaId] && personaRequirements[persona.personaId].length > 0" class="requirement-list">
-              <div
-                v-for="requirement in personaRequirements[persona.personaId].slice(0, 5)"
+            <div v-else-if="personaRequirementsTree[persona.personaId] && personaRequirementsTree[persona.personaId].length > 0" class="requirement-tree">
+              <RequirementTreeNode
+                v-for="requirement in personaRequirementsTree[persona.personaId]"
                 :key="requirement.requirementId"
-                class="requirement-item-mini"
-                @click.stop="handleRequirementClick(persona.personaId, requirement.requirementId)"
-              >
-                <button class="requirement-item-close-btn" @click.stop="handleDeleteRequirement(persona.personaId, requirement.requirementId)" :title="t('persona.list.delete')">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-                <div class="requirement-item-header">
-                  <h4 class="requirement-item-title">{{ requirement.title || t('persona.requirementManagement.noTitle') }}</h4>
-                </div>
-                <div class="requirement-item-content">
-                  <div class="requirement-item-field" v-if="requirement.priority">
-                    <span class="field-label">{{ t('persona.requirementManagement.priority') }}:</span>
-                    <span class="field-value">{{ getPriorityLabel(requirement.priority) }}</span>
-                  </div>
-                  <div class="requirement-item-field" v-if="requirement.explicitRequirement">
-                    <span class="field-label">{{ t('persona.requirementManagement.explicitRequirement') }}:</span>
-                    <span class="field-value">{{ requirement.explicitRequirement }}</span>
-                  </div>
-                </div>
-              </div>
-              <div v-if="personaRequirements[persona.personaId].length > 5" class="requirement-more">
-                <button class="btn-more" @click.stop="handleViewMoreRequirements(persona.personaId)">
-                  {{ t('persona.list.viewMoreRequirements') }}
-                </button>
-              </div>
+                :requirement="requirement"
+                :persona-id="persona.personaId"
+                :level="0"
+                :expanded-items="expandedRequirementItems[persona.personaId] || {}"
+                :get-priority-label="getPriorityLabel"
+                @toggle="toggleRequirementItem"
+                @click="handleRequirementClick"
+                @delete="handleDeleteRequirement"
+              />
             </div>
             <div v-else class="requirement-empty">
               {{ t('persona.list.noRequirements') }}
@@ -324,6 +306,7 @@ import ScenarioAnalysisModal from './ScenarioAnalysisModal.vue'
 import ScenarioManagementModal from './ScenarioManagementModal.vue'
 import RequirementAnalysisModal from './RequirementAnalysisModal.vue'
 import RequirementManagementModal from './RequirementManagementModal.vue'
+import RequirementTreeNode from './RequirementTreeNode.vue'
 import { getPersonaList, getPersonaById, updatePersona, deletePersona } from '../../api/persona.js'
 import { getScenarioById, createScenario, updateScenario, getScenarioList, deleteScenario } from '../../api/scenario.js'
 import { getRequirementById, createRequirement, updateRequirement, getRequirementList, deleteRequirement } from '../../api/requirement.js'
@@ -354,7 +337,9 @@ const scenarioLoading = ref({}) // 记录场景列表加载状态
 
 // 需求列表相关
 const expandedRequirements = ref({}) // 记录哪些用户画像的需求列表已展开
-const personaRequirements = ref({}) // 存储每个用户画像的需求列表
+const personaRequirements = ref({}) // 存储每个用户画像的需求列表（扁平）
+const personaRequirementsTree = ref({}) // 存储每个用户画像的需求树（树状）
+const expandedRequirementItems = ref({}) // 记录每个用户画像中展开的需求项（用于树状展开/收起，使用对象存储）
 const requirementLoading = ref({}) // 记录需求列表加载状态
 
 // 需求分析弹窗
@@ -785,8 +770,8 @@ const handleRequirementManagementSave = async (data) => {
     
     if (response.code === 200) {
       showAlert(t('persona.requirementManagement.saveSuccess'), { type: 'success' })
-      // 刷新对应用户画像的需求列表
-      if (data.personaId && expandedRequirements.value[data.personaId]) {
+            // 刷新对应用户画像的需求列表
+      if (data.personaId) {
         await loadRequirementsForPersona(data.personaId)
       }
     } else {
@@ -815,6 +800,40 @@ const toggleRequirementList = async (personaId) => {
   }
 }
 
+// 构建需求树结构
+const buildRequirementTree = (requirements) => {
+  if (!requirements || requirements.length === 0) {
+    return []
+  }
+  
+  // 创建需求ID映射
+  const requirementMap = new Map()
+  requirements.forEach(req => {
+    req.children = []
+    requirementMap.set(req.requirementId, req)
+  })
+  
+  // 构建树结构
+  const tree = []
+  requirements.forEach(req => {
+    if (!req.parentRequirementId) {
+      // 顶级需求（没有父需求）
+      tree.push(req)
+    } else {
+      // 子需求，添加到父需求的children中
+      const parent = requirementMap.get(req.parentRequirementId)
+      if (parent) {
+        parent.children.push(req)
+      } else {
+        // 如果找不到父需求，也作为顶级需求显示（防止数据不一致）
+        tree.push(req)
+      }
+    }
+  })
+  
+  return tree
+}
+
 // 加载指定用户画像的需求列表
 const loadRequirementsForPersona = async (personaId) => {
   if (!canvasId.value) {
@@ -825,22 +844,47 @@ const loadRequirementsForPersona = async (personaId) => {
   try {
     const params = {
       pageNum: 1,
-      pageSize: 10, // 加载更多，但只显示前5条
+      pageSize: 100, // 加载更多以获取所有需求（包括子需求）
       personaId: personaId,
       canvasId: canvasId.value
     }
     const response = await getRequirementList(params)
     if (response.code === 200) {
-      personaRequirements.value[personaId] = response.data.records || []
+      const flatList = response.data.records || []
+      personaRequirements.value[personaId] = flatList
+      // 构建树状结构
+      const tree = buildRequirementTree(flatList)
+      personaRequirementsTree.value[personaId] = tree
+      // 初始化展开状态（默认展开所有有子需求的父需求）
+      if (!expandedRequirementItems.value[personaId]) {
+        expandedRequirementItems.value[personaId] = {}
+      }
+      // 默认展开所有有子需求的父需求
+      tree.forEach(req => {
+        if (req.children && req.children.length > 0) {
+          expandedRequirementItems.value[personaId][req.requirementId] = true
+        }
+      })
     } else {
       personaRequirements.value[personaId] = []
+      personaRequirementsTree.value[personaId] = []
     }
   } catch (error) {
     console.error('加载需求列表失败:', error)
     personaRequirements.value[personaId] = []
+    personaRequirementsTree.value[personaId] = []
   } finally {
     requirementLoading.value[personaId] = false
   }
+}
+
+// 切换需求项的展开/收起
+const toggleRequirementItem = (personaId, requirementId) => {
+  if (!expandedRequirementItems.value[personaId]) {
+    expandedRequirementItems.value[personaId] = {}
+  }
+  const expanded = expandedRequirementItems.value[personaId]
+  expanded[requirementId] = !expanded[requirementId]
 }
 
 // 点击需求项
@@ -867,7 +911,7 @@ const handleDeleteRequirement = async (personaId, requirementId) => {
     const response = await deleteRequirement([requirementId])
     if (response.code === 200) {
       showAlert(t('persona.list.deleteSuccess'), { type: 'success' })
-      // 刷新需求列表
+      // 刷新需求列表（重新构建树）
       await loadRequirementsForPersona(personaId)
     } else {
       showAlert(response.msg || t('persona.list.deleteFailed'), { type: 'error' })
@@ -1550,10 +1594,10 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.requirement-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.requirement-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .requirement-item-mini {
