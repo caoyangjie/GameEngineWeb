@@ -58,7 +58,7 @@
               <div class="form-field">
                 <label class="field-label" for="requirement-persona">
                   {{ t('persona.requirementManagement.persona') }}
-                  <span v-if="!formData.parentRequirementId" class="required-mark">*</span>
+                  <span class="required-mark">*</span>
                 </label>
                 <CustomSelect
                   id="requirement-persona"
@@ -66,12 +66,11 @@
                   :options="personaOptions"
                   :placeholder="t('persona.requirementManagement.personaPlaceholder')"
                   :loading="personaLoading"
-                  :disabled="!!formData.parentRequirementId"
                 />
                 <div v-if="formData.parentRequirementId" class="field-hint">
                   {{ t('persona.requirementManagement.personaInherited') }}
                 </div>
-                <div v-if="!formData.parentRequirementId && !formData.personaId" class="field-error">
+                <div v-if="!formData.personaId" class="field-error">
                   {{ t('persona.requirementManagement.personaRequired') }}
                 </div>
               </div>
@@ -243,7 +242,7 @@ const personaOptions = computed(() => {
   ]
   personaList.value.forEach(persona => {
     options.push({
-      value: persona.personaId,
+      value: persona.personaId ? String(persona.personaId) : '',
       label: persona.name || t('persona.requirementManagement.noTitle')
     })
   })
@@ -332,32 +331,39 @@ const loadParentRequirements = async (personaId = null) => {
 // 处理父需求变化
 const handleParentRequirementChange = async (parentRequirementId) => {
   if (parentRequirementId) {
-    // 选择了父需求，需要继承父需求的用户画像
-    const parentRequirement = parentRequirementList.value.find(req => {
-      // 处理类型转换，确保比较正确
-      const reqId = typeof req.requirementId === 'string' ? Number(req.requirementId) : req.requirementId
-      const targetId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
-      return reqId === targetId
-    })
-    
-    if (parentRequirement && parentRequirement.personaId) {
-      formData.value.personaId = String(parentRequirement.personaId)
-    } else {
-      // 如果父需求列表中没有用户画像信息，则通过API获取
-      try {
-        const requirementId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
-        const response = await getRequirementById(requirementId)
-        if (response.code === 200 && response.data && response.data.personaId) {
-          formData.value.personaId = String(response.data.personaId)
+    // 选择了父需求，如果当前没有选择用户画像，则建议继承父需求的用户画像
+    if (!formData.value.personaId) {
+      const parentRequirement = parentRequirementList.value.find(req => {
+        // 处理类型转换，确保比较正确
+        const reqId = typeof req.requirementId === 'string' ? Number(req.requirementId) : req.requirementId
+        const targetId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
+        return reqId === targetId
+      })
+      
+      if (parentRequirement && parentRequirement.personaId) {
+        // 如果当前没有选择用户画像，则自动填入父需求的用户画像作为建议
+        formData.value.personaId = String(parentRequirement.personaId)
+      } else {
+        // 如果父需求列表中没有用户画像信息，则通过API获取
+        try {
+          const requirementId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
+          const response = await getRequirementById(requirementId)
+          if (response.code === 200 && response.data && response.data.personaId) {
+            formData.value.personaId = String(response.data.personaId)
+          }
+        } catch (error) {
+          console.error('获取父需求详情失败:', error)
         }
-      } catch (error) {
-        console.error('获取父需求详情失败:', error)
       }
     }
+    // 如果已经选择了用户画像，则保持用户的选择，不做强制修改
   } else {
-    // 取消选择父需求，清空用户画像（需要重新选择）
+    // 取消选择父需求，如果当前用户画像是从父需求继承的且没有初始数据，则恢复为传入的 personaId
     if (!props.initialData || !props.initialData.personaId) {
-      formData.value.personaId = props.personaId ? String(props.personaId) : ''
+      // 只有在没有初始数据时才恢复为传入的 personaId
+      if (props.personaId) {
+        formData.value.personaId = String(props.personaId)
+      }
     }
   }
 }
@@ -367,7 +373,7 @@ watch(() => props.initialData, (newVal) => {
   if (newVal && Object.keys(newVal).length > 0) {
     formData.value = {
       parentRequirementId: newVal.parentRequirementId || '',
-      personaId: newVal.personaId ? String(newVal.personaId) : '',
+      personaId: newVal.personaId ? String(newVal.personaId) : (props.personaId ? String(props.personaId) : ''),
       title: newVal.title || '',
       explicitRequirement: newVal.explicitRequirement || '',
       implicitRequirement: newVal.implicitRequirement || '',
@@ -378,6 +384,14 @@ watch(() => props.initialData, (newVal) => {
     }
   }
 }, { immediate: true, deep: true })
+
+// 监听 personaId 变化，确保在弹窗打开时自动设置
+watch(() => props.personaId, (newVal) => {
+  if (props.modelValue && newVal && !formData.value.personaId && (!props.initialData || Object.keys(props.initialData).length === 0)) {
+    // 如果弹窗已打开，表单中的 personaId 为空，且没有初始数据，则设置传入的 personaId
+    formData.value.personaId = String(newVal)
+  }
+}, { immediate: true })
 
 // 监听弹窗打开
 watch(() => props.modelValue, async (newVal) => {
@@ -399,7 +413,7 @@ watch(() => props.modelValue, async (newVal) => {
         requirementContext: props.initialData.requirementContext || ''
       }
     } else {
-      // 重置表单
+      // 重置表单，使用传入的 personaId 作为默认值
       formData.value = {
         parentRequirementId: '',
         personaId: props.personaId ? String(props.personaId) : '',
@@ -441,35 +455,14 @@ const handleOverlayClick = () => {
 
 // 保存
 const handleSave = () => {
-  // 验证：如果是父需求（没有选择父需求），必须选择用户画像
-  if (!formData.value.parentRequirementId && !formData.value.personaId) {
+  // 验证：必须选择用户画像
+  if (!formData.value.personaId) {
     showAlert(t('persona.requirementManagement.personaRequired'), { type: 'error' })
     return
   }
   
-  // 如果是子需求，确保用户画像继承自父需求
-  let personaId = formData.value.personaId
-  if (formData.value.parentRequirementId) {
-    // 子需求：从父需求继承用户画像
-    const parentRequirement = parentRequirementList.value.find(req => {
-      // 处理类型转换，确保比较正确
-      const reqId = typeof req.requirementId === 'string' ? Number(req.requirementId) : req.requirementId
-      const targetId = typeof formData.value.parentRequirementId === 'string' ? Number(formData.value.parentRequirementId) : formData.value.parentRequirementId
-      return reqId === targetId
-    })
-    
-    if (parentRequirement && parentRequirement.personaId) {
-      personaId = String(parentRequirement.personaId)
-    } else if (formData.value.personaId) {
-      // 如果父需求列表中没有用户画像信息，使用当前选择的用户画像
-      personaId = formData.value.personaId
-    }
-  }
-  
-  if (!personaId) {
-    showAlert(t('persona.requirementManagement.personaRequired'), { type: 'error' })
-    return
-  }
+  // 使用用户选择的用户画像，不做强制继承
+  const personaId = formData.value.personaId
   
   const data = {
     requirementId: props.requirementId || null,
