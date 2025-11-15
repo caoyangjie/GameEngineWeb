@@ -47,9 +47,32 @@
                   :options="parentRequirementOptions"
                   :placeholder="t('persona.requirementManagement.parentRequirementPlaceholder')"
                   :loading="parentRequirementLoading"
+                  @change="handleParentRequirementChange"
                 />
                 <div v-if="formData.parentRequirementId" class="field-hint">
                   {{ t('persona.requirementManagement.parentRequirementHint') }}
+                </div>
+              </div>
+
+              <!-- 用户画像 -->
+              <div class="form-field">
+                <label class="field-label" for="requirement-persona">
+                  {{ t('persona.requirementManagement.persona') }}
+                  <span v-if="!formData.parentRequirementId" class="required-mark">*</span>
+                </label>
+                <CustomSelect
+                  id="requirement-persona"
+                  v-model="formData.personaId"
+                  :options="personaOptions"
+                  :placeholder="t('persona.requirementManagement.personaPlaceholder')"
+                  :loading="personaLoading"
+                  :disabled="!!formData.parentRequirementId"
+                />
+                <div v-if="formData.parentRequirementId" class="field-hint">
+                  {{ t('persona.requirementManagement.personaInherited') }}
+                </div>
+                <div v-if="!formData.parentRequirementId && !formData.personaId" class="field-error">
+                  {{ t('persona.requirementManagement.personaRequired') }}
                 </div>
               </div>
 
@@ -156,7 +179,9 @@ import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CustomInput from '../common/CustomInput.vue'
 import CustomSelect from '../common/CustomSelect.vue'
-import { getParentRequirementList } from '../../api/requirement.js'
+import { getParentRequirementList, getRequirementById } from '../../api/requirement.js'
+import { getPersonaList } from '../../api/persona.js'
+import { showAlert } from '../../utils/alert.js'
 
 const { t } = useI18n()
 
@@ -202,7 +227,24 @@ const parentRequirementOptions = computed(() => {
   parentRequirementList.value.forEach(req => {
     options.push({
       value: req.requirementId,
-      label: req.title || t('persona.requirementManagement.noTitle')
+      label: req.title || t('persona.requirementManagement.noTitle'),
+      personaId: req.personaId // 保存父需求的用户画像ID
+    })
+  })
+  return options
+})
+
+// 用户画像相关
+const personaLoading = ref(false)
+const personaList = ref([])
+const personaOptions = computed(() => {
+  const options = [
+    { value: '', label: t('persona.requirementManagement.personaPlaceholder') }
+  ]
+  personaList.value.forEach(persona => {
+    options.push({
+      value: persona.personaId,
+      label: persona.name || t('persona.requirementManagement.noTitle')
     })
   })
   return options
@@ -219,6 +261,7 @@ const priorityOptions = computed(() => [
 
 const formData = ref({
   parentRequirementId: '',
+  personaId: '',
   title: '',
   explicitRequirement: '',
   implicitRequirement: '',
@@ -228,18 +271,49 @@ const formData = ref({
   requirementContext: ''
 })
 
+// 加载用户画像列表
+const loadPersonaList = async () => {
+  if (!props.canvasId) {
+    return
+  }
+  
+  personaLoading.value = true
+  try {
+    const params = {
+      pageNum: 1,
+      pageSize: 1000, // 加载所有用户画像
+      canvasId: props.canvasId
+    }
+    const response = await getPersonaList(params)
+    if (response.code === 200) {
+      personaList.value = response.data.records || []
+    } else {
+      personaList.value = []
+    }
+  } catch (error) {
+    console.error('加载用户画像列表失败:', error)
+    personaList.value = []
+  } finally {
+    personaLoading.value = false
+  }
+}
+
 // 加载父需求列表
-const loadParentRequirements = async () => {
-  if (!props.personaId || !props.canvasId) {
+const loadParentRequirements = async (personaId = null) => {
+  if (!props.canvasId) {
     return
   }
   
   parentRequirementLoading.value = true
   try {
     const params = {
-      personaId: props.personaId,
       canvasId: props.canvasId,
       excludeRequirementId: props.requirementId || null
+    }
+    // 如果有用户画像ID，则只加载该用户画像的父需求
+    const targetPersonaId = personaId || formData.value.personaId
+    if (targetPersonaId) {
+      params.personaId = Number(targetPersonaId)
     }
     const response = await getParentRequirementList(params)
     if (response.code === 200) {
@@ -255,11 +329,45 @@ const loadParentRequirements = async () => {
   }
 }
 
+// 处理父需求变化
+const handleParentRequirementChange = async (parentRequirementId) => {
+  if (parentRequirementId) {
+    // 选择了父需求，需要继承父需求的用户画像
+    const parentRequirement = parentRequirementList.value.find(req => {
+      // 处理类型转换，确保比较正确
+      const reqId = typeof req.requirementId === 'string' ? Number(req.requirementId) : req.requirementId
+      const targetId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
+      return reqId === targetId
+    })
+    
+    if (parentRequirement && parentRequirement.personaId) {
+      formData.value.personaId = String(parentRequirement.personaId)
+    } else {
+      // 如果父需求列表中没有用户画像信息，则通过API获取
+      try {
+        const requirementId = typeof parentRequirementId === 'string' ? Number(parentRequirementId) : parentRequirementId
+        const response = await getRequirementById(requirementId)
+        if (response.code === 200 && response.data && response.data.personaId) {
+          formData.value.personaId = String(response.data.personaId)
+        }
+      } catch (error) {
+        console.error('获取父需求详情失败:', error)
+      }
+    }
+  } else {
+    // 取消选择父需求，清空用户画像（需要重新选择）
+    if (!props.initialData || !props.initialData.personaId) {
+      formData.value.personaId = props.personaId ? String(props.personaId) : ''
+    }
+  }
+}
+
 // 监听初始数据变化
 watch(() => props.initialData, (newVal) => {
   if (newVal && Object.keys(newVal).length > 0) {
     formData.value = {
       parentRequirementId: newVal.parentRequirementId || '',
+      personaId: newVal.personaId ? String(newVal.personaId) : '',
       title: newVal.title || '',
       explicitRequirement: newVal.explicitRequirement || '',
       implicitRequirement: newVal.implicitRequirement || '',
@@ -274,13 +382,14 @@ watch(() => props.initialData, (newVal) => {
 // 监听弹窗打开
 watch(() => props.modelValue, async (newVal) => {
   if (newVal) {
-    // 加载父需求列表
-    await loadParentRequirements()
+    // 加载用户画像列表
+    await loadPersonaList()
     
     // 弹窗打开时，如果有初始数据则加载
     if (props.initialData && Object.keys(props.initialData).length > 0) {
       formData.value = {
         parentRequirementId: props.initialData.parentRequirementId || '',
+        personaId: props.initialData.personaId ? String(props.initialData.personaId) : (props.personaId ? String(props.personaId) : ''),
         title: props.initialData.title || '',
         explicitRequirement: props.initialData.explicitRequirement || '',
         implicitRequirement: props.initialData.implicitRequirement || '',
@@ -293,6 +402,7 @@ watch(() => props.modelValue, async (newVal) => {
       // 重置表单
       formData.value = {
         parentRequirementId: '',
+        personaId: props.personaId ? String(props.personaId) : '',
         title: '',
         explicitRequirement: '',
         implicitRequirement: '',
@@ -302,6 +412,9 @@ watch(() => props.modelValue, async (newVal) => {
         requirementContext: ''
       }
     }
+    
+    // 加载父需求列表（需要在设置 personaId 之后）
+    await loadParentRequirements()
   } else {
     // 弹窗关闭时重置最大化状态
     isMaximized.value = false
@@ -328,11 +441,41 @@ const handleOverlayClick = () => {
 
 // 保存
 const handleSave = () => {
+  // 验证：如果是父需求（没有选择父需求），必须选择用户画像
+  if (!formData.value.parentRequirementId && !formData.value.personaId) {
+    showAlert(t('persona.requirementManagement.personaRequired'), { type: 'error' })
+    return
+  }
+  
+  // 如果是子需求，确保用户画像继承自父需求
+  let personaId = formData.value.personaId
+  if (formData.value.parentRequirementId) {
+    // 子需求：从父需求继承用户画像
+    const parentRequirement = parentRequirementList.value.find(req => {
+      // 处理类型转换，确保比较正确
+      const reqId = typeof req.requirementId === 'string' ? Number(req.requirementId) : req.requirementId
+      const targetId = typeof formData.value.parentRequirementId === 'string' ? Number(formData.value.parentRequirementId) : formData.value.parentRequirementId
+      return reqId === targetId
+    })
+    
+    if (parentRequirement && parentRequirement.personaId) {
+      personaId = String(parentRequirement.personaId)
+    } else if (formData.value.personaId) {
+      // 如果父需求列表中没有用户画像信息，使用当前选择的用户画像
+      personaId = formData.value.personaId
+    }
+  }
+  
+  if (!personaId) {
+    showAlert(t('persona.requirementManagement.personaRequired'), { type: 'error' })
+    return
+  }
+  
   const data = {
     requirementId: props.requirementId || null,
-    personaId: props.personaId,
+    personaId: Number(personaId),
     canvasId: props.canvasId,
-    parentRequirementId: formData.value.parentRequirementId || null,
+    parentRequirementId: formData.value.parentRequirementId ? (typeof formData.value.parentRequirementId === 'string' ? Number(formData.value.parentRequirementId) : formData.value.parentRequirementId) : null,
     title: formData.value.title,
     explicitRequirement: formData.value.explicitRequirement,
     implicitRequirement: formData.value.implicitRequirement,
@@ -510,12 +653,25 @@ const handleSave = () => {
   margin-bottom: 8px;
 }
 
+.required-mark {
+  color: #f44336;
+  margin-left: 4px;
+}
+
 .field-hint {
   font-size: 12px;
   color: rgba(255, 215, 0, 0.7);
   margin-top: 6px;
   font-style: italic;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.field-error {
+  font-size: 12px;
+  color: #f44336;
+  margin-top: 6px;
+  font-style: italic;
+  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
 }
 
 .form-textarea {

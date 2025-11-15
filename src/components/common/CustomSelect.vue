@@ -1,8 +1,8 @@
 <template>
-  <div class="custom-select-wrapper" :class="{ 'is-open': isOpen, 'is-disabled': disabled }">
+  <div ref="selectWrapper" class="custom-select-wrapper" :class="{ 'is-open': isOpen, 'is-disabled': disabled }">
     <div 
       class="custom-select" 
-      @click="toggleDropdown"
+      @click.stop="toggleDropdown"
       :class="{ 'is-focused': isOpen, 'has-value': modelValue !== '' && modelValue !== null && modelValue !== undefined }"
     >
       <span class="select-value" :class="{ 'placeholder': !modelValue || modelValue === '' }">
@@ -12,7 +12,7 @@
     </div>
     
     <Transition name="dropdown">
-      <div v-if="isOpen" class="select-dropdown">
+      <div v-if="isOpen" class="select-dropdown" @click.stop>
         <div class="dropdown-content">
           <div
             v-for="option in options"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -56,6 +56,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change'])
 
 const isOpen = ref(false)
+const selectWrapper = ref(null)
 
 const displayText = computed(() => {
   if (!props.modelValue && props.modelValue !== 0) {
@@ -78,18 +79,24 @@ const selectOption = (option) => {
 }
 
 const handleClickOutside = (event) => {
-  const wrapper = event.target.closest('.custom-select-wrapper')
-  if (!wrapper) {
+  // 如果下拉框未打开，不需要处理
+  if (!isOpen.value) return
+  
+  // 检查点击是否在组件外部
+  if (selectWrapper.value && !selectWrapper.value.contains(event.target)) {
     isOpen.value = false
   }
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  // 使用 nextTick 确保 DOM 已渲染
+  nextTick(() => {
+    document.addEventListener('click', handleClickOutside, true)
+  })
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('click', handleClickOutside, true)
 })
 </script>
 
@@ -100,9 +107,9 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-/* .custom-select-wrapper.is-open { */
-  /* z-index: 9999; */
-/* } */
+.custom-select-wrapper.is-open {
+  z-index: 10001;
+}
 
 .custom-select {
   width: 100%;
@@ -175,7 +182,7 @@ onUnmounted(() => {
   top: calc(100% + 5px);
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 10001;
   background: rgba(0, 0, 0, 0.95);
   border: 2px solid rgba(255, 215, 0, 0.6);
   border-radius: 8px;
@@ -184,28 +191,39 @@ onUnmounted(() => {
     0 0 30px rgba(255, 215, 0, 0.3),
     inset 0 0 20px rgba(255, 215, 0, 0.1);
   backdrop-filter: blur(10px);
-  overflow: hidden;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   isolation: isolate;
+  /* Firefox 滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 215, 0, 0.6) rgba(0, 0, 0, 0.3);
 }
 
 .select-dropdown::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .select-dropdown::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
+  border-radius: 4px;
+  margin: 4px 0;
 }
 
 .select-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.5);
-  border-radius: 3px;
+  background: rgba(255, 215, 0, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  min-height: 30px;
 }
 
 .select-dropdown::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 215, 0, 0.7);
+  background: rgba(255, 215, 0, 0.8);
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.select-dropdown::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 215, 0, 0.9);
 }
 
 .dropdown-content {

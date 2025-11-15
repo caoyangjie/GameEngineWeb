@@ -889,16 +889,12 @@ const toggleRequirementItem = (personaId, requirementId) => {
 
 // 点击需求项
 const handleRequirementClick = (personaId, requirementId) => {
-  // 可以打开需求详情或编辑
-  currentPersonaId.value = personaId
-  currentRequirementId.value = requirementId
-  // 加载需求详情
-  getRequirementById(requirementId).then(response => {
-    if (response.code === 200 && response.data) {
-      requirementData.value = response.data
-      showRequirementManagementModal.value = true
-    }
-  })
+  // 跳转到需求列表页面
+  router.goToRequirementList()
+  window.personaId = personaId
+  window.canvasId = canvasId.value
+  // 可选：如果需要定位到特定需求，可以传递 requirementId
+  // window.requirementId = requirementId
 }
 
 // 删除需求

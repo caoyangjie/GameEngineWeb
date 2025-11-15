@@ -36,6 +36,7 @@
     <PersonaListPage v-if="router.currentRoute.value === ROUTES.PERSONA_LIST" />
     <PersonaDetailPage v-if="router.currentRoute.value === ROUTES.PERSONA_DETAIL" />
     <ScenarioListPage v-if="router.currentRoute.value === ROUTES.SCENARIO_LIST" />
+    <RequirementListPage v-if="router.currentRoute.value === ROUTES.REQUIREMENT_LIST" />
   </div>
 </template>
 
@@ -77,6 +78,7 @@ import BusinessModelCanvasDetailPage from './components/businessModelCanvas/Busi
 import PersonaListPage from './components/persona/PersonaListPage.vue'
 import PersonaDetailPage from './components/persona/PersonaDetailPage.vue'
 import ScenarioListPage from './components/persona/ScenarioListPage.vue'
+import RequirementListPage from './components/persona/RequirementListPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 
