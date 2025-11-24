@@ -963,5 +963,288 @@
       "saveFailed": "Save failed",
       "noTitle": "Untitled Requirement"
     }
+  },
+  "payment": {
+    "sidebar": {
+      "paymentManagement": "Payment Management",
+      "paymentConfig": "Payment Config Management",
+      "alipayWebSite": "Alipay - Web Site Payment",
+      "alipayMobileSite": "Alipay - Mobile Site Payment",
+      "alipayPreCreate": "Alipay - Pre Create Order",
+      "alipayPay": "Alipay - Card Payment",
+      "alipayQuery": "Alipay - Order Query",
+      "alipayRefund": "Alipay - Refund",
+      "alipayCancel": "Alipay - Cancel Order",
+      "wechatUnifiedOrder": "WeChat - Unified Order",
+      "wechatMicroPay": "WeChat - Card Payment",
+      "wechatQuery": "WeChat - Order Query",
+      "wechatRefund": "WeChat - Refund",
+      "wechatCloseOrder": "WeChat - Close Order",
+      "bestpayBarcode": "BestPay - Barcode Payment",
+      "bestpayQuery": "BestPay - Order Query",
+      "bestpayRefund": "BestPay - Refund",
+      "bestpayReverse": "BestPay - Reverse"
+    },
+    "config": {
+      "title": "Payment Config Management",
+      "addConfig": "Add Config",
+      "editConfig": "Edit Config",
+      "search": {
+        "paymentType": "Payment Type",
+        "configName": "Config Name",
+        "enabledStatus": "Enabled Status",
+        "all": "All",
+        "search": "Search",
+        "reset": "Reset",
+        "configNamePlaceholder": "Please enter config name"
+      },
+      "list": {
+        "empty": "No config, please click \"Add Config\" to add",
+        "appId": "App ID:",
+        "mchId": "Merchant ID:",
+        "remark": "Remark:",
+        "edit": "Edit",
+        "delete": "Delete",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "functions": "Functions"
+      },
+      "functions": {
+        "alipay": {
+          "webSite": "Web Site Payment",
+          "mobileSite": "Mobile Site Payment",
+          "preCreate": "Pre Create Order",
+          "pay": "Card Payment",
+          "query": "Order Query",
+          "refund": "Refund",
+          "cancel": "Cancel Order"
+        },
+        "wechat": {
+          "unifiedOrder": "Unified Order",
+          "microPay": "Card Payment",
+          "query": "Order Query",
+          "refund": "Refund",
+          "closeOrder": "Close Order"
+        },
+        "bestpay": {
+          "barcode": "Barcode Payment",
+          "query": "Order Query",
+          "refund": "Refund",
+          "reverse": "Reverse"
+        }
+      },
+      "form": {
+        "paymentType": "Payment Type",
+        "paymentTypeRequired": "Payment Type",
+        "paymentTypePlaceholder": "Please select payment type",
+        "paymentTypeAlipay": "Alipay",
+        "paymentTypeWechat": "WeChat Pay",
+        "paymentTypeBestpay": "BestPay",
+        "configName": "Config Name",
+        "configNameRequired": "Config Name",
+        "configNamePlaceholder": "Please enter config name",
+        "appId": "App ID",
+        "appIdPlaceholder": "Please enter app ID",
+        "mchId": "Merchant ID",
+        "mchIdPlaceholder": "Please enter merchant ID",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Please enter API key",
+        "privateKey": "Private Key",
+        "privateKeyPlaceholder": "Please enter private key",
+        "alipayPublicKey": "Alipay Public Key",
+        "alipayPublicKeyPlaceholder": "Please enter Alipay public key",
+        "signType": "Sign Type",
+        "signTypePlaceholder": "Please select sign type",
+        "enabled": "Enabled Status",
+        "enabledPlaceholder": "Please select enabled status",
+        "notifyUrl": "Notify URL",
+        "notifyUrlPlaceholder": "Please enter notify URL",
+        "returnUrl": "Return URL",
+        "returnUrlPlaceholder": "Please enter return URL",
+        "p12FilePath": "P12 Certificate File Path",
+        "p12FilePathPlaceholder": "Please enter P12 certificate file path (required for WeChat refund)",
+        "remark": "Remark",
+        "remarkPlaceholder": "Please enter remark",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "deleteConfirm": "Are you sure you want to delete this config?",
+        "deleteSuccess": "Deleted successfully",
+        "deleteFailed": "Delete failed",
+        "saveSuccess": "Saved successfully",
+        "saveFailed": "Save failed",
+        "loadFailed": "Failed to load config list"
+      }
+    },
+    "common": {
+      "paymentConfig": "Payment Config",
+      "paymentConfigRequired": "Payment Config",
+      "paymentConfigPlaceholder": "Please select config",
+      "outTradeNo": "Merchant Order No",
+      "outTradeNoRequired": "Merchant Order No",
+      "outTradeNoPlaceholder": "Auto generate",
+      "outTradeNoInputPlaceholder": "Please enter merchant order no",
+      "subject": "Order Title",
+      "subjectRequired": "Order Title",
+      "subjectPlaceholder": "Test Order",
+      "body": "Order Description",
+      "bodyPlaceholder": "Test Order Description",
+      "totalAmount": "Order Amount",
+      "totalAmountRequired": "Order Amount",
+      "totalAmountPlaceholder": "0.01",
+      "submit": "Submit Payment",
+      "queryOrder": "Query Order",
+      "cancelOrder": "Cancel Order",
+      "closeOrder": "Close Order",
+      "reverseOrder": "Reverse Order",
+      "generateQrcode": "Generate QR Code",
+      "success": "Success",
+      "failed": "Failed",
+      "operationSuccess": "Operation successful",
+      "operationFailed": "Operation failed",
+      "requestFailed": "Request failed",
+      "querySuccess": "Query successful",
+      "queryFailed": "Query failed",
+      "cancelSuccess": "Cancel successful",
+      "cancelFailed": "Cancel failed",
+      "closeSuccess": "Close successful",
+      "closeFailed": "Close failed",
+      "reverseSuccess": "Reverse successful",
+      "reverseFailed": "Reverse failed",
+      "redirectingToPayment": "Redirecting to payment page...",
+      "loadConfigFailed": "Failed to load config",
+      "storeId": "Store ID",
+      "storeIdPlaceholder": "Optional",
+      "operatorId": "Operator ID",
+      "operatorIdPlaceholder": "Optional",
+      "tradeState": "Trade State:",
+      "transactionId": "Transaction ID",
+      "transactionIdPlaceholder": "Please enter transaction ID (optional)",
+      "refundSuccess": "Refund successful",
+      "refundFailed": "Refund failed",
+      "applyRefund": "Apply Refund",
+      "totalFee": "Original Order Total Amount",
+      "totalFeePlaceholder": "Please enter original order total amount",
+      "goodsName": "Goods Name",
+      "goodsNamePlaceholder": "Test Goods",
+      "authCode": "Auth Code",
+      "authCodePlaceholder": "Please enter auth code (barcode or QR code)",
+      "authCodePlaceholderAlipay": "User payment code, 18 digits",
+      "authCodePlaceholderWechat": "User payment code"
+    },
+    "alipay": {
+      "webSite": {
+        "title": "Alipay - Web Site Payment"
+      },
+      "mobileSite": {
+        "title": "Alipay - Mobile Site Payment"
+      },
+      "preCreate": {
+        "title": "Alipay - Pre Create Order",
+        "qrcodeTitle": "Please scan QR code with Alipay"
+      },
+      "pay": {
+        "title": "Alipay - Card Payment",
+        "authCode": "Auth Code",
+        "authCodeRequired": "Auth Code",
+        "authCodePlaceholder": "Please enter auth code (barcode or QR code)"
+      },
+      "query": {
+        "title": "Alipay - Order Query",
+        "outTradeNoOrTradeNo": "Merchant Order No or Alipay Trade No",
+        "outTradeNoOrTradeNoRequired": "Merchant Order No or Alipay Trade No",
+        "outTradeNoOrTradeNoPlaceholder": "Please enter merchant order no or Alipay trade no"
+      },
+      "refund": {
+        "title": "Alipay - Refund",
+        "refundAmount": "Refund Amount",
+        "refundAmountRequired": "Refund Amount",
+        "refundAmountPlaceholder": "Please enter refund amount",
+        "outRefundNo": "Refund No",
+        "outRefundNoPlaceholder": "Auto generate",
+        "refundReason": "Refund Reason",
+        "refundReasonPlaceholder": "Please enter refund reason"
+      },
+      "cancel": {
+        "title": "Alipay - Cancel Order"
+      }
+    },
+    "wechat": {
+      "unifiedOrder": {
+        "title": "WeChat Pay - Unified Order",
+        "tradeType": "Trade Type",
+        "tradeTypeRequired": "Trade Type",
+        "tradeTypePlaceholder": "Please select trade type",
+        "tradeTypeNative": "Scan QR Code Payment",
+        "tradeTypeJsapi": "JSAPI Payment (Official Account/Mini Program)",
+        "tradeTypeApp": "APP Payment",
+        "tradeTypeMweb": "H5 Payment",
+        "openid": "User OpenID",
+        "openidPlaceholder": "Required for JSAPI payment",
+        "submit": "Unified Order",
+        "qrcodeTitle": "Please scan QR code with WeChat"
+      },
+      "microPay": {
+        "title": "WeChat Pay - Card Payment",
+        "authCode": "Auth Code",
+        "authCodeRequired": "Auth Code",
+        "authCodePlaceholder": "Please enter auth code (barcode or QR code)"
+      },
+      "query": {
+        "title": "WeChat Pay - Order Query",
+        "outTradeNoOrTransactionId": "Merchant Order No or WeChat Transaction ID",
+        "outTradeNoOrTransactionIdRequired": "Merchant Order No or WeChat Transaction ID",
+        "outTradeNoOrTransactionIdPlaceholder": "Please enter merchant order no or WeChat transaction ID"
+      },
+      "refund": {
+        "title": "WeChat Pay - Refund",
+        "outRefundNo": "Refund No",
+        "outRefundNoPlaceholder": "Auto generate",
+        "refundAmount": "Refund Amount (cents)",
+        "refundAmountRequired": "Refund Amount (cents)",
+        "refundAmountPlaceholder": "Please enter refund amount (in cents)",
+        "totalFee": "Total Amount (cents)",
+        "totalFeePlaceholder": "Please enter total amount (in cents)",
+        "refundFee": "Refund Amount (cents)",
+        "refundFeePlaceholder": "Please enter refund amount (in cents)",
+        "refundReason": "Refund Reason",
+        "refundReasonPlaceholder": "Please enter refund reason"
+      },
+      "closeOrder": {
+        "title": "WeChat Pay - Close Order"
+      }
+    },
+    "bestpay": {
+      "barcode": {
+        "title": "BestPay - Barcode Payment",
+        "barcode": "Barcode",
+        "barcodeRequired": "Barcode",
+        "barcodePlaceholder": "Please enter barcode",
+        "goodsName": "Goods Name",
+        "goodsNamePlaceholder": "Please enter goods name",
+        "storeId": "Store ID",
+        "storeIdPlaceholder": "Please enter store ID",
+        "operatorId": "Operator ID",
+        "operatorIdPlaceholder": "Please enter operator ID"
+      },
+      "query": {
+        "title": "BestPay - Order Query",
+        "outTradeNoOrOrderNo": "Merchant Order No or BestPay Order No",
+        "outTradeNoOrOrderNoRequired": "Merchant Order No or BestPay Order No",
+        "outTradeNoOrOrderNoPlaceholder": "Please enter merchant order no or BestPay order no"
+      },
+      "refund": {
+        "title": "BestPay - Refund",
+        "outRefundNo": "Refund No",
+        "outRefundNoPlaceholder": "Auto generate",
+        "refundAmount": "Refund Amount (cents)",
+        "refundAmountRequired": "Refund Amount (cents)",
+        "refundAmountPlaceholder": "Please enter refund amount (in cents)"
+      },
+      "reverse": {
+        "title": "BestPay - Reverse"
+      }
+    }
   }
 }

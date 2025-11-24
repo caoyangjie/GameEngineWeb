@@ -1029,5 +1029,288 @@
       "saveFailed": "保存失败",
       "noTitle": "未命名需求"
     }
+  },
+  "payment": {
+    "sidebar": {
+      "paymentManagement": "支付管理",
+      "paymentConfig": "支付配置管理",
+      "alipayWebSite": "支付宝-普通网站支付",
+      "alipayMobileSite": "支付宝-手机网页支付",
+      "alipayPreCreate": "支付宝-预创建订单",
+      "alipayPay": "支付宝-刷卡支付",
+      "alipayQuery": "支付宝-订单查询",
+      "alipayRefund": "支付宝-退款",
+      "alipayCancel": "支付宝-订单取消",
+      "wechatUnifiedOrder": "微信-统一下单",
+      "wechatMicroPay": "微信-刷卡支付",
+      "wechatQuery": "微信-订单查询",
+      "wechatRefund": "微信-退款",
+      "wechatCloseOrder": "微信-订单关闭",
+      "bestpayBarcode": "翼支付-扫码支付",
+      "bestpayQuery": "翼支付-订单查询",
+      "bestpayRefund": "翼支付-退款",
+      "bestpayReverse": "翼支付-撤销"
+    },
+    "config": {
+      "title": "支付配置管理",
+      "addConfig": "新增配置",
+      "editConfig": "编辑配置",
+      "search": {
+        "paymentType": "支付类型",
+        "configName": "配置名称",
+        "enabledStatus": "启用状态",
+        "all": "全部",
+        "search": "搜索",
+        "reset": "重置",
+        "configNamePlaceholder": "请输入配置名称"
+      },
+      "list": {
+        "empty": "暂无配置，请点击\"新增配置\"添加",
+        "appId": "应用ID:",
+        "mchId": "商户号:",
+        "remark": "备注:",
+        "edit": "编辑",
+        "delete": "删除",
+        "enabled": "启用",
+        "disabled": "禁用",
+        "functions": "功能操作"
+      },
+      "functions": {
+        "alipay": {
+          "webSite": "普通网站支付",
+          "mobileSite": "手机网页支付",
+          "preCreate": "预创建订单",
+          "pay": "刷卡支付",
+          "query": "订单查询",
+          "refund": "退款",
+          "cancel": "订单取消"
+        },
+        "wechat": {
+          "unifiedOrder": "统一下单",
+          "microPay": "刷卡支付",
+          "query": "订单查询",
+          "refund": "退款",
+          "closeOrder": "订单关闭"
+        },
+        "bestpay": {
+          "barcode": "扫码支付",
+          "query": "订单查询",
+          "refund": "退款",
+          "reverse": "撤销"
+        }
+      },
+      "form": {
+        "paymentType": "支付类型",
+        "paymentTypeRequired": "支付类型",
+        "paymentTypePlaceholder": "请选择支付类型",
+        "paymentTypeAlipay": "支付宝",
+        "paymentTypeWechat": "微信支付",
+        "paymentTypeBestpay": "翼支付",
+        "configName": "配置名称",
+        "configNameRequired": "配置名称",
+        "configNamePlaceholder": "请输入配置名称",
+        "appId": "应用ID",
+        "appIdPlaceholder": "请输入应用ID",
+        "mchId": "商户号",
+        "mchIdPlaceholder": "请输入商户号",
+        "apiKey": "API密钥",
+        "apiKeyPlaceholder": "请输入API密钥",
+        "privateKey": "私钥",
+        "privateKeyPlaceholder": "请输入私钥",
+        "alipayPublicKey": "支付宝公钥",
+        "alipayPublicKeyPlaceholder": "请输入支付宝公钥",
+        "signType": "签名类型",
+        "signTypePlaceholder": "请选择签名类型",
+        "enabled": "启用状态",
+        "enabledPlaceholder": "请选择启用状态",
+        "notifyUrl": "异步通知地址",
+        "notifyUrlPlaceholder": "请输入异步通知地址",
+        "returnUrl": "同步返回地址",
+        "returnUrlPlaceholder": "请输入同步返回地址",
+        "p12FilePath": "P12证书文件路径",
+        "p12FilePathPlaceholder": "请输入P12证书文件路径（微信退款需要）",
+        "remark": "备注",
+        "remarkPlaceholder": "请输入备注",
+        "save": "保存",
+        "cancel": "取消"
+      },
+      "messages": {
+        "deleteConfirm": "确定要删除此配置吗？",
+        "deleteSuccess": "删除成功",
+        "deleteFailed": "删除失败",
+        "saveSuccess": "保存成功",
+        "saveFailed": "保存失败",
+        "loadFailed": "加载配置列表失败"
+      }
+    },
+    "common": {
+      "paymentConfig": "支付配置",
+      "paymentConfigRequired": "支付配置",
+      "paymentConfigPlaceholder": "请选择配置",
+      "outTradeNo": "商户订单号",
+      "outTradeNoRequired": "商户订单号",
+      "outTradeNoPlaceholder": "自动生成",
+      "outTradeNoInputPlaceholder": "请输入商户订单号",
+      "subject": "订单标题",
+      "subjectRequired": "订单标题",
+      "subjectPlaceholder": "测试订单",
+      "body": "订单描述",
+      "bodyPlaceholder": "测试订单描述",
+      "totalAmount": "订单金额",
+      "totalAmountRequired": "订单金额",
+      "totalAmountPlaceholder": "0.01",
+      "submit": "提交支付",
+      "queryOrder": "查询订单",
+      "cancelOrder": "取消订单",
+      "closeOrder": "关闭订单",
+      "reverseOrder": "撤销订单",
+      "generateQrcode": "生成二维码",
+      "success": "成功",
+      "failed": "失败",
+      "operationSuccess": "操作成功",
+      "operationFailed": "操作失败",
+      "requestFailed": "请求失败",
+      "querySuccess": "查询成功",
+      "queryFailed": "查询失败",
+      "cancelSuccess": "取消成功",
+      "cancelFailed": "取消失败",
+      "closeSuccess": "关闭成功",
+      "closeFailed": "关闭失败",
+      "reverseSuccess": "撤销成功",
+      "reverseFailed": "撤销失败",
+      "redirectingToPayment": "正在跳转到支付页面...",
+      "loadConfigFailed": "加载配置失败",
+      "storeId": "门店ID",
+      "storeIdPlaceholder": "可选",
+      "operatorId": "操作员ID",
+      "operatorIdPlaceholder": "可选",
+      "tradeState": "交易状态:",
+      "transactionId": "支付平台交易号",
+      "transactionIdPlaceholder": "请输入支付平台交易号（可选）",
+      "refundSuccess": "退款成功",
+      "refundFailed": "退款失败",
+      "applyRefund": "申请退款",
+      "totalFee": "原订单总金额",
+      "totalFeePlaceholder": "请输入原订单总金额",
+      "goodsName": "商品名称",
+      "goodsNamePlaceholder": "测试商品",
+      "authCode": "授权码",
+      "authCodePlaceholder": "请输入授权码（条码或二维码）",
+      "authCodePlaceholderAlipay": "用户付款码，18位数字",
+      "authCodePlaceholderWechat": "用户付款码"
+    },
+    "alipay": {
+      "webSite": {
+        "title": "支付宝 - 普通网站支付"
+      },
+      "mobileSite": {
+        "title": "支付宝 - 手机网页支付"
+      },
+      "preCreate": {
+        "title": "支付宝 - 预创建订单",
+        "qrcodeTitle": "请使用支付宝扫码支付"
+      },
+      "pay": {
+        "title": "支付宝 - 刷卡支付",
+        "authCode": "授权码",
+        "authCodeRequired": "授权码",
+        "authCodePlaceholder": "请输入授权码（条码或二维码）"
+      },
+      "query": {
+        "title": "支付宝 - 订单查询",
+        "outTradeNoOrTradeNo": "商户订单号或支付宝交易号",
+        "outTradeNoOrTradeNoRequired": "商户订单号或支付宝交易号",
+        "outTradeNoOrTradeNoPlaceholder": "请输入商户订单号或支付宝交易号"
+      },
+      "refund": {
+        "title": "支付宝 - 退款",
+        "refundAmount": "退款金额",
+        "refundAmountRequired": "退款金额",
+        "refundAmountPlaceholder": "请输入退款金额",
+        "outRefundNo": "退款单号",
+        "outRefundNoPlaceholder": "自动生成",
+        "refundReason": "退款原因",
+        "refundReasonPlaceholder": "请输入退款原因"
+      },
+      "cancel": {
+        "title": "支付宝 - 订单取消"
+      }
+    },
+    "wechat": {
+      "unifiedOrder": {
+        "title": "微信支付 - 统一下单",
+        "tradeType": "交易类型",
+        "tradeTypeRequired": "交易类型",
+        "tradeTypePlaceholder": "请选择交易类型",
+        "tradeTypeNative": "扫码支付",
+        "tradeTypeJsapi": "公众号/小程序支付",
+        "tradeTypeApp": "APP支付",
+        "tradeTypeMweb": "H5支付",
+        "openid": "用户OpenID",
+        "openidPlaceholder": "JSAPI支付时必填",
+        "submit": "统一下单",
+        "qrcodeTitle": "请使用微信扫码支付"
+      },
+      "microPay": {
+        "title": "微信支付 - 刷卡支付",
+        "authCode": "授权码",
+        "authCodeRequired": "授权码",
+        "authCodePlaceholder": "请输入授权码（条码或二维码）"
+      },
+      "query": {
+        "title": "微信支付 - 订单查询",
+        "outTradeNoOrTransactionId": "商户订单号或微信交易号",
+        "outTradeNoOrTransactionIdRequired": "商户订单号或微信交易号",
+        "outTradeNoOrTransactionIdPlaceholder": "请输入商户订单号或微信交易号"
+      },
+      "refund": {
+        "title": "微信支付 - 退款",
+        "outRefundNo": "退款单号",
+        "outRefundNoPlaceholder": "自动生成",
+        "refundAmount": "退款金额（分）",
+        "refundAmountRequired": "退款金额（分）",
+        "refundAmountPlaceholder": "请输入退款金额（单位：分）",
+        "totalFee": "订单总金额（分）",
+        "totalFeePlaceholder": "请输入订单总金额（单位：分）",
+        "refundFee": "退款金额（分）",
+        "refundFeePlaceholder": "请输入退款金额（单位：分）",
+        "refundReason": "退款原因",
+        "refundReasonPlaceholder": "请输入退款原因"
+      },
+      "closeOrder": {
+        "title": "微信支付 - 订单关闭"
+      }
+    },
+    "bestpay": {
+      "barcode": {
+        "title": "翼支付 - 扫码支付",
+        "barcode": "条码",
+        "barcodeRequired": "条码",
+        "barcodePlaceholder": "请输入条码",
+        "goodsName": "商品名称",
+        "goodsNamePlaceholder": "请输入商品名称",
+        "storeId": "门店号",
+        "storeIdPlaceholder": "请输入门店号",
+        "operatorId": "操作员号",
+        "operatorIdPlaceholder": "请输入操作员号"
+      },
+      "query": {
+        "title": "翼支付 - 订单查询",
+        "outTradeNoOrOrderNo": "商户订单号或翼支付订单号",
+        "outTradeNoOrOrderNoRequired": "商户订单号或翼支付订单号",
+        "outTradeNoOrOrderNoPlaceholder": "请输入商户订单号或翼支付订单号"
+      },
+      "refund": {
+        "title": "翼支付 - 退款",
+        "outRefundNo": "退款单号",
+        "outRefundNoPlaceholder": "自动生成",
+        "refundAmount": "退款金额（分）",
+        "refundAmountRequired": "退款金额（分）",
+        "refundAmountPlaceholder": "请输入退款金额（单位：分）"
+      },
+      "reverse": {
+        "title": "翼支付 - 撤销"
+      }
+    }
   }
 }

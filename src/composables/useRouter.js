@@ -43,7 +43,25 @@ export const ROUTES = {
   PERSONA_LIST: 'persona-list',
   PERSONA_DETAIL: 'persona-detail',
   SCENARIO_LIST: 'scenario-list',
-  REQUIREMENT_LIST: 'requirement-list'
+  REQUIREMENT_LIST: 'requirement-list',
+  // 支付管理
+  PAYMENT_CONFIG: 'payment-config',
+  ALIPAY_WEB_SITE: 'alipay-web-site',
+  ALIPAY_MOBILE_SITE: 'alipay-mobile-site',
+  ALIPAY_PRE_CREATE: 'alipay-pre-create',
+  ALIPAY_PAY: 'alipay-pay',
+  ALIPAY_QUERY: 'alipay-query',
+  ALIPAY_REFUND: 'alipay-refund',
+  ALIPAY_CANCEL: 'alipay-cancel',
+  WECHAT_UNIFIED_ORDER: 'wechat-unified-order',
+  WECHAT_MICRO_PAY: 'wechat-micro-pay',
+  WECHAT_QUERY: 'wechat-query',
+  WECHAT_REFUND: 'wechat-refund',
+  WECHAT_CLOSE_ORDER: 'wechat-close-order',
+  BESTPAY_BARCODE: 'bestpay-barcode',
+  BESTPAY_QUERY: 'bestpay-query',
+  BESTPAY_REFUND: 'bestpay-refund',
+  BESTPAY_REVERSE: 'bestpay-reverse'
 }
 
 // 不需要登录的路由
@@ -199,6 +217,58 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToRequirementList() {
       this.navigate(ROUTES.REQUIREMENT_LIST)
+    },
+    // 支付管理
+    goToPaymentConfig() {
+      this.navigate(ROUTES.PAYMENT_CONFIG)
+    },
+    goToAlipayWebSite() {
+      this.navigate(ROUTES.ALIPAY_WEB_SITE)
+    },
+    goToAlipayMobileSite() {
+      this.navigate(ROUTES.ALIPAY_MOBILE_SITE)
+    },
+    goToAlipayPreCreate() {
+      this.navigate(ROUTES.ALIPAY_PRE_CREATE)
+    },
+    goToAlipayPay() {
+      this.navigate(ROUTES.ALIPAY_PAY)
+    },
+    goToAlipayQuery() {
+      this.navigate(ROUTES.ALIPAY_QUERY)
+    },
+    goToAlipayRefund() {
+      this.navigate(ROUTES.ALIPAY_REFUND)
+    },
+    goToAlipayCancel() {
+      this.navigate(ROUTES.ALIPAY_CANCEL)
+    },
+    goToWechatUnifiedOrder() {
+      this.navigate(ROUTES.WECHAT_UNIFIED_ORDER)
+    },
+    goToWechatMicroPay() {
+      this.navigate(ROUTES.WECHAT_MICRO_PAY)
+    },
+    goToWechatQuery() {
+      this.navigate(ROUTES.WECHAT_QUERY)
+    },
+    goToWechatRefund() {
+      this.navigate(ROUTES.WECHAT_REFUND)
+    },
+    goToWechatCloseOrder() {
+      this.navigate(ROUTES.WECHAT_CLOSE_ORDER)
+    },
+    goToBestpayBarcode() {
+      this.navigate(ROUTES.BESTPAY_BARCODE)
+    },
+    goToBestpayQuery() {
+      this.navigate(ROUTES.BESTPAY_QUERY)
+    },
+    goToBestpayRefund() {
+      this.navigate(ROUTES.BESTPAY_REFUND)
+    },
+    goToBestpayReverse() {
+      this.navigate(ROUTES.BESTPAY_REVERSE)
     },
     
     // 登出（跳转到登录页）

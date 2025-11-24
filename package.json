@@ -15,6 +15,7 @@
     "markmap-view": "^0.18.12",
     "mermaid": "^11.12.1",
     "plantuml-encoder": "^1.4.0",
+    "qrcode": "^1.5.3",
     "vue": "^3.4.0",
     "vue-i18n": "^9.14.5"
   },

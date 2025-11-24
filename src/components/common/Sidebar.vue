@@ -11,17 +11,17 @@
           <span class="sidebar-icon">👤</span>
           <span class="sidebar-text">{{ t('sidebar.profile') }}</span>
         </div>
-        <div class="sidebar-item" :class="{ active: activeRoute === ROUTES.TASKS || activeRoute === 'tasks' }" @click="handleNavigate(ROUTES.TASKS)">
+        <div v-if="menuConfig.showTaskLog" class="sidebar-item" :class="{ active: activeRoute === ROUTES.TASKS || activeRoute === 'tasks' }" @click="handleNavigate(ROUTES.TASKS)">
           <span class="sidebar-icon">📜</span>
           <span class="sidebar-text">{{ t('sidebar.taskLog') }}</span>
         </div>
-        <div class="sidebar-item" @click="toggleJourneySubmenu">
+        <div v-if="menuConfig.showJourneyDetails" class="sidebar-item" @click="toggleJourneySubmenu">
           <span class="sidebar-icon">💰</span>
           <span class="sidebar-text">{{ t('sidebar.journeyDetails') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showJourneySubmenu }">→</span>
         </div>
         <!-- 旅程详情二级菜单 -->
-        <div v-if="showJourneySubmenu" class="submenu">
+        <div v-if="menuConfig.showJourneyDetails && showJourneySubmenu" class="submenu">
           <div 
             class="submenu-item" 
             :class="{ active: activeRoute === 'journey' }" 
@@ -39,13 +39,13 @@
             <span class="submenu-text">{{ t('sidebar.upgradeBounty') }}</span>
           </div>
         </div>
-        <div class="sidebar-item" @click="toggleVaultSubmenu">
+        <div v-if="menuConfig.showTokenVault" class="sidebar-item" @click="toggleVaultSubmenu">
           <span class="sidebar-icon">💰</span>
           <span class="sidebar-text">{{ t('sidebar.tokenVault') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showVaultSubmenu }">→</span>
         </div>
         <!-- 代币库二级菜单 -->
-        <div v-if="showVaultSubmenu" class="submenu">
+        <div v-if="menuConfig.showTokenVault && showVaultSubmenu" class="submenu">
           <div 
             class="submenu-item" 
             :class="{ active: activeRoute === ROUTES.DEPOSIT }" 
@@ -71,13 +71,13 @@
             <span class="submenu-text">{{ t('sidebar.unifiWallet') }}</span>
           </div>
         </div>
-        <div class="sidebar-item" @click="toggleVaultHistorySubmenu">
+        <div v-if="menuConfig.showVaultHistory" class="sidebar-item" @click="toggleVaultHistorySubmenu">
           <span class="sidebar-icon">📦</span>
           <span class="sidebar-text">{{ t('sidebar.vaultHistory') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showVaultHistorySubmenu }">→</span>
         </div>
         <!-- 金库历史二级菜单 -->
-        <div v-if="showVaultHistorySubmenu" class="submenu">
+        <div v-if="menuConfig.showVaultHistory && showVaultHistorySubmenu" class="submenu">
           <div 
             class="submenu-item" 
             :class="{ active: activeRoute === ROUTES.WALLET_HISTORY }" 
@@ -127,13 +127,13 @@
             <span class="submenu-text">{{ t('sidebar.mdxPurchaseHistory') }}</span>
           </div>
         </div>
-        <div class="sidebar-item" @click="toggleIncomeHistorySubmenu">
+        <div v-if="menuConfig.showIncomeHistory" class="sidebar-item" @click="toggleIncomeHistorySubmenu">
           <span class="sidebar-icon">🎒</span>
           <span class="sidebar-text">{{ t('sidebar.incomeHistory') }}</span>
           <span class="sidebar-arrow" :class="{ rotated: showIncomeHistorySubmenu }">→</span>
         </div>
         <!-- 收入历史二级菜单 -->
-        <div v-if="showIncomeHistorySubmenu" class="submenu">
+        <div v-if="menuConfig.showIncomeHistory && showIncomeHistorySubmenu" class="submenu">
           <div 
             class="submenu-item" 
             :class="{ active: activeRoute === ROUTES.DAILY_BOUNTY_HISTORY }" 
@@ -183,7 +183,7 @@
             <span class="submenu-text">{{ t('sidebar.unifiLockHistory') }}</span>
           </div>
         </div>
-        <div 
+        <div v-if="menuConfig.showTeamOverview"
           class="sidebar-item" 
           :class="{ active: activeRoute === ROUTES.TEAM_OVERVIEW }" 
           @click="handleNavigate(ROUTES.TEAM_OVERVIEW)"
@@ -192,7 +192,7 @@
           <span class="sidebar-text">{{ t('sidebar.teamOverview') }}</span>
           <span class="sidebar-arrow">→</span>
         </div>
-        <div 
+        <div v-if="menuConfig.showPassCardManagement"
           class="sidebar-item" 
           :class="{ active: activeRoute === ROUTES.PASS_CARD_MANAGEMENT }" 
           @click="handleNavigate(ROUTES.PASS_CARD_MANAGEMENT)"
@@ -200,7 +200,7 @@
           <span class="sidebar-icon">🎒</span>
           <span class="sidebar-text">{{ t('sidebar.passCardManagement') }}</span>
         </div>
-        <div 
+        <div v-if="menuConfig.showMidox"
           class="sidebar-item" 
           :class="{ active: activeRoute === ROUTES.MIDOX }"
           @click="handleNavigate(ROUTES.MIDOX)"
@@ -208,7 +208,7 @@
           <span class="sidebar-icon midox-icon">M</span>
           <span class="sidebar-text">MIDOX</span>
         </div>
-        <div 
+        <div v-if="menuConfig.showMemberCenter"
           class="sidebar-item" 
           :class="{ active: activeRoute === ROUTES.MEMBER_CENTER }" 
           @click="handleNavigate(ROUTES.MEMBER_CENTER)"
@@ -248,6 +248,14 @@
           <span class="sidebar-icon">📋</span>
           <span class="sidebar-text">{{ t('sidebar.businessModelCanvas') }}</span>
         </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.PAYMENT_CONFIG }" 
+          @click="handleNavigate(ROUTES.PAYMENT_CONFIG)"
+        >
+          <span class="sidebar-icon">💳</span>
+          <span class="sidebar-text">支付配置</span>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -264,6 +272,7 @@
 import { ref, watch } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
+import { menuConfig } from '../../config/menu.js'
 
 const { t } = useI18n()
 
@@ -409,6 +418,40 @@ const handleNavigate = (route) => {
     router.goToBusinessModelCanvasList()
   } else if (route === ROUTES.BUSINESS_MODEL_CANVAS_DETAIL) {
     router.goToBusinessModelCanvasDetail()
+  } else if (route === ROUTES.PAYMENT_CONFIG) {
+    router.goToPaymentConfig()
+  } else if (route === ROUTES.ALIPAY_WEB_SITE) {
+    router.goToAlipayWebSite()
+  } else if (route === ROUTES.ALIPAY_MOBILE_SITE) {
+    router.goToAlipayMobileSite()
+  } else if (route === ROUTES.ALIPAY_PRE_CREATE) {
+    router.goToAlipayPreCreate()
+  } else if (route === ROUTES.ALIPAY_PAY) {
+    router.goToAlipayPay()
+  } else if (route === ROUTES.ALIPAY_QUERY) {
+    router.goToAlipayQuery()
+  } else if (route === ROUTES.ALIPAY_REFUND) {
+    router.goToAlipayRefund()
+  } else if (route === ROUTES.ALIPAY_CANCEL) {
+    router.goToAlipayCancel()
+  } else if (route === ROUTES.WECHAT_UNIFIED_ORDER) {
+    router.goToWechatUnifiedOrder()
+  } else if (route === ROUTES.WECHAT_MICRO_PAY) {
+    router.goToWechatMicroPay()
+  } else if (route === ROUTES.WECHAT_QUERY) {
+    router.goToWechatQuery()
+  } else if (route === ROUTES.WECHAT_REFUND) {
+    router.goToWechatRefund()
+  } else if (route === ROUTES.WECHAT_CLOSE_ORDER) {
+    router.goToWechatCloseOrder()
+  } else if (route === ROUTES.BESTPAY_BARCODE) {
+    router.goToBestpayBarcode()
+  } else if (route === ROUTES.BESTPAY_QUERY) {
+    router.goToBestpayQuery()
+  } else if (route === ROUTES.BESTPAY_REFUND) {
+    router.goToBestpayRefund()
+  } else if (route === ROUTES.BESTPAY_REVERSE) {
+    router.goToBestpayReverse()
   }
   
   // 通知父组件关闭侧边栏
@@ -583,6 +626,12 @@ const handleLogout = () => {
 .submenu-text {
   flex: 1;
   font-size: 14px;
+}
+
+.submenu-divider {
+  height: 1px;
+  background: rgba(255, 215, 0, 0.2);
+  margin: 8px 20px;
 }
 
 .sidebar-overlay {

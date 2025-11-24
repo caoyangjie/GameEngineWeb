@@ -1,0 +1,438 @@
+<template>
+  <div class="payment-container">
+    <!-- 背景层 -->
+    <div class="background">
+      <div class="sky"></div>
+      <div class="stars"></div>
+      <div class="galaxy"></div>
+      <div class="mountains"></div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <TopHeader @toggle-sidebar="toggleSidebar" />
+
+    <!-- 主要内容区域 -->
+    <main class="payment-main-content">
+      <div class="payment-panel">
+        <div class="payment-title">{{ t('payment.alipay.webSite.title') }}</div>
+        
+        <form @submit.prevent="handleSubmit" class="payment-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">{{ t('payment.common.paymentConfig') }} <span class="required">*</span></label>
+              <CustomSelect
+                v-model="formData.configId"
+                :options="configOptions"
+                :placeholder="t('payment.common.paymentConfigPlaceholder')"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">{{ t('payment.common.outTradeNo') }} <span class="required">*</span></label>
+              <CustomInput
+                v-model="formData.outTradeNo"
+                :placeholder="t('payment.common.outTradeNoPlaceholder')"
+                required
+              />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">{{ t('payment.common.subject') }} <span class="required">*</span></label>
+              <CustomInput
+                v-model="formData.subject"
+                :placeholder="t('payment.common.subjectPlaceholder')"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">{{ t('payment.common.totalAmount') }} <span class="required">*</span></label>
+              <CustomNumberInput
+                v-model="formData.totalAmount"
+                :min="0.01"
+                :placeholder="t('payment.common.totalAmountPlaceholder')"
+                required
+              />
+            </div>
+          </div>
+          
+          <div class="form-group full-width">
+            <label class="form-label">{{ t('payment.common.body') }}</label>
+            <CustomTextarea
+              v-model="formData.body"
+              rows="2"
+              :placeholder="t('payment.common.bodyPlaceholder')"
+            />
+          </div>
+          
+          <button type="submit" class="submit-button">
+            <span>{{ t('payment.common.submit') }}</span>
+          </button>
+          
+          <div v-if="result" :class="['result-container', result.success ? 'result-success' : 'result-error']">
+            <div class="result-title">{{ result.success ? t('payment.common.success') : t('payment.common.failed') }}</div>
+            <div class="result-message">{{ result.message }}</div>
+            <pre v-if="result.data" class="result-data">{{ JSON.stringify(result.data, null, 2) }}</pre>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- 右侧边栏菜单 -->
+    <Sidebar 
+      :is-open="sidebarOpen" 
+      active-route="payment"
+      @close="handleSidebarClose"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import TopHeader from '../common/TopHeader.vue'
+import Sidebar from '../common/Sidebar.vue'
+import CustomInput from '../common/CustomInput.vue'
+import CustomNumberInput from '../common/CustomNumberInput.vue'
+import CustomSelect from '../common/CustomSelect.vue'
+import CustomTextarea from '../common/CustomTextarea.vue'
+import { getPaymentConfigList, alipayWebSite } from '../../api/payment.js'
+
+const { t } = useI18n()
+const sidebarOpen = ref(false)
+
+const formData = reactive({
+  configId: null,
+  outTradeNo: '',
+  subject: '',
+  body: '',
+  totalAmount: 0.01
+})
+
+const configOptions = ref([])
+const result = ref(null)
+
+const generateOutTradeNo = () => {
+  return 'ORDER' + new Date().getTime() + Math.floor(Math.random() * 1000)
+}
+
+onMounted(() => {
+  formData.outTradeNo = generateOutTradeNo()
+  formData.subject = t('payment.common.subjectPlaceholder')
+  formData.body = t('payment.common.bodyPlaceholder')
+  loadConfigs()
+})
+
+const loadConfigs = async () => {
+  try {
+    const response = await getPaymentConfigList('ALIPAY')
+    if (response.code === 200 && response.data) {
+      configOptions.value = response.data
+        .filter(config => config.enabled === 1)
+        .map(config => ({
+          value: config.id,
+          label: `${config.configName} (${config.appId})`
+        }))
+    }
+  } catch (error) {
+    console.error('加载配置失败:', error)
+    // 错误已记录，可以在界面显示提示
+  }
+}
+
+const handleSubmit = async () => {
+  try {
+    const response = await alipayWebSite({
+      configId: formData.configId,
+      outTradeNo: formData.outTradeNo,
+      subject: formData.subject,
+      body: formData.body || formData.subject,
+      totalAmount: formData.totalAmount
+    })
+    
+    if (response.code === 200 && response.data) {
+      if (response.data.html) {
+        // 创建表单并提交到支付宝
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = 'https://openapi.alipay.com/gateway.do'
+        form.innerHTML = response.data.html
+        document.body.appendChild(form)
+        form.submit()
+        result.value = {
+          success: true,
+          message: t('payment.common.redirectingToPayment')
+        }
+      } else {
+        result.value = {
+          success: true,
+          message: t('payment.common.operationSuccess'),
+          data: response.data
+        }
+      }
+    } else {
+      result.value = {
+        success: false,
+        message: response.msg || t('payment.common.operationFailed')
+      }
+    }
+  } catch (error) {
+    result.value = {
+      success: false,
+      message: error.message || t('payment.common.requestFailed')
+    }
+  }
+}
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+const handleSidebarClose = () => {
+  toggleSidebar()
+}
+</script>
+
+<style scoped>
+.payment-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+  color: white;
+}
+
+/* 背景层 */
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    #0a0e27 0%,
+    #1a1f3a 20%,
+    #2d3a5a 40%,
+    #1a2332 60%,
+    #0f1419 100%
+  );
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, #ffd700, transparent),
+    radial-gradient(1px 1px at 60% 70%, #fff, transparent),
+    radial-gradient(2px 2px at 50% 50%, #ff6b9d, transparent),
+    radial-gradient(1px 1px at 80% 10%, #fff, transparent),
+    radial-gradient(2px 2px at 90% 40%, #ffd700, transparent);
+  background-repeat: repeat;
+  background-size: 200% 200%;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.galaxy {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 215, 0, 0.2) 0%,
+    rgba(138, 43, 226, 0.2) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mountains {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: 
+    linear-gradient(to top, #0a0a0a 0%, transparent 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400'%3E%3Cpath d='M0,400 L200,300 L400,350 L600,250 L800,320 L1000,280 L1200,300 L1200,400 Z' fill='%231a1a1a'/%3E%3C/svg%3E") no-repeat bottom;
+  background-size: 100% 100%;
+  opacity: 0.8;
+}
+
+/* 主要内容区域 */
+.payment-main-content {
+  position: relative;
+  z-index: 5;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 200px;
+  min-height: calc(100vh - 150px);
+}
+
+.payment-panel {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 12px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.05);
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.payment-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.form-label .required {
+  color: #ff4444;
+  margin-left: 4px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 140, 0, 0.9) 100%);
+  color: #1a0a2e;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+.result-container {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+.result-success {
+  background: rgba(16, 185, 129, 0.2);
+  border: 2px solid rgba(16, 185, 129, 0.5);
+  color: #10b981;
+}
+
+.result-error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.result-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.result-message {
+  margin-bottom: 10px;
+}
+
+.result-data {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .payment-main-content {
+    padding: 20px;
+    padding-top: 150px;
+  }
+}
+</style>
+

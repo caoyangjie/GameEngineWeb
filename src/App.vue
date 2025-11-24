@@ -37,6 +37,24 @@
     <PersonaDetailPage v-if="router.currentRoute.value === ROUTES.PERSONA_DETAIL" />
     <ScenarioListPage v-if="router.currentRoute.value === ROUTES.SCENARIO_LIST" />
     <RequirementListPage v-if="router.currentRoute.value === ROUTES.REQUIREMENT_LIST" />
+    <!-- 支付管理 -->
+    <PaymentConfigPage v-if="router.currentRoute.value === ROUTES.PAYMENT_CONFIG" />
+    <AlipayWebSitePage v-if="router.currentRoute.value === ROUTES.ALIPAY_WEB_SITE" />
+    <AlipayMobileSitePage v-if="router.currentRoute.value === ROUTES.ALIPAY_MOBILE_SITE" />
+    <AlipayPreCreatePage v-if="router.currentRoute.value === ROUTES.ALIPAY_PRE_CREATE" />
+    <AlipayPayPage v-if="router.currentRoute.value === ROUTES.ALIPAY_PAY" />
+    <AlipayQueryPage v-if="router.currentRoute.value === ROUTES.ALIPAY_QUERY" />
+    <AlipayRefundPage v-if="router.currentRoute.value === ROUTES.ALIPAY_REFUND" />
+    <AlipayCancelPage v-if="router.currentRoute.value === ROUTES.ALIPAY_CANCEL" />
+    <WechatUnifiedOrderPage v-if="router.currentRoute.value === ROUTES.WECHAT_UNIFIED_ORDER" />
+    <WechatMicroPayPage v-if="router.currentRoute.value === ROUTES.WECHAT_MICRO_PAY" />
+    <WechatQueryPage v-if="router.currentRoute.value === ROUTES.WECHAT_QUERY" />
+    <WechatRefundPage v-if="router.currentRoute.value === ROUTES.WECHAT_REFUND" />
+    <WechatCloseOrderPage v-if="router.currentRoute.value === ROUTES.WECHAT_CLOSE_ORDER" />
+    <BestpayBarcodePage v-if="router.currentRoute.value === ROUTES.BESTPAY_BARCODE" />
+    <BestpayQueryPage v-if="router.currentRoute.value === ROUTES.BESTPAY_QUERY" />
+    <BestpayRefundPage v-if="router.currentRoute.value === ROUTES.BESTPAY_REFUND" />
+    <BestpayReversePage v-if="router.currentRoute.value === ROUTES.BESTPAY_REVERSE" />
   </div>
 </template>
 
@@ -79,6 +97,24 @@ import PersonaListPage from './components/persona/PersonaListPage.vue'
 import PersonaDetailPage from './components/persona/PersonaDetailPage.vue'
 import ScenarioListPage from './components/persona/ScenarioListPage.vue'
 import RequirementListPage from './components/persona/RequirementListPage.vue'
+// 支付管理
+import PaymentConfigPage from './components/payment/PaymentConfigPage.vue'
+import AlipayWebSitePage from './components/payment/AlipayWebSitePage.vue'
+import AlipayMobileSitePage from './components/payment/AlipayMobileSitePage.vue'
+import AlipayPreCreatePage from './components/payment/AlipayPreCreatePage.vue'
+import AlipayPayPage from './components/payment/AlipayPayPage.vue'
+import AlipayQueryPage from './components/payment/AlipayQueryPage.vue'
+import AlipayRefundPage from './components/payment/AlipayRefundPage.vue'
+import AlipayCancelPage from './components/payment/AlipayCancelPage.vue'
+import WechatUnifiedOrderPage from './components/payment/WechatUnifiedOrderPage.vue'
+import WechatMicroPayPage from './components/payment/WechatMicroPayPage.vue'
+import WechatQueryPage from './components/payment/WechatQueryPage.vue'
+import WechatRefundPage from './components/payment/WechatRefundPage.vue'
+import WechatCloseOrderPage from './components/payment/WechatCloseOrderPage.vue'
+import BestpayBarcodePage from './components/payment/BestpayBarcodePage.vue'
+import BestpayQueryPage from './components/payment/BestpayQueryPage.vue'
+import BestpayRefundPage from './components/payment/BestpayRefundPage.vue'
+import BestpayReversePage from './components/payment/BestpayReversePage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 
