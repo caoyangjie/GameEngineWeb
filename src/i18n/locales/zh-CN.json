@@ -46,6 +46,7 @@
     "monthlyReportStart": "月初月报",
     "monthlyReportEnd": "月末月报",
     "businessModelCanvas": "商业模式画布",
+    "characterTest": "小孩识字测试表",
     "logout": "登出",
     "simplifiedChinese": "简体中文"
   },
@@ -1312,5 +1313,43 @@
         "title": "翼支付 - 撤销"
       }
     }
-  }
+  },
+  "characterTest": {
+      "title": "儿童识字测试表",
+      "subtitle": "根据教育阶段生成测试汉字",
+      "studentName": "姓名",
+      "enterStudentName": "请输入学生姓名",
+      "testDate": "测试日期",
+      "educationLevel": "教育阶段",
+      "primarySchool": "小学",
+      "middleSchool": "初中",
+      "highSchool": "高中",
+      "testCount": "测试字数",
+      "enterTestCount": "请输入测试字数",
+      "testCountHint": "建议：小学50-100字，初中100-200字，高中200-500字",
+      "showPinyin": "显示拼音",
+      "hidePinyin": "隐藏拼音",
+      "startTest": "开始测试",
+      "testFormTitle": "儿童识字测试表",
+      "mastered": "掌握",
+      "characters": "字",
+      "total": "总计",
+      "correct": "正确",
+      "incorrect": "错误",
+      "masteryRate": "掌握率",
+      "resetTest": "重新测试",
+      "confirmReset": "确定要重新开始测试吗？",
+      "loadFailed": "加载测试字符失败，请重试",
+      "testList": "测试记录列表",
+      "newTest": "新建测试",
+      "view": "查看",
+      "delete": "删除",
+      "cancel": "取消",
+      "saveAndBack": "保存并返回",
+      "saveSuccess": "保存成功！",
+      "confirmDelete": "确定要删除这条测试记录吗？",
+      "noTestRecords": "暂无测试记录",
+      "createFirstTest": "创建第一个测试",
+      "pleaseEnterStudentName": "请输入学生姓名"
+    }
 }

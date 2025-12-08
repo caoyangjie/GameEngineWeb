@@ -256,6 +256,14 @@
           <span class="sidebar-icon">💳</span>
           <span class="sidebar-text">支付配置</span>
         </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.CHARACTER_TEST }" 
+          @click="handleNavigate(ROUTES.CHARACTER_TEST)"
+        >
+          <span class="sidebar-icon">📚</span>
+          <span class="sidebar-text">{{ t('sidebar.characterTest') }}</span>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -452,6 +460,8 @@ const handleNavigate = (route) => {
     router.goToBestpayRefund()
   } else if (route === ROUTES.BESTPAY_REVERSE) {
     router.goToBestpayReverse()
+  } else if (route === ROUTES.CHARACTER_TEST) {
+    router.goToCharacterTest()
   }
   
   // 通知父组件关闭侧边栏

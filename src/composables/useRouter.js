@@ -61,7 +61,8 @@ export const ROUTES = {
   BESTPAY_BARCODE: 'bestpay-barcode',
   BESTPAY_QUERY: 'bestpay-query',
   BESTPAY_REFUND: 'bestpay-refund',
-  BESTPAY_REVERSE: 'bestpay-reverse'
+  BESTPAY_REVERSE: 'bestpay-reverse',
+  CHARACTER_TEST: 'character-test'
 }
 
 // 不需要登录的路由
@@ -269,6 +270,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToBestpayReverse() {
       this.navigate(ROUTES.BESTPAY_REVERSE)
+    },
+    goToCharacterTest() {
+      this.navigate(ROUTES.CHARACTER_TEST)
     },
     
     // 登出（跳转到登录页）
