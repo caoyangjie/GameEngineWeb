@@ -252,6 +252,24 @@
             </div>
           </div>
 
+          <!-- 年级选择 -->
+          <div class="form-group" v-if="availableGrades.length">
+            <label class="form-label" for="grade">年级</label>
+            <select
+              id="grade"
+              v-model="settings.grade"
+              class="form-input"
+            >
+              <option
+                v-for="gradeOption in availableGrades"
+                :key="gradeOption.value"
+                :value="gradeOption.value"
+              >
+                {{ gradeOption.label }}
+              </option>
+            </select>
+          </div>
+
           <!-- 测试字数 -->
           <div class="form-group">
             <label class="form-label" for="testCount">{{ t('characterTest.testCount') }}</label>
@@ -314,6 +332,9 @@
             <button class="action-btn toggle-pinyin-btn" @click="togglePinyin" :disabled="isReadOnly">
               {{ settings.showPinyin ? t('characterTest.hidePinyin') : t('characterTest.showPinyin') }}
             </button>
+          <button class="action-btn export-btn" @click="exportToPDF">
+            导出PDF
+          </button>
             <button v-if="!isReadOnly" class="action-btn save-btn" @click="saveTest">
               {{ t('characterTest.save') }}
             </button>
@@ -342,15 +363,15 @@
               }"
             >
               <div class="character-wrapper">
+                <div v-if="settings.showPinyin" class="character-pinyin">
+                  {{ char.pinyin }}
+                </div>
                 <div 
                   class="character-text" 
                   :class="{ 'read-only': isReadOnly }"
                   @click="!isReadOnly && toggleCharacterStatus(char)"
                 >
                   {{ char.character }}
-                </div>
-                <div v-if="settings.showPinyin" class="character-pinyin">
-                  {{ char.pinyin }}
                 </div>
                 <div class="character-status">
                   <span 
@@ -416,6 +437,7 @@ import { useRouter } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 import { getTestCharacters, saveTestRecord, getAllTestRecords, deleteTestRecord, getTestRecordsPage } from '../../api/characterTest.js'
 import { showError, showSuccess, showConfirm } from '../../utils/alert.js'
+import html2pdf from 'html2pdf.js'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -447,8 +469,22 @@ const settings = reactive({
   studentName: '',
   testDate: new Date().toISOString().split('T')[0],
   educationLevel: 'primary',
+  grade: 'primary-1',
   testCount: 50,
   showPinyin: false
+})
+
+const gradeOptions = [
+  { value: 'primary-1', label: '小学一年级' },
+  { value: 'primary-2', label: '小学二年级' },
+  { value: 'primary-3', label: '小学三年级' },
+  { value: 'primary-4', label: '小学四年级' },
+  { value: 'primary-5', label: '小学五年级' },
+  { value: 'primary-6', label: '小学六年级' }
+]
+
+const availableGrades = computed(() => {
+  return settings.educationLevel === 'primary' ? gradeOptions : []
 })
 
 // 计算属性
@@ -456,7 +492,16 @@ const canStartTest = computed(() => {
   return settings.studentName.trim() && 
          settings.testCount > 0 && 
          settings.testCount <= 500 &&
-         settings.educationLevel
+         settings.educationLevel &&
+         (availableGrades.value.length === 0 || !!settings.grade)
+})
+
+watch(() => settings.educationLevel, (level) => {
+  if (level !== 'primary') {
+    settings.grade = ''
+  } else if (!settings.grade) {
+    settings.grade = 'primary-1'
+  }
 })
 
 const formattedDate = computed(() => {
@@ -666,6 +711,7 @@ const showSettings = () => {
   settings.studentName = ''
   settings.testDate = new Date().toISOString().split('T')[0]
   settings.educationLevel = 'primary'
+  settings.grade = 'primary-1'
   settings.testCount = 50
   settings.showPinyin = false
   currentTestId.value = null
@@ -710,6 +756,7 @@ const startTest = async () => {
     // 调用 API 获取测试汉字
     const response = await getTestCharacters(
       settings.educationLevel,
+      settings.grade,
       settings.testCount
     )
     
@@ -717,6 +764,7 @@ const startTest = async () => {
       // 初始化测试字符，添加状态字段
       testCharacters.value = response.data.map(char => ({
         ...char,
+        grade: char.grade || settings.grade,
         status: null // null: 未标记, 'correct': 正确, 'incorrect': 错误
       }))
       currentView.value = 'test'
@@ -749,6 +797,7 @@ const saveTest = async () => {
       characters: testCharacters.value.map(char => ({
         character: char.character,
         pinyin: char.pinyin,
+        grade: char.grade,
         status: char.status
       })),
       correctCount: correctCount.value,
@@ -777,6 +826,8 @@ const loadTest = (test, readOnly = false) => {
   settings.studentName = test.studentName
   settings.testDate = test.testDate
   settings.educationLevel = test.educationLevel
+  const existingGrade = (test.characters || []).find(item => item.grade)?.grade
+  settings.grade = test.grade || existingGrade || (test.educationLevel === 'primary' ? 'primary-1' : '')
   settings.testCount = test.testCount
   settings.showPinyin = test.showPinyin || false
   isReadOnly.value = readOnly
@@ -785,6 +836,7 @@ const loadTest = (test, readOnly = false) => {
   testCharacters.value = (test.characters || []).map(char => ({
     character: char.character,
     pinyin: char.pinyin,
+    grade: char.grade || existingGrade || settings.grade,
     status: char.status || null
   }))
   
@@ -826,6 +878,101 @@ const toggleCharacterStatus = (char) => {
 
 const togglePinyin = () => {
   settings.showPinyin = !settings.showPinyin
+}
+
+const exportToPDF = async () => {
+  if (!testCharacters.value.length) {
+    await showError('没有可导出的测试内容')
+    return
+  }
+
+  try {
+    const exportContainer = document.createElement('div')
+    exportContainer.style.width = '210mm'
+    exportContainer.style.padding = '12mm 14mm'
+    exportContainer.style.backgroundColor = '#ffffff'
+    exportContainer.style.color = '#000000'
+    exportContainer.style.fontFamily = 'Microsoft YaHei, SimHei, Arial, sans-serif'
+
+    const title = document.createElement('div')
+    title.style.fontSize = '22px'
+    title.style.fontWeight = '700'
+    title.style.marginBottom = '10px'
+    title.textContent = `汉字测试 - ${settings.studentName || ''} ${formatTestDate(settings.testDate)}`
+    exportContainer.appendChild(title)
+
+    const grid = document.createElement('div')
+    grid.style.display = 'grid'
+    grid.style.gridTemplateColumns = 'repeat(6, 1fr)'
+    grid.style.gap = '10px'
+
+    testCharacters.value.forEach((charItem) => {
+      const cell = document.createElement('div')
+      cell.style.border = '1px solid #999'
+      cell.style.borderRadius = '6px'
+      cell.style.padding = '8px'
+      cell.style.textAlign = 'center'
+      cell.style.height = '70px'
+      cell.style.display = 'flex'
+      cell.style.flexDirection = 'column'
+      cell.style.justifyContent = 'center'
+      cell.style.gap = '6px'
+
+      const pinyinEl = document.createElement('div')
+      pinyinEl.style.fontSize = '14px'
+      pinyinEl.style.color = '#333'
+      pinyinEl.textContent = charItem.pinyin || ''
+
+      const charEl = document.createElement('div')
+      charEl.style.fontSize = '28px'
+      charEl.style.fontWeight = '700'
+      charEl.style.color = '#000'
+      charEl.textContent = charItem.character
+
+      cell.appendChild(pinyinEl)
+      cell.appendChild(charEl)
+      grid.appendChild(cell)
+    })
+
+    exportContainer.appendChild(grid)
+
+    const wrapper = document.createElement('div')
+    wrapper.style.position = 'fixed'
+    wrapper.style.left = '0'
+    wrapper.style.top = '0'
+    wrapper.style.opacity = '0'
+    wrapper.style.pointerEvents = 'none'
+    wrapper.style.zIndex = '-1'
+    wrapper.style.visibility = 'visible'
+    wrapper.appendChild(exportContainer)
+    document.body.appendChild(wrapper)
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `汉字测试_${settings.studentName || '未命名'}_${settings.testDate || '未设定'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: exportContainer.scrollWidth || 794,
+        height: exportContainer.scrollHeight || 1123,
+        windowWidth: exportContainer.scrollWidth || 794
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait' 
+      }
+    }
+
+    await html2pdf().set(opt).from(exportContainer).save()
+    document.body.removeChild(wrapper)
+  } catch (error) {
+    console.error('导出PDF失败:', error)
+    await showError('导出PDF失败: ' + (error.message || '未知错误'))
+  }
 }
 
 const resetTest = async () => {
@@ -1131,7 +1278,7 @@ onMounted(() => {
 }
 
 .start-btn {
-  flex: 2;
+  flex: 1;
   padding: 16px 32px;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 140, 0, 0.9) 100%);
   border: 2px solid rgba(255, 215, 0, 1);
@@ -1473,6 +1620,16 @@ onMounted(() => {
   background: rgba(100, 100, 100, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
   color: white;
+}
+
+.action-btn.export-btn {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: rgba(33, 150, 243, 0.5);
+  color: #2196f3;
+}
+
+.action-btn.export-btn:hover {
+  background: rgba(33, 150, 243, 0.4);
 }
 
 .action-btn.back-btn:hover {

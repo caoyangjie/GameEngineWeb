@@ -3,14 +3,16 @@ import request from './request.js'
 /**
  * 获取测试汉字
  * @param {string} educationLevel 教育阶段: primary(小学), middle(初中), high(高中)
+ * @param {string} grade 年级标识: 例如 primary-1 表示小学一年级
  * @param {number} count 测试字数
  */
-export function getTestCharacters(educationLevel, count) {
+export function getTestCharacters(educationLevel, grade, count) {
   return request({
     url: '/characterTest/getCharacters',
     method: 'get',
     params: {
       educationLevel,
+      grade,
       count
     }
   })

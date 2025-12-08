@@ -1189,7 +1189,7 @@ onMounted(() => {
 }
 
 .start-btn {
-  flex: 2;
+  flex: 1;
   padding: 16px 32px;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 140, 0, 0.9) 100%);
   border: 2px solid rgba(255, 215, 0, 1);
