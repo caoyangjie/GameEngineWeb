@@ -285,6 +285,21 @@
             <p class="form-hint">{{ t('characterTest.testCountHint') }}</p>
           </div>
 
+          <!-- 测试时长（分钟） -->
+          <div class="form-group">
+            <label class="form-label" for="durationMinutes">测试时长（分钟）</label>
+            <input 
+              id="durationMinutes"
+              type="number" 
+              v-model.number="settings.durationMinutes" 
+              class="form-input"
+              placeholder="请输入测试时长"
+              min="1"
+              max="180"
+            />
+            <p class="form-hint">时间到将自动提交当前测试</p>
+          </div>
+
           <!-- 显示拼音选项 -->
           <div class="form-group">
             <label class="checkbox-label">
@@ -313,7 +328,14 @@
       <div v-else-if="currentView === 'test'" class="test-panel">
         <!-- 测试表头部 -->
         <div class="test-header">
-          <h2 class="test-title">{{ t('characterTest.testFormTitle') }}</h2>
+          <div class="test-header-top">
+            <h2 class="test-title">{{ t('characterTest.testFormTitle') }}</h2>
+            <div class="countdown-badge" v-if="isTimerActive">
+              <span class="countdown-icon">⏳</span>
+              <span class="countdown-label">倒计时</span>
+              <span class="countdown-time">{{ countdownDisplay }}</span>
+            </div>
+          </div>
           <div class="test-info">
             <div class="info-item">
               <span class="info-label" id="test-student-name">{{ t('characterTest.studentName') }}:</span>
@@ -430,7 +452,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter } from '../../composables/useRouter.js'
@@ -471,8 +493,13 @@ const settings = reactive({
   educationLevel: 'primary',
   grade: 'primary-1',
   testCount: 50,
-  showPinyin: false
+  showPinyin: false,
+  durationMinutes: 10
 })
+
+const countdownSeconds = ref(0)
+const countdownTimer = ref(null)
+const isTimerActive = ref(false)
 
 const gradeOptions = [
   { value: 'primary-1', label: '小学一年级' },
@@ -493,7 +520,8 @@ const canStartTest = computed(() => {
          settings.testCount > 0 && 
          settings.testCount <= 500 &&
          settings.educationLevel &&
-         (availableGrades.value.length === 0 || !!settings.grade)
+         (availableGrades.value.length === 0 || !!settings.grade) &&
+         settings.durationMinutes > 0
 })
 
 watch(() => settings.educationLevel, (level) => {
@@ -603,6 +631,7 @@ const loadTestList = async () => {
           educationLevel: record.educationLevel,
           testCount: record.testCount,
           showPinyin: record.showPinyin || false,
+          durationMinutes: record.durationMinutes || record.testDuration || 10,
           characters: record.characters || [],
           correctCount: record.correctCount || 0,
           incorrectCount: record.incorrectCount || 0,
@@ -622,6 +651,7 @@ const loadTestList = async () => {
           educationLevel: record.educationLevel,
           testCount: record.testCount,
           showPinyin: record.showPinyin || false,
+          durationMinutes: record.durationMinutes || record.testDuration || 10,
           characters: record.characters || [],
           correctCount: record.correctCount || 0,
           incorrectCount: record.incorrectCount || 0,
@@ -651,6 +681,7 @@ const loadTestList = async () => {
           educationLevel: record.educationLevel,
           testCount: record.testCount,
           showPinyin: record.showPinyin || false,
+          durationMinutes: record.durationMinutes || record.testDuration || 10,
           characters: record.characters || [],
           correctCount: record.correctCount || 0,
           incorrectCount: record.incorrectCount || 0,
@@ -714,8 +745,10 @@ const showSettings = () => {
   settings.grade = 'primary-1'
   settings.testCount = 50
   settings.showPinyin = false
+  settings.durationMinutes = 10
   currentTestId.value = null
   isReadOnly.value = false
+  clearCountdown()
 }
 
 // 返回列表
@@ -724,6 +757,7 @@ const backToList = () => {
   testCharacters.value = []
   currentTestId.value = null
   isReadOnly.value = false
+  clearCountdown()
 }
 
 // 返回测试列表（从测试页面）
@@ -770,6 +804,7 @@ const startTest = async () => {
       currentView.value = 'test'
       currentTestId.value = null // 新测试
       isReadOnly.value = false // 新测试不是只读模式
+      startCountdown()
     } else {
       await showError(response.msg || t('characterTest.loadFailed'))
     }
@@ -794,6 +829,7 @@ const saveTest = async () => {
       educationLevel: settings.educationLevel,
       testCount: testCharacters.value.length,
       showPinyin: settings.showPinyin,
+      durationMinutes: settings.durationMinutes,
       characters: testCharacters.value.map(char => ({
         character: char.character,
         pinyin: char.pinyin,
@@ -809,6 +845,7 @@ const saveTest = async () => {
     const response = await saveTestRecord(testRecord)
     if (response.code === 200) {
       await showSuccess(t('characterTest.saveSuccess'))
+      clearCountdown()
       await loadTestList() // 重新加载列表
       // 不自动返回，让用户选择
     } else {
@@ -830,7 +867,12 @@ const loadTest = (test, readOnly = false) => {
   settings.grade = test.grade || existingGrade || (test.educationLevel === 'primary' ? 'primary-1' : '')
   settings.testCount = test.testCount
   settings.showPinyin = test.showPinyin || false
+  settings.durationMinutes = test.durationMinutes || 10
   isReadOnly.value = readOnly
+  clearCountdown()
+  if (!readOnly) {
+    startCountdown()
+  }
   
   // 转换字符数据格式
   testCharacters.value = (test.characters || []).map(char => ({
@@ -981,7 +1023,45 @@ const resetTest = async () => {
     testCharacters.value = []
     currentView.value = 'list'
     currentTestId.value = null
+    clearCountdown()
   }
+}
+
+const startCountdown = () => {
+  clearCountdown()
+  countdownSeconds.value = Math.max(0, Math.round(settings.durationMinutes * 60))
+  if (countdownSeconds.value === 0) return
+  isTimerActive.value = true
+  countdownTimer.value = setInterval(() => {
+    if (countdownSeconds.value > 0) {
+      countdownSeconds.value -= 1
+    }
+    if (countdownSeconds.value <= 0) {
+      clearCountdown()
+      handleTimeUp()
+    }
+  }, 1000)
+}
+
+const clearCountdown = () => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value)
+    countdownTimer.value = null
+  }
+  isTimerActive.value = false
+  countdownSeconds.value = 0
+}
+
+const countdownDisplay = computed(() => {
+  const minutes = String(Math.floor(countdownSeconds.value / 60)).padStart(2, '0')
+  const seconds = String(countdownSeconds.value % 60).padStart(2, '0')
+  return `${minutes}:${seconds}`
+})
+
+const handleTimeUp = async () => {
+  if (isReadOnly.value || currentView.value !== 'test') return
+  await showError(t('characterTest.timeIsUp') || '时间到，已自动提交')
+  await saveTest()
 }
 
 // 监听测试字符变化，自动保存（可选）
@@ -991,6 +1071,10 @@ watch(() => testCharacters.value, () => {
 
 onMounted(() => {
   loadTestList()
+})
+
+onUnmounted(() => {
+  clearCountdown()
 })
 </script>
 
@@ -1658,16 +1742,52 @@ onMounted(() => {
 }
 
 .test-header {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.test-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 99, 71, 0.6);
+  border-radius: 10px;
+  background: rgba(255, 99, 71, 0.12);
+  box-shadow: 0 0 12px rgba(255, 99, 71, 0.25);
+  font-weight: 600;
+}
+
+.countdown-icon {
+  color: #ff8a65;
+  font-size: 14px;
+}
+
+.countdown-label {
+  color: #ff8a65;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.countdown-time {
+  color: #ff7043;
+  font-size: 18px;
+  letter-spacing: 1px;
 }
 
 .test-title {
   font-size: 24px;
   color: #ffd700;
-  margin: 0 0 20px 0;
-  text-align: center;
+  margin: 0;
   text-shadow: 
     0 0 10px rgba(255, 215, 0, 0.8),
     2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -1675,10 +1795,10 @@ onMounted(() => {
 
 .test-info {
   display: flex;
-  gap: 30px;
-  justify-content: center;
+  gap: 18px;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin: 12px 0 18px 0;
 }
 
 .info-item {

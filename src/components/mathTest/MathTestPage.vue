@@ -272,6 +272,21 @@
             <p class="form-hint">建议10-50题</p>
           </div>
 
+          <!-- 测试时长（分钟） -->
+          <div class="form-group">
+            <label class="form-label" for="durationMinutes">测试时长（分钟）</label>
+            <input 
+              id="durationMinutes"
+              type="number" 
+              v-model.number="settings.durationMinutes" 
+              class="form-input"
+              placeholder="请输入测试时长"
+              min="1"
+              max="180"
+            />
+            <p class="form-hint">时间到将自动提交当前测试</p>
+          </div>
+
           <!-- 数字范围 -->
           <div class="form-group">
             <label class="form-label">数字范围</label>
@@ -311,7 +326,14 @@
       <div v-else-if="currentView === 'test'" class="test-panel">
         <!-- 测试表头部 -->
         <div class="test-header">
-          <h2 class="test-title">数学测试</h2>
+          <div class="test-header-top">
+            <h2 class="test-title">数学测试</h2>
+            <div class="countdown-badge" v-if="isTimerActive">
+              <span class="countdown-icon">⏳</span>
+              <span class="countdown-label">倒计时</span>
+              <span class="countdown-time">{{ countdownDisplay }}</span>
+            </div>
+          </div>
           <div class="test-info">
             <div class="info-item">
               <span class="info-label">学生姓名:</span>
@@ -411,7 +433,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter } from '../../composables/useRouter.js'
@@ -450,8 +472,13 @@ const settings = reactive({
   operationTypes: ['+'], // 默认选择加法
   testCount: 20,
   minNumber: 0,
-  maxNumber: 100
+  maxNumber: 100,
+  durationMinutes: 10
 })
+
+const countdownSeconds = ref(0)
+const countdownTimer = ref(null)
+const isTimerActive = ref(false)
 
 // 计算属性
 const canStartTest = computed(() => {
@@ -460,7 +487,8 @@ const canStartTest = computed(() => {
          settings.testCount <= 100 &&
          settings.operationTypes.length > 0 &&
          settings.minNumber >= 0 &&
-         settings.maxNumber > settings.minNumber
+         settings.maxNumber > settings.minNumber &&
+         settings.durationMinutes > 0
 })
 
 const formattedDate = computed(() => {
@@ -571,6 +599,7 @@ const loadTestList = async () => {
           operationTypes: record.operationTypes || [],
           minNumber: record.minNumber,
           maxNumber: record.maxNumber,
+          durationMinutes: record.durationMinutes || record.testDuration || 10,
           questions: record.questions || [],
           correctCount: record.correctCount || 0,
           incorrectCount: record.incorrectCount || 0,
@@ -639,6 +668,8 @@ const showSettings = () => {
   settings.maxNumber = 100
   currentTestId.value = null
   isReadOnly.value = false
+  settings.durationMinutes = 10
+  clearCountdown()
 }
 
 // 返回列表
@@ -647,6 +678,7 @@ const backToList = () => {
   testQuestions.value = []
   currentTestId.value = null
   isReadOnly.value = false
+  clearCountdown()
 }
 
 // 返回测试列表（从测试页面）
@@ -695,6 +727,7 @@ const startTest = async () => {
       currentView.value = 'test'
       currentTestId.value = null // 新测试
       isReadOnly.value = false // 新测试不是只读模式
+      startCountdown()
     } else {
       await showError(response.msg || '生成题目失败')
     }
@@ -705,21 +738,23 @@ const startTest = async () => {
 }
 
 // 保存测试
-const saveTest = async () => {
+const saveTest = async (skipConfirm = false) => {
   if (!settings.studentName.trim()) {
     await showError('请输入学生姓名')
     return
   }
 
   // 检查是否所有题目都已作答
-  const unansweredCount = testQuestions.value.filter(q => 
-    q.studentAnswer === null || q.studentAnswer === undefined
-  ).length
-  
-  if (unansweredCount > 0) {
-    const confirmed = await showConfirm(`还有 ${unansweredCount} 题未作答，确定要提交吗？`)
-    if (!confirmed) {
-      return
+  if (!skipConfirm) {
+    const unansweredCount = testQuestions.value.filter(q => 
+      q.studentAnswer === null || q.studentAnswer === undefined
+    ).length
+    
+    if (unansweredCount > 0) {
+      const confirmed = await showConfirm(`还有 ${unansweredCount} 题未作答，确定要提交吗？`)
+      if (!confirmed) {
+        return
+      }
     }
   }
 
@@ -732,6 +767,7 @@ const saveTest = async () => {
       operationTypes: settings.operationTypes,
       minNumber: settings.minNumber,
       maxNumber: settings.maxNumber,
+      durationMinutes: settings.durationMinutes,
       questions: testQuestions.value.map(q => ({
         num1: q.num1,
         operator: q.operator,
@@ -744,6 +780,7 @@ const saveTest = async () => {
     const response = await saveTestRecord(testRecord)
     if (response.code === 200) {
       await showSuccess('保存成功！正确率: ' + response.data.accuracyRate + '%')
+      clearCountdown()
       await loadTestList() // 重新加载列表
       backToList() // 返回列表
     } else {
@@ -764,7 +801,12 @@ const loadTest = (test, readOnly = false) => {
   settings.operationTypes = test.operationTypes || ['+']
   settings.minNumber = test.minNumber || 0
   settings.maxNumber = test.maxNumber || 100
+  settings.durationMinutes = test.durationMinutes || 10
   isReadOnly.value = readOnly
+  clearCountdown()
+  if (!readOnly) {
+    startCountdown()
+  }
   
   // 转换题目数据格式
   testQuestions.value = (test.questions || []).map(q => ({
@@ -903,8 +945,49 @@ const exportToPDF = async () => {
   }
 }
 
+const startCountdown = () => {
+  clearCountdown()
+  countdownSeconds.value = Math.max(0, Math.round(settings.durationMinutes * 60))
+  if (countdownSeconds.value === 0) return
+  isTimerActive.value = true
+  countdownTimer.value = setInterval(() => {
+    if (countdownSeconds.value > 0) {
+      countdownSeconds.value -= 1
+    }
+    if (countdownSeconds.value <= 0) {
+      clearCountdown()
+      handleTimeUp()
+    }
+  }, 1000)
+}
+
+const clearCountdown = () => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value)
+    countdownTimer.value = null
+  }
+  isTimerActive.value = false
+  countdownSeconds.value = 0
+}
+
+const countdownDisplay = computed(() => {
+  const minutes = String(Math.floor(countdownSeconds.value / 60)).padStart(2, '0')
+  const seconds = String(countdownSeconds.value % 60).padStart(2, '0')
+  return `${minutes}:${seconds}`
+})
+
+const handleTimeUp = async () => {
+  if (isReadOnly.value || currentView.value !== 'test') return
+  await showError('时间到，已自动提交')
+  await saveTest(true)
+}
+
 onMounted(() => {
   loadTestList()
+})
+
+onUnmounted(() => {
+  clearCountdown()
 })
 </script>
 
@@ -1561,16 +1644,52 @@ onMounted(() => {
 }
 
 .test-header {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.test-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 99, 71, 0.6);
+  border-radius: 10px;
+  background: rgba(255, 99, 71, 0.12);
+  box-shadow: 0 0 12px rgba(255, 99, 71, 0.25);
+  font-weight: 600;
+}
+
+.countdown-icon {
+  color: #ff8a65;
+  font-size: 14px;
+}
+
+.countdown-label {
+  color: #ff8a65;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.countdown-time {
+  color: #ff7043;
+  font-size: 18px;
+  letter-spacing: 1px;
 }
 
 .test-title {
   font-size: 24px;
   color: #ffd700;
-  margin: 0 0 20px 0;
-  text-align: center;
+  margin: 0;
   text-shadow: 
     0 0 10px rgba(255, 215, 0, 0.8),
     2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -1578,10 +1697,10 @@ onMounted(() => {
 
 .test-info {
   display: flex;
-  gap: 30px;
-  justify-content: center;
+  gap: 18px;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin: 12px 0 18px 0;
 }
 
 .info-item {
