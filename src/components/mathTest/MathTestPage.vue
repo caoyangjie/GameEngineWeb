@@ -1,5 +1,5 @@
 <template>
-  <div class="character-test-container">
+  <div class="math-test-container">
     <!-- 背景层 -->
     <div class="background">
       <div class="sky"></div>
@@ -18,9 +18,9 @@
       <!-- 测试列表页面 -->
       <div v-if="currentView === 'list'" class="list-panel">
         <div class="panel-header">
-          <h2 class="panel-title">{{ t('characterTest.testList') }}</h2>
+          <h2 class="panel-title">数学测试列表</h2>
           <button class="new-test-btn" @click="showSettings">
-            {{ t('characterTest.newTest') }}
+            新建测试
           </button>
         </div>
 
@@ -28,17 +28,17 @@
         <div class="filter-section">
           <div class="filter-row">
             <div class="filter-field">
-              <label class="filter-label" for="filter-student-name">{{ t('characterTest.studentName') }}</label>
+              <label class="filter-label" for="filter-student-name">学生姓名</label>
               <input 
                 id="filter-student-name"
                 type="text" 
                 v-model="filters.studentName" 
                 class="filter-input"
-                :placeholder="t('characterTest.enterStudentName')"
+                placeholder="请输入学生姓名"
               />
             </div>
             <div class="filter-field">
-              <label class="filter-label" for="filter-start-date">{{ t('characterTest.startDate') }}</label>
+              <label class="filter-label" for="filter-start-date">开始日期</label>
               <input 
                 id="filter-start-date"
                 type="date" 
@@ -47,7 +47,7 @@
               />
             </div>
             <div class="filter-field">
-              <label class="filter-label" for="filter-end-date">{{ t('characterTest.endDate') }}</label>
+              <label class="filter-label" for="filter-end-date">结束日期</label>
               <input 
                 id="filter-end-date"
                 type="date" 
@@ -56,11 +56,11 @@
               />
             </div>
             <div class="filter-field">
-              <label class="filter-label" for="filter-min-mastery">{{ t('characterTest.minMasteryRate') }}</label>
+              <label class="filter-label" for="filter-min-accuracy">最小正确率</label>
               <input 
-                id="filter-min-mastery"
+                id="filter-min-accuracy"
                 type="number" 
-                v-model.number="filters.minMasteryRate" 
+                v-model.number="filters.minAccuracyRate" 
                 class="filter-input"
                 min="0"
                 max="100"
@@ -68,11 +68,11 @@
               />
             </div>
             <div class="filter-field">
-              <label class="filter-label" for="filter-max-mastery">{{ t('characterTest.maxMasteryRate') }}</label>
+              <label class="filter-label" for="filter-max-accuracy">最大正确率</label>
               <input 
-                id="filter-max-mastery"
+                id="filter-max-accuracy"
                 type="number" 
-                v-model.number="filters.maxMasteryRate" 
+                v-model.number="filters.maxAccuracyRate" 
                 class="filter-input"
                 min="0"
                 max="100"
@@ -82,13 +82,14 @@
           </div>
           <div class="filter-actions">
             <button class="filter-btn search-btn" @click="applyFilters">
-              {{ t('characterTest.search') }}
+              搜索
             </button>
             <button class="filter-btn reset-btn" @click="resetFilters">
-              {{ t('characterTest.reset') }}
+              重置
             </button>
           </div>
         </div>
+
 
         <div class="test-list">
           <div 
@@ -101,61 +102,55 @@
               <div class="test-item-date">{{ formatTestDate(test.testDate) }}</div>
             </div>
             <div class="test-item-info">
-              <span class="test-item-level">{{ getEducationLevelName(test.educationLevel) }}</span>
-              <span class="test-item-count">{{ test.testCount }}{{ t('characterTest.characters') }}</span>
-              <span class="test-item-mastery">{{ test.masteryRate }}%</span>
+              <span class="test-item-count">{{ test.testCount }}题</span>
+              <span class="test-item-accuracy">{{ test.accuracyRate }}%</span>
             </div>
-            <!-- 测试统计数据 -->
             <!-- 测试统计数据 -->
             <div class="test-item-statistics">
               <div class="stat-row">
-                <span class="stat-label">{{ t('characterTest.total') }}:</span>
+                <span class="stat-label">总数:</span>
                 <span class="stat-value">{{ test.testCount || 0 }}</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label">{{ t('characterTest.correct') }}:</span>
+                <span class="stat-label">正确:</span>
                 <span class="stat-value correct">{{ test.correctCount || 0 }}</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label">{{ t('characterTest.incorrect') }}:</span>
+                <span class="stat-label">错误:</span>
                 <span class="stat-value incorrect">{{ test.incorrectCount || 0 }}</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label">{{ t('characterTest.mastered') }}:</span>
-                <span class="stat-value mastered">{{ test.masteredCount || 0 }}</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">{{ t('characterTest.masteryRate') }}:</span>
-                <span class="stat-value">{{ test.masteryRate || 0 }}%</span>
+                <span class="stat-label">正确率:</span>
+                <span class="stat-value">{{ test.accuracyRate || 0 }}%</span>
               </div>
             </div>
             <div class="test-item-actions">
               <button class="item-action-btn view-btn" @click.stop="viewTest(test)">
-                {{ t('characterTest.view') }}
+                查看
               </button>
               <button class="item-action-btn edit-btn" @click.stop="loadTest(test)">
-                {{ t('characterTest.edit') }}
+                编辑
               </button>
               <button class="item-action-btn delete-btn" @click.stop="deleteTest(test.id)">
-                {{ t('characterTest.delete') }}
+                删除
               </button>
             </div>
           </div>
           <div v-if="testList.length === 0 && !loading" class="empty-list">
-            <p>{{ t('characterTest.noTestRecords') }}</p>
+            <p>暂无测试记录</p>
             <button class="new-test-btn" @click="showSettings">
-              {{ t('characterTest.createFirstTest') }}
+              创建第一个测试
             </button>
           </div>
           <div v-if="loading" class="loading-state">
-            <p>{{ t('characterTest.loading') }}</p>
+            <p>加载中...</p>
           </div>
         </div>
 
         <!-- 分页 -->
         <div v-if="total > 0" class="pagination-section">
           <div class="pagination-info">
-            {{ t('characterTest.paginationInfo', { current: pageNum, total: totalPages, count: total }) }}
+            第 {{ pageNum }} 页，共 {{ totalPages }} 页，共 {{ total }} 条记录
           </div>
           <div class="pagination-controls">
             <button 
@@ -163,7 +158,7 @@
               :disabled="pageNum <= 1"
               @click="goToPage(pageNum - 1)"
             >
-              {{ t('characterTest.prevPage') }}
+              上一页
             </button>
             <div class="page-numbers">
               <button
@@ -181,7 +176,7 @@
               :disabled="pageNum >= totalPages"
               @click="goToPage(pageNum + 1)"
             >
-              {{ t('characterTest.nextPage') }}
+              下一页
             </button>
           </div>
         </div>
@@ -190,26 +185,26 @@
       <!-- 设置页面 -->
       <div v-else-if="currentView === 'settings'" class="settings-panel">
         <div class="panel-header">
-          <h2 class="panel-title">{{ t('characterTest.title') }}</h2>
-          <p class="panel-subtitle">{{ t('characterTest.subtitle') }}</p>
+          <h2 class="panel-title">数学测试设置</h2>
+          <p class="panel-subtitle">请选择测试参数</p>
         </div>
 
         <div class="settings-form">
           <!-- 姓名 -->
           <div class="form-group">
-            <label class="form-label" for="studentName">{{ t('characterTest.studentName') }}</label>
+            <label class="form-label" for="studentName">学生姓名</label>
             <input 
               id="studentName"
               type="text" 
               v-model="settings.studentName" 
               class="form-input"
-              :placeholder="t('characterTest.enterStudentName')"
+              placeholder="请输入学生姓名"
             />
           </div>
 
           <!-- 测试日期 -->
           <div class="form-group">
-            <label class="form-label" for="testDate">{{ t('characterTest.testDate') }}</label>
+            <label class="form-label" for="testDate">测试日期</label>
             <input 
               id="testDate"
               type="date" 
@@ -218,74 +213,95 @@
             />
           </div>
 
-          <!-- 教育阶段选择 -->
+          <!-- 计算类型选择 -->
           <div class="form-group">
-            <label class="form-label" for="educationLevel">{{ t('characterTest.educationLevel') }}</label>
-            <div class="radio-group">
-              <label class="radio-label">
+            <label class="form-label">计算类型</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
                 <input 
-                  type="radio" 
-                  v-model="settings.educationLevel" 
-                  value="primary"
-                  class="radio-input"
+                  type="checkbox" 
+                  v-model="settings.operationTypes" 
+                  value="+"
+                  class="checkbox-input"
                 />
-                <span class="radio-text">{{ t('characterTest.primarySchool') }}</span>
+                <span class="checkbox-text">加法 (+)</span>
               </label>
-              <label class="radio-label">
+              <label class="checkbox-label">
                 <input 
-                  type="radio" 
-                  v-model="settings.educationLevel" 
-                  value="middle"
-                  class="radio-input"
+                  type="checkbox" 
+                  v-model="settings.operationTypes" 
+                  value="-"
+                  class="checkbox-input"
                 />
-                <span class="radio-text">{{ t('characterTest.middleSchool') }}</span>
+                <span class="checkbox-text">减法 (-)</span>
               </label>
-              <label class="radio-label">
+              <label class="checkbox-label">
                 <input 
-                  type="radio" 
-                  v-model="settings.educationLevel" 
-                  value="high"
-                  class="radio-input"
+                  type="checkbox" 
+                  v-model="settings.operationTypes" 
+                  value="*"
+                  class="checkbox-input"
                 />
-                <span class="radio-text">{{ t('characterTest.highSchool') }}</span>
+                <span class="checkbox-text">乘法 (×)</span>
+              </label>
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  v-model="settings.operationTypes" 
+                  value="/"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-text">除法 (÷)</span>
               </label>
             </div>
+            <p class="form-hint">至少选择一种计算类型</p>
           </div>
 
-          <!-- 测试字数 -->
+          <!-- 题目数量 -->
           <div class="form-group">
-            <label class="form-label" for="testCount">{{ t('characterTest.testCount') }}</label>
+            <label class="form-label" for="testCount">题目数量</label>
             <input 
               id="testCount"
               type="number" 
               v-model.number="settings.testCount" 
               class="form-input"
-              :placeholder="t('characterTest.enterTestCount')"
+              placeholder="请输入题目数量"
               min="1"
-              max="500"
+              max="100"
             />
-            <p class="form-hint">{{ t('characterTest.testCountHint') }}</p>
+            <p class="form-hint">建议10-50题</p>
           </div>
 
-          <!-- 显示拼音选项 -->
+          <!-- 数字范围 -->
           <div class="form-group">
-            <label class="checkbox-label">
+            <label class="form-label">数字范围</label>
+            <div class="number-range-group">
               <input 
-                type="checkbox" 
-                v-model="settings.showPinyin" 
-                class="checkbox-input"
+                type="number" 
+                v-model.number="settings.minNumber" 
+                class="form-input range-input"
+                placeholder="最小值"
+                min="0"
               />
-              <span class="checkbox-text">{{ t('characterTest.showPinyin') }}</span>
-            </label>
+              <span class="range-separator">至</span>
+              <input 
+                type="number" 
+                v-model.number="settings.maxNumber" 
+                class="form-input range-input"
+                placeholder="最大值"
+                min="1"
+              />
+            </div>
+            <p class="form-hint">例如：0 至 100</p>
           </div>
 
           <!-- 开始测试按钮 -->
           <div class="form-actions">
             <button class="cancel-btn" @click="backToList">
-              {{ t('characterTest.cancel') }}
+              取消
             </button>
             <button class="start-btn" @click="startTest" :disabled="!canStartTest">
-              {{ t('characterTest.startTest') }}
+              开始测试
             </button>
           </div>
         </div>
@@ -295,76 +311,66 @@
       <div v-else-if="currentView === 'test'" class="test-panel">
         <!-- 测试表头部 -->
         <div class="test-header">
-          <h2 class="test-title">{{ t('characterTest.testFormTitle') }}</h2>
+          <h2 class="test-title">数学测试</h2>
           <div class="test-info">
             <div class="info-item">
-              <span class="info-label" id="test-student-name">{{ t('characterTest.studentName') }}:</span>
+              <span class="info-label">学生姓名:</span>
               <span class="info-value">{{ settings.studentName }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">{{ t('characterTest.mastered') }}:</span>
-              <span class="info-value">{{ masteredCount }}{{ t('characterTest.characters') }}</span>
+              <span class="info-label">测试日期:</span>
+              <span class="info-value">{{ formattedDate }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">{{ t('characterTest.testDate') }}:</span>
-              <span class="info-value">{{ formattedDate }}</span>
+              <span class="info-label">正确率:</span>
+              <span class="info-value">{{ accuracyRate }}%</span>
             </div>
           </div>
           <div class="test-actions">
-            <button class="action-btn toggle-pinyin-btn" @click="togglePinyin" :disabled="isReadOnly">
-              {{ settings.showPinyin ? t('characterTest.hidePinyin') : t('characterTest.showPinyin') }}
-            </button>
             <button v-if="!isReadOnly" class="action-btn save-btn" @click="saveTest">
-              {{ t('characterTest.save') }}
+              提交
+            </button>
+            <button class="action-btn export-btn" @click="exportToPDF">
+              导出PDF
             </button>
             <button class="action-btn back-btn" @click="backToTestList">
-              {{ t('characterTest.back') }}
-            </button>
-            <button v-if="!isReadOnly" class="action-btn reset-btn" @click="resetTest">
-              {{ t('characterTest.resetTest') }}
+              返回
             </button>
             <div v-if="isReadOnly" class="read-only-badge">
-              {{ t('characterTest.readOnlyMode') }}
+              只读模式
             </div>
           </div>
         </div>
 
         <!-- 测试表内容 -->
         <div class="test-content">
-          <div class="characters-grid">
+          <div class="questions-grid">
             <div 
-              v-for="(char, index) in testCharacters" 
+              v-for="(question, index) in testQuestions" 
               :key="index"
-              class="character-item"
+              class="question-item"
               :class="{ 
-                'correct': char.status === 'correct',
-                'incorrect': char.status === 'incorrect'
+                'correct': question.isCorrect === true,
+                'incorrect': question.isCorrect === false
               }"
             >
-              <div class="character-wrapper">
-                <div 
-                  class="character-text" 
-                  :class="{ 'read-only': isReadOnly }"
-                  @click="!isReadOnly && toggleCharacterStatus(char)"
-                >
-                  {{ char.character }}
+              <div class="question-wrapper">
+                <div class="question-number">第 {{ index + 1 }} 题</div>
+                <div class="question-formula-row">
+                  <div class="question-formula">
+                    {{ question.num1 }} {{ getOperatorSymbol(question.operator) }} {{ question.num2 }} = 
+                  </div>
+                  <input 
+                    type="input" 
+                    v-model.number="question.studentAnswer" 
+                    class="answer-input"
+                    :disabled="isReadOnly"
+                    :placeholder="isReadOnly ? question.correctAnswer : '输入答案'"
+                  />
                 </div>
-                <div v-if="settings.showPinyin" class="character-pinyin">
-                  {{ char.pinyin }}
-                </div>
-                <div class="character-status">
-                  <span 
-                    v-if="char.status === 'correct'" 
-                    class="status-icon correct-icon"
-                    :class="{ 'read-only': isReadOnly }"
-                    @click.stop="!isReadOnly && toggleCharacterStatus(char)"
-                  >✓</span>
-                  <span 
-                    v-if="char.status === 'incorrect'" 
-                    class="status-icon incorrect-icon"
-                    :class="{ 'read-only': isReadOnly }"
-                    @click.stop="!isReadOnly && toggleCharacterStatus(char)"
-                  >✗</span>
+                <div v-if="isReadOnly && question.isCorrect !== null" class="answer-status">
+                  <span v-if="question.isCorrect" class="status-icon correct-icon">✓</span>
+                  <span v-else class="status-icon incorrect-icon">✗ (正确答案: {{ question.correctAnswer }})</span>
                 </div>
               </div>
             </div>
@@ -375,24 +381,20 @@
         <div class="test-statistics-wrapper">
           <div class="test-statistics">
             <div class="stat-item">
-              <span class="stat-label">{{ t('characterTest.total') }}:</span>
-              <span class="stat-value">{{ testCharacters.length }}</span>
+              <span class="stat-label">总数:</span>
+              <span class="stat-value">{{ testQuestions.length }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">{{ t('characterTest.correct') }}:</span>
+              <span class="stat-label">正确:</span>
               <span class="stat-value correct">{{ correctCount }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">{{ t('characterTest.incorrect') }}:</span>
+              <span class="stat-label">错误:</span>
               <span class="stat-value incorrect">{{ incorrectCount }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">{{ t('characterTest.mastered') }}:</span>
-              <span class="stat-value mastered">{{ masteredCount }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">{{ t('characterTest.masteryRate') }}:</span>
-              <span class="stat-value">{{ masteryRate }}%</span>
+              <span class="stat-label">正确率:</span>
+              <span class="stat-value">{{ accuracyRate }}%</span>
             </div>
           </div>
         </div>
@@ -402,27 +404,26 @@
     <!-- 右侧边栏菜单 -->
     <Sidebar 
       :is-open="sidebarOpen" 
-      active-route="character-test"
+      active-route="math-test"
       @close="handleSidebarClose"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { useRouter } from '../../composables/useRouter.js'
-import { useI18n } from 'vue-i18n'
-import { getTestCharacters, saveTestRecord, getAllTestRecords, deleteTestRecord, getTestRecordsPage } from '../../api/characterTest.js'
+import { generateQuestions, saveTestRecord, deleteTestRecord, getTestRecordsPage } from '../../api/mathTest.js'
 import { showError, showSuccess, showConfirm } from '../../utils/alert.js'
+import html2pdf from 'html2pdf.js'
 
-const { t } = useI18n()
 const router = useRouter()
 
 const sidebarOpen = ref(false)
 const currentView = ref('list') // 'list' | 'settings' | 'test'
-const testCharacters = ref([])
+const testQuestions = ref([])
 const testList = ref([])
 const currentTestId = ref(null)
 const isReadOnly = ref(false) // 只读模式标志
@@ -439,24 +440,27 @@ const filters = reactive({
   studentName: '',
   startDate: '',
   endDate: '',
-  minMasteryRate: null,
-  maxMasteryRate: null
+  minAccuracyRate: null,
+  maxAccuracyRate: null
 })
 
 const settings = reactive({
   studentName: '',
   testDate: new Date().toISOString().split('T')[0],
-  educationLevel: 'primary',
-  testCount: 50,
-  showPinyin: false
+  operationTypes: ['+'], // 默认选择加法
+  testCount: 20,
+  minNumber: 0,
+  maxNumber: 100
 })
 
 // 计算属性
 const canStartTest = computed(() => {
   return settings.studentName.trim() && 
          settings.testCount > 0 && 
-         settings.testCount <= 500 &&
-         settings.educationLevel
+         settings.testCount <= 100 &&
+         settings.operationTypes.length > 0 &&
+         settings.minNumber >= 0 &&
+         settings.maxNumber > settings.minNumber
 })
 
 const formattedDate = computed(() => {
@@ -469,20 +473,28 @@ const formattedDate = computed(() => {
 })
 
 const correctCount = computed(() => {
-  return testCharacters.value.filter(c => c.status === 'correct').length
+  if (!testQuestions.value || testQuestions.value.length === 0) return 0
+  return testQuestions.value.filter(q => {
+    if (q.studentAnswer === null || q.studentAnswer === undefined) return false
+    return q.studentAnswer === q.correctAnswer
+  }).length
 })
 
 const incorrectCount = computed(() => {
-  return testCharacters.value.filter(c => c.status === 'incorrect').length
+  if (!testQuestions.value || testQuestions.value.length === 0) return 0
+  return testQuestions.value.filter(q => {
+    if (q.studentAnswer === null || q.studentAnswer === undefined) return false
+    return q.studentAnswer !== q.correctAnswer
+  }).length
 })
 
-const masteredCount = computed(() => {
-  return correctCount.value
-})
-
-const masteryRate = computed(() => {
-  if (testCharacters.value.length === 0) return 0
-  return Math.round((masteredCount.value / testCharacters.value.length) * 100)
+const accuracyRate = computed(() => {
+  if (testQuestions.value.length === 0) return 0
+  const answeredCount = testQuestions.value.filter(q => 
+    q.studentAnswer !== null && q.studentAnswer !== undefined
+  ).length
+  if (answeredCount === 0) return 0
+  return Math.round((correctCount.value / answeredCount) * 100)
 })
 
 // 方法
@@ -539,11 +551,11 @@ const loadTestList = async () => {
     if (filters.endDate) {
       params.endDate = filters.endDate
     }
-    if (filters.minMasteryRate !== null && filters.minMasteryRate !== '') {
-      params.minMasteryRate = filters.minMasteryRate
+    if (filters.minAccuracyRate !== null && filters.minAccuracyRate !== '') {
+      params.minAccuracyRate = filters.minAccuracyRate
     }
-    if (filters.maxMasteryRate !== null && filters.maxMasteryRate !== '') {
-      params.maxMasteryRate = filters.maxMasteryRate
+    if (filters.maxAccuracyRate !== null && filters.maxAccuracyRate !== '') {
+      params.maxAccuracyRate = filters.maxAccuracyRate
     }
     
     const response = await getTestRecordsPage(params)
@@ -555,38 +567,23 @@ const loadTestList = async () => {
           id: record.id,
           studentName: record.studentName,
           testDate: record.testDate ? new Date(record.testDate).toISOString().split('T')[0] : '',
-          educationLevel: record.educationLevel,
           testCount: record.testCount,
-          showPinyin: record.showPinyin || false,
-          characters: record.characters || [],
+          operationTypes: record.operationTypes || [],
+          minNumber: record.minNumber,
+          maxNumber: record.maxNumber,
+          questions: record.questions || [],
           correctCount: record.correctCount || 0,
           incorrectCount: record.incorrectCount || 0,
-          masteredCount: record.masteredCount || 0,
-          masteryRate: record.masteryRate || 0,
+          accuracyRate: record.accuracyRate || 0,
           createdAt: record.createTime,
           updatedAt: record.updateTime
         }))
         total.value = data.total || 0
         totalPages.value = data.pages || Math.ceil(total.value / pageSize.value)
       } else {
-        // 兼容旧格式（无分页）
-        testList.value = Array.isArray(data) ? data.map(record => ({
-          id: record.id,
-          studentName: record.studentName,
-          testDate: record.testDate ? new Date(record.testDate).toISOString().split('T')[0] : '',
-          educationLevel: record.educationLevel,
-          testCount: record.testCount,
-          showPinyin: record.showPinyin || false,
-          characters: record.characters || [],
-          correctCount: record.correctCount || 0,
-          incorrectCount: record.incorrectCount || 0,
-          masteredCount: record.masteredCount || 0,
-          masteryRate: record.masteryRate || 0,
-          createdAt: record.createTime,
-          updatedAt: record.updateTime
-        })) : []
-        total.value = testList.value.length
-        totalPages.value = 1
+        testList.value = []
+        total.value = 0
+        totalPages.value = 0
       }
     } else {
       testList.value = []
@@ -595,38 +592,9 @@ const loadTestList = async () => {
     }
   } catch (error) {
     console.error('加载测试列表失败:', error)
-    // 如果分页API失败，尝试使用旧API
-    try {
-      const response = await getAllTestRecords()
-      if (response.code === 200 && response.data) {
-        testList.value = response.data.map(record => ({
-          id: record.id,
-          studentName: record.studentName,
-          testDate: record.testDate ? new Date(record.testDate).toISOString().split('T')[0] : '',
-          educationLevel: record.educationLevel,
-          testCount: record.testCount,
-          showPinyin: record.showPinyin || false,
-          characters: record.characters || [],
-          correctCount: record.correctCount || 0,
-          incorrectCount: record.incorrectCount || 0,
-          masteredCount: record.masteredCount || 0,
-          masteryRate: record.masteryRate || 0,
-          createdAt: record.createTime,
-          updatedAt: record.updateTime
-        }))
-        total.value = testList.value.length
-        totalPages.value = 1
-      } else {
-        testList.value = []
-        total.value = 0
-        totalPages.value = 0
-      }
-    } catch (fallbackError) {
-      console.error('使用旧API也失败:', fallbackError)
-      testList.value = []
-      total.value = 0
-      totalPages.value = 0
-    }
+    testList.value = []
+    total.value = 0
+    totalPages.value = 0
   } finally {
     loading.value = false
   }
@@ -643,8 +611,8 @@ const resetFilters = () => {
   filters.studentName = ''
   filters.startDate = ''
   filters.endDate = ''
-  filters.minMasteryRate = null
-  filters.maxMasteryRate = null
+  filters.minAccuracyRate = null
+  filters.maxAccuracyRate = null
   pageNum.value = 1
   loadTestList()
 }
@@ -665,9 +633,10 @@ const showSettings = () => {
   // 重置设置
   settings.studentName = ''
   settings.testDate = new Date().toISOString().split('T')[0]
-  settings.educationLevel = 'primary'
-  settings.testCount = 50
-  settings.showPinyin = false
+  settings.operationTypes = ['+']
+  settings.testCount = 20
+  settings.minNumber = 0
+  settings.maxNumber = 100
   currentTestId.value = null
   isReadOnly.value = false
 }
@@ -675,7 +644,7 @@ const showSettings = () => {
 // 返回列表
 const backToList = () => {
   currentView.value = 'list'
-  testCharacters.value = []
+  testQuestions.value = []
   currentTestId.value = null
   isReadOnly.value = false
 }
@@ -683,16 +652,6 @@ const backToList = () => {
 // 返回测试列表（从测试页面）
 const backToTestList = () => {
   backToList()
-}
-
-// 获取教育阶段名称
-const getEducationLevelName = (level) => {
-  const names = {
-    'primary': t('characterTest.primarySchool'),
-    'middle': t('characterTest.middleSchool'),
-    'high': t('characterTest.highSchool')
-  }
-  return names[level] || level
 }
 
 // 格式化测试日期
@@ -705,37 +664,63 @@ const formatTestDate = (dateStr) => {
   return `${year}-${month}-${day}`
 }
 
+// 获取运算符符号
+const getOperatorSymbol = (operator) => {
+  const symbols = {
+    '+': '+',
+    '-': '-',
+    '*': '×',
+    '/': '÷'
+  }
+  return symbols[operator] || operator
+}
+
 const startTest = async () => {
   try {
-    // 调用 API 获取测试汉字
-    const response = await getTestCharacters(
-      settings.educationLevel,
-      settings.testCount
+    // 调用 API 生成测试题目
+    const operationTypesStr = settings.operationTypes.join(',')
+    const response = await generateQuestions(
+      operationTypesStr,
+      settings.testCount,
+      settings.minNumber,
+      settings.maxNumber
     )
     
     if (response.code === 200 && response.data) {
-      // 初始化测试字符，添加状态字段
-      testCharacters.value = response.data.map(char => ({
-        ...char,
-        status: null // null: 未标记, 'correct': 正确, 'incorrect': 错误
+      // 初始化测试题目
+      testQuestions.value = response.data.map(q => ({
+        ...q,
+        studentAnswer: null
       }))
       currentView.value = 'test'
       currentTestId.value = null // 新测试
       isReadOnly.value = false // 新测试不是只读模式
     } else {
-      await showError(response.msg || t('characterTest.loadFailed'))
+      await showError(response.msg || '生成题目失败')
     }
   } catch (error) {
-    console.error('加载测试字符失败:', error)
-    await showError(error.message || t('characterTest.loadFailed'))
+    console.error('生成题目失败:', error)
+    await showError(error.message || '生成题目失败')
   }
 }
 
 // 保存测试
 const saveTest = async () => {
   if (!settings.studentName.trim()) {
-    await showError(t('characterTest.pleaseEnterStudentName'))
+    await showError('请输入学生姓名')
     return
+  }
+
+  // 检查是否所有题目都已作答
+  const unansweredCount = testQuestions.value.filter(q => 
+    q.studentAnswer === null || q.studentAnswer === undefined
+  ).length
+  
+  if (unansweredCount > 0) {
+    const confirmed = await showConfirm(`还有 ${unansweredCount} 题未作答，确定要提交吗？`)
+    if (!confirmed) {
+      return
+    }
   }
 
   try {
@@ -743,25 +728,24 @@ const saveTest = async () => {
       id: currentTestId.value || null,
       studentName: settings.studentName,
       testDate: settings.testDate,
-      educationLevel: settings.educationLevel,
-      testCount: testCharacters.value.length,
-      showPinyin: settings.showPinyin,
-      characters: testCharacters.value.map(char => ({
-        character: char.character,
-        pinyin: char.pinyin,
-        status: char.status
-      })),
-      correctCount: correctCount.value,
-      incorrectCount: incorrectCount.value,
-      masteredCount: masteredCount.value,
-      masteryRate: masteryRate.value
+      testCount: testQuestions.value.length,
+      operationTypes: settings.operationTypes,
+      minNumber: settings.minNumber,
+      maxNumber: settings.maxNumber,
+      questions: testQuestions.value.map(q => ({
+        num1: q.num1,
+        operator: q.operator,
+        num2: q.num2,
+        correctAnswer: q.correctAnswer,
+        studentAnswer: q.studentAnswer
+      }))
     }
 
     const response = await saveTestRecord(testRecord)
     if (response.code === 200) {
-      await showSuccess(t('characterTest.saveSuccess'))
+      await showSuccess('保存成功！正确率: ' + response.data.accuracyRate + '%')
       await loadTestList() // 重新加载列表
-      // 不自动返回，让用户选择
+      backToList() // 返回列表
     } else {
       await showError(response.msg || '保存失败')
     }
@@ -776,16 +760,20 @@ const loadTest = (test, readOnly = false) => {
   currentTestId.value = test.id
   settings.studentName = test.studentName
   settings.testDate = test.testDate
-  settings.educationLevel = test.educationLevel
   settings.testCount = test.testCount
-  settings.showPinyin = test.showPinyin || false
+  settings.operationTypes = test.operationTypes || ['+']
+  settings.minNumber = test.minNumber || 0
+  settings.maxNumber = test.maxNumber || 100
   isReadOnly.value = readOnly
   
-  // 转换字符数据格式
-  testCharacters.value = (test.characters || []).map(char => ({
-    character: char.character,
-    pinyin: char.pinyin,
-    status: char.status || null
+  // 转换题目数据格式
+  testQuestions.value = (test.questions || []).map(q => ({
+    num1: q.num1,
+    operator: q.operator,
+    num2: q.num2,
+    correctAnswer: q.correctAnswer,
+    studentAnswer: q.studentAnswer,
+    isCorrect: q.isCorrect
   }))
   
   currentView.value = 'test'
@@ -798,7 +786,7 @@ const viewTest = (test) => {
 
 // 删除测试
 const deleteTest = async (id) => {
-  const confirmed = await showConfirm(t('characterTest.confirmDelete'))
+  const confirmed = await showConfirm('确定要删除这条测试记录吗？')
   if (confirmed) {
     try {
       const response = await deleteTestRecord(id)
@@ -814,33 +802,106 @@ const deleteTest = async (id) => {
   }
 }
 
-const toggleCharacterStatus = (char) => {
-  if (!char.status) {
-    char.status = 'correct'
-  } else if (char.status === 'correct') {
-    char.status = 'incorrect'
-  } else {
-    char.status = null
+// 导出PDF
+const exportToPDF = async () => {
+  if (testQuestions.value.length === 0) {
+    await showError('没有可导出的测试内容')
+    return
+  }
+
+  try {
+    // 自定义导出排版：4 列表格，类似示例图片
+    const exportContainer = document.createElement('div')
+    exportContainer.style.width = '210mm' // A4宽度
+    exportContainer.style.padding = '10mm 12mm'
+    exportContainer.style.backgroundColor = '#ffffff'
+    exportContainer.style.color = '#000000'
+    exportContainer.style.fontFamily = 'Microsoft YaHei, SimHei, Arial, sans-serif'
+
+    const table = document.createElement('table')
+    table.style.width = '100%'
+    table.style.borderCollapse = 'collapse'
+    table.style.tableLayout = 'fixed'
+    table.style.fontSize = '22px'
+    table.style.color = '#000'
+
+    const colsPerRow = 4
+    testQuestions.value.forEach((q, idx) => {
+      if (idx % colsPerRow === 0) {
+        table.appendChild(document.createElement('tr'))
+      }
+      const row = table.lastElementChild
+      const cell = document.createElement('td')
+      cell.style.padding = '12px 10px'
+      cell.style.border = '1px solid #999'
+      cell.style.verticalAlign = 'middle'
+      cell.style.height = '38px'
+      cell.style.whiteSpace = 'nowrap'
+      cell.style.textAlign = 'left'
+      cell.style.fontWeight = '500'
+      const operator = getOperatorSymbol(q.operator)
+      const blank = '_______'
+      cell.textContent = `${q.num1} ${operator} ${q.num2} = ${blank}`
+      row.appendChild(cell)
+    })
+
+    // 补足最后一行的空单元格，确保表格均匀
+    const lastRow = table.lastElementChild
+    if (lastRow && lastRow.children.length < colsPerRow) {
+      const missing = colsPerRow - lastRow.children.length
+      for (let i = 0; i < missing; i++) {
+        const emptyCell = document.createElement('td')
+        emptyCell.style.padding = '12px 10px'
+        emptyCell.style.border = '1px solid #999'
+        emptyCell.style.height = '38px'
+        lastRow.appendChild(emptyCell)
+      }
+    }
+
+    exportContainer.appendChild(table)
+
+    // 包一层隐藏容器，确保 html2canvas 能正确计算尺寸
+    const wrapper = document.createElement('div')
+    wrapper.style.position = 'fixed'
+    wrapper.style.left = '0'
+    wrapper.style.top = '0'
+    wrapper.style.opacity = '0'
+    wrapper.style.pointerEvents = 'none'
+    wrapper.style.zIndex = '-1'
+    wrapper.style.visibility = 'visible'
+    wrapper.appendChild(exportContainer)
+    document.body.appendChild(wrapper)
+
+    // 配置PDF选项
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `数学测试_${settings.studentName}_${formattedDate.value.replace(/\//g, '-')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: exportContainer.scrollWidth || 794,
+        height: exportContainer.scrollHeight || 1123,
+        windowWidth: exportContainer.scrollWidth || 794
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait' 
+      }
+    }
+
+    await html2pdf().set(opt).from(exportContainer).save()
+
+    // 清理临时元素
+    document.body.removeChild(wrapper)
+  } catch (error) {
+    console.error('导出PDF失败:', error)
+    await showError('导出PDF失败: ' + (error.message || '未知错误'))
   }
 }
-
-const togglePinyin = () => {
-  settings.showPinyin = !settings.showPinyin
-}
-
-const resetTest = async () => {
-  const confirmed = await showConfirm(t('characterTest.confirmReset'))
-  if (confirmed) {
-    testCharacters.value = []
-    currentView.value = 'list'
-    currentTestId.value = null
-  }
-}
-
-// 监听测试字符变化，自动保存（可选）
-watch(() => testCharacters.value, () => {
-  // 可以在这里实现自动保存功能
-}, { deep: true })
 
 onMounted(() => {
   loadTestList()
@@ -848,7 +909,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.character-test-container {
+.math-test-container {
   position: relative;
   width: 100%;
   min-height: 100vh;
@@ -1064,28 +1125,10 @@ onMounted(() => {
   margin: 0;
 }
 
-.radio-group {
+.checkbox-group {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-}
-
-.radio-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.radio-input {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.radio-text {
-  color: white;
-  font-size: 14px;
 }
 
 .checkbox-label {
@@ -1103,6 +1146,21 @@ onMounted(() => {
 
 .checkbox-text {
   color: white;
+  font-size: 14px;
+}
+
+.number-range-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-input {
+  flex: 1;
+}
+
+.range-separator {
+  color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
 }
 
@@ -1377,19 +1435,11 @@ onMounted(() => {
   color: #f44336;
 }
 
-.stat-row .stat-value.mastered {
-  color: #ffd700;
-}
-
-.test-item-level {
-  color: #ffd700;
-}
-
 .test-item-count {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.test-item-mastery {
+.test-item-accuracy {
   color: #4caf50;
   font-weight: bold;
 }
@@ -1479,6 +1529,16 @@ onMounted(() => {
   background: rgba(100, 100, 100, 0.4);
 }
 
+.action-btn.export-btn {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: rgba(33, 150, 243, 0.5);
+  color: #2196f3;
+}
+
+.action-btn.export-btn:hover {
+  background: rgba(33, 150, 243, 0.4);
+}
+
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1566,98 +1626,101 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
-.characters-grid {
+.questions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
   max-height: 60vh;
   overflow-y: auto;
   padding: 10px;
 }
 
-.character-item {
+.question-item {
   background: rgba(50, 50, 50, 0.6);
   border: 2px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
-  padding: 15px;
+  padding: 20px;
   transition: all 0.3s;
-  cursor: pointer;
 }
 
-.character-item:hover {
+.question-item:hover {
   background: rgba(255, 215, 0, 0.1);
   border-color: rgba(255, 215, 0, 0.6);
-  transform: translateY(-2px);
 }
 
-.character-item.read-only:hover {
-  transform: none;
-  cursor: default;
-}
-
-.character-item.correct {
+.question-item.correct {
   background: rgba(76, 175, 80, 0.2);
   border-color: rgba(76, 175, 80, 0.6);
 }
 
-.character-item.incorrect {
+.question-item.incorrect {
   background: rgba(244, 67, 54, 0.2);
   border-color: rgba(244, 67, 54, 0.6);
 }
 
-.character-wrapper {
+.question-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.character-text {
-  font-size: 32px;
+.question-formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.question-number {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.question-formula {
+  font-size: 24px;
   font-weight: bold;
   color: white;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-  user-select: none;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.answer-input {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 6px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
   transition: all 0.3s;
+  width: 120px;
+  flex-shrink: 0;
+  text-align: right;
 }
 
-.character-text.read-only {
-  cursor: default;
-  opacity: 0.8;
+.answer-input:focus {
+  outline: none;
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
-.character-text:not(.read-only):hover {
-  transform: scale(1.1);
+.answer-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.character-pinyin {
-  font-size: 14px;
-  color: rgba(255, 215, 0, 0.8);
-  font-style: italic;
-}
-
-.character-status {
+.answer-status {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 24px;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .status-icon {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.3s;
-}
-
-.status-icon.read-only {
-  cursor: default;
-  opacity: 0.8;
-}
-
-.status-icon:not(.read-only):hover {
-  transform: scale(1.2);
 }
 
 .correct-icon {
@@ -1666,11 +1729,6 @@ onMounted(() => {
 
 .incorrect-icon {
   color: #f44336;
-}
-
-.status-placeholder {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
 }
 
 .test-statistics-wrapper {
@@ -1715,26 +1773,22 @@ onMounted(() => {
   color: #f44336;
 }
 
-.stat-value.mastered {
-  color: #ffd700;
-}
-
 /* 自定义滚动条 */
-.characters-grid::-webkit-scrollbar {
+.questions-grid::-webkit-scrollbar {
   width: 10px;
 }
 
-.characters-grid::-webkit-scrollbar-track {
+.questions-grid::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.3);
   border-radius: 5px;
 }
 
-.characters-grid::-webkit-scrollbar-thumb {
+.questions-grid::-webkit-scrollbar-thumb {
   background: rgba(255, 215, 0, 0.5);
   border-radius: 5px;
 }
 
-.characters-grid::-webkit-scrollbar-thumb:hover {
+.questions-grid::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 215, 0, 0.7);
 }
 
@@ -1820,13 +1874,9 @@ onMounted(() => {
     padding: 20px;
   }
 
-  .characters-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-  }
-
-  .character-text {
-    font-size: 24px;
+  .questions-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .test-info {

@@ -1350,6 +1350,20 @@
       "confirmDelete": "确定要删除这条测试记录吗？",
       "noTestRecords": "暂无测试记录",
       "createFirstTest": "创建第一个测试",
-      "pleaseEnterStudentName": "请输入学生姓名"
+      "pleaseEnterStudentName": "请输入学生姓名",
+      "edit": "编辑",
+      "back": "返回",
+      "save": "保存",
+      "readOnlyMode": "只读模式",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "minMasteryRate": "最小掌握率",
+      "maxMasteryRate": "最大掌握率",
+      "search": "搜索",
+      "reset": "重置",
+      "loading": "加载中",
+      "paginationInfo": "第 {current} 页，共 {total} 页，总计 {count} 条记录",
+      "prevPage": "上一页",
+      "nextPage": "下一页"
     }
 }

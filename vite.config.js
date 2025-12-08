@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
+    strictPort: true,
     open: true,
     cors: true,
     proxy: {
@@ -15,6 +16,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  build: {
+    // 保留 source map 方便在 Cursor/浏览器中断点调试
+    sourcemap: true
   }
 })
 

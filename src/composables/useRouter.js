@@ -62,7 +62,8 @@ export const ROUTES = {
   BESTPAY_QUERY: 'bestpay-query',
   BESTPAY_REFUND: 'bestpay-refund',
   BESTPAY_REVERSE: 'bestpay-reverse',
-  CHARACTER_TEST: 'character-test'
+  CHARACTER_TEST: 'character-test',
+  MATH_TEST: 'math-test'
 }
 
 // 不需要登录的路由
@@ -273,6 +274,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToCharacterTest() {
       this.navigate(ROUTES.CHARACTER_TEST)
+    },
+    goToMathTest() {
+      this.navigate(ROUTES.MATH_TEST)
     },
     
     // 登出（跳转到登录页）

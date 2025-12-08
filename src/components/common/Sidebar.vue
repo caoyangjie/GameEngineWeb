@@ -264,6 +264,14 @@
           <span class="sidebar-icon">📚</span>
           <span class="sidebar-text">{{ t('sidebar.characterTest') }}</span>
         </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: activeRoute === ROUTES.MATH_TEST }" 
+          @click="handleNavigate(ROUTES.MATH_TEST)"
+        >
+          <span class="sidebar-icon">🔢</span>
+          <span class="sidebar-text">数学测试</span>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -462,6 +470,8 @@ const handleNavigate = (route) => {
     router.goToBestpayReverse()
   } else if (route === ROUTES.CHARACTER_TEST) {
     router.goToCharacterTest()
+  } else if (route === ROUTES.MATH_TEST) {
+    router.goToMathTest()
   }
   
   // 通知父组件关闭侧边栏

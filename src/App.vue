@@ -56,6 +56,7 @@
     <BestpayRefundPage v-if="router.currentRoute.value === ROUTES.BESTPAY_REFUND" />
     <BestpayReversePage v-if="router.currentRoute.value === ROUTES.BESTPAY_REVERSE" />
     <CharacterTestPage v-if="router.currentRoute.value === ROUTES.CHARACTER_TEST" />
+    <MathTestPage v-if="router.currentRoute.value === ROUTES.MATH_TEST" />
   </div>
 </template>
 
@@ -117,6 +118,7 @@ import BestpayQueryPage from './components/payment/BestpayQueryPage.vue'
 import BestpayRefundPage from './components/payment/BestpayRefundPage.vue'
 import BestpayReversePage from './components/payment/BestpayReversePage.vue'
 import CharacterTestPage from './components/characterTest/CharacterTestPage.vue'
+import MathTestPage from './components/mathTest/MathTestPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

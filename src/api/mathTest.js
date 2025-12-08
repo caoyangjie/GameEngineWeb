@@ -1,28 +1,22 @@
 import request from './request.js'
 
 /**
- * 获取测试汉字
- * @param {string} educationLevel 教育阶段: primary(小学), middle(初中), high(高中)
- * @param {number} count 测试字数
+ * 生成数学测试题目
+ * @param {string} operationTypes 计算类型列表（加减乘除），多个用逗号分隔
+ * @param {number} count 题目数量
+ * @param {number} minNumber 数字范围最小值
+ * @param {number} maxNumber 数字范围最大值
  */
-export function getTestCharacters(educationLevel, count) {
+export function generateQuestions(operationTypes, count, minNumber, maxNumber) {
   return request({
-    url: '/characterTest/getCharacters',
+    url: '/mathTest/generateQuestions',
     method: 'get',
     params: {
-      educationLevel,
-      count
+      operationTypes,
+      count,
+      minNumber,
+      maxNumber
     }
-  })
-}
-
-/**
- * 获取所有汉字（用于管理）
- */
-export function getAllCharacters() {
-  return request({
-    url: '/characterTest/getAllCharacters',
-    method: 'get'
   })
 }
 
@@ -32,7 +26,7 @@ export function getAllCharacters() {
  */
 export function saveTestRecord(record) {
   return request({
-    url: '/characterTest/saveTestRecord',
+    url: '/mathTest/saveTestRecord',
     method: 'post',
     data: record
   })
@@ -43,7 +37,7 @@ export function saveTestRecord(record) {
  */
 export function getAllTestRecords() {
   return request({
-    url: '/characterTest/getAllTestRecords',
+    url: '/mathTest/getAllTestRecords',
     method: 'get'
   })
 }
@@ -56,12 +50,12 @@ export function getAllTestRecords() {
  * @param {string} params.studentName 学生姓名（模糊查询）
  * @param {string} params.startDate 开始日期
  * @param {string} params.endDate 结束日期
- * @param {number} params.minMasteryRate 最小掌握率
- * @param {number} params.maxMasteryRate 最大掌握率
+ * @param {number} params.minAccuracyRate 最小正确率
+ * @param {number} params.maxAccuracyRate 最大正确率
  */
 export function getTestRecordsPage(params) {
   return request({
-    url: '/characterTest/getTestRecordsPage',
+    url: '/mathTest/getTestRecordsPage',
     method: 'get',
     params
   })
@@ -73,7 +67,7 @@ export function getTestRecordsPage(params) {
  */
 export function getTestRecordById(id) {
   return request({
-    url: `/characterTest/getTestRecord/${id}`,
+    url: `/mathTest/getTestRecord/${id}`,
     method: 'get'
   })
 }
@@ -84,7 +78,7 @@ export function getTestRecordById(id) {
  */
 export function deleteTestRecord(id) {
   return request({
-    url: `/characterTest/deleteTestRecord/${id}`,
+    url: `/mathTest/deleteTestRecord/${id}`,
     method: 'delete'
   })
 }
