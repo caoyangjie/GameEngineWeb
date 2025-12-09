@@ -92,7 +92,7 @@
 
         <div class="test-list">
           <div 
-            v-for="(test, index) in testList" 
+            v-for="(test, index) in displayedTestList" 
             :key="test.id"
             class="test-item"
           >
@@ -153,38 +153,26 @@
         </div>
 
         <!-- 分页 -->
-        <div v-if="total > 0" class="pagination-section">
-          <div class="pagination-info">
-            {{ t('characterTest.paginationInfo', { current: pageNum, total: totalPages, count: total }) }}
-          </div>
-          <div class="pagination-controls">
-            <button 
-              class="pagination-btn" 
-              :disabled="pageNum <= 1"
-              @click="goToPage(pageNum - 1)"
-            >
-              {{ t('characterTest.prevPage') }}
-            </button>
-            <div class="page-numbers">
-              <button
-                v-for="page in visiblePages"
-                :key="page"
-                class="page-number-btn"
-                :class="{ active: page === pageNum }"
-                @click="goToPage(page)"
-              >
-                {{ page }}
-              </button>
-            </div>
-            <button 
-              class="pagination-btn" 
-              :disabled="pageNum >= totalPages"
-              @click="goToPage(pageNum + 1)"
-            >
-              {{ t('characterTest.nextPage') }}
-            </button>
-          </div>
+        <div class="pagination">
+          <button
+            class="btn-page"
+            :disabled="pageNum <= 1"
+            @click="handlePageChange(pageNum - 1)"
+          >
+            {{ t('persona.list.prevPage') || '上一页' }}
+          </button>
+          <span class="page-info">
+            {{ t('persona.list.pageInfo', { current: pageNum, total: totalPages }) || `第 ${pageNum} 页，共 ${totalPages} 页` }}
+          </span>
+          <button
+            class="btn-page"
+            :disabled="pageNum >= totalPages"
+            @click="handlePageChange(pageNum + 1)"
+          >
+            {{ t('persona.list.nextPage') || '下一页' }}
+          </button>
         </div>
+
       </div>
 
       <!-- 设置页面 -->
@@ -477,6 +465,7 @@ const pageSize = ref(10)
 const total = ref(0)
 const totalPages = ref(0)
 const loading = ref(false)
+const useFrontendPagination = ref(false) // 当后端未提供分页数据时启用前端分页
 
 // 筛选条件
 const filters = reactive({
@@ -487,9 +476,38 @@ const filters = reactive({
   maxMasteryRate: null
 })
 
+const getTodayString = () => {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const formatDateString = (value) => {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const normalizeDateInput = (value) => {
+  if (!value) return ''
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const settings = reactive({
   studentName: '',
-  testDate: new Date().toISOString().split('T')[0],
+  testDate: getTodayString(),
   educationLevel: 'primary',
   grade: 'primary-1',
   testCount: 50,
@@ -575,28 +593,34 @@ const handleGoToDeposit = () => {
   router.goToDeposit()
 }
 
-// 计算可见页码
-const visiblePages = computed(() => {
-  const pages = []
-  const maxVisible = 5
-  let start = Math.max(1, pageNum.value - Math.floor(maxVisible / 2))
-  let end = Math.min(totalPages.value, start + maxVisible - 1)
-  
-  if (end - start < maxVisible - 1) {
-    start = Math.max(1, end - maxVisible + 1)
+const displayedTestList = computed(() => {
+  if (useFrontendPagination.value) {
+    const start = (pageNum.value - 1) * pageSize.value
+    return testList.value.slice(start, start + pageSize.value)
   }
-  
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
-  
-  return pages
+  return testList.value
 })
+
+const syncFrontendPagination = () => {
+  totalPages.value = total.value > 0 ? Math.max(1, Math.ceil(total.value / pageSize.value)) : 0
+  if (totalPages.value > 0 && pageNum.value > totalPages.value) {
+    pageNum.value = totalPages.value
+  }
+}
 
 // 加载测试列表（分页）
 const loadTestList = async () => {
   loading.value = true
   try {
+    const startDateStr = normalizeDateInput(filters.startDate)
+    const endDateStr = normalizeDateInput(filters.endDate)
+
+    if (startDateStr && endDateStr && startDateStr > endDateStr) {
+      await showError(t('characterTest.invalidDateRange') || '开始日期不能晚于结束日期')
+      loading.value = false
+      return
+    }
+
     const params = {
       pageNum: pageNum.value,
       pageSize: pageSize.value
@@ -606,11 +630,11 @@ const loadTestList = async () => {
     if (filters.studentName) {
       params.studentName = filters.studentName
     }
-    if (filters.startDate) {
-      params.startDate = filters.startDate
+    if (startDateStr) {
+      params.startDate = startDateStr
     }
-    if (filters.endDate) {
-      params.endDate = filters.endDate
+    if (endDateStr) {
+      params.endDate = endDateStr
     }
     if (filters.minMasteryRate !== null && filters.minMasteryRate !== '') {
       params.minMasteryRate = filters.minMasteryRate
@@ -624,10 +648,12 @@ const loadTestList = async () => {
       const data = response.data
       // 处理分页数据
       if (data.records) {
+        useFrontendPagination.value = false
+        const recordList = Array.isArray(data.records) ? data.records : []
         testList.value = data.records.map(record => ({
           id: record.id,
           studentName: record.studentName,
-          testDate: record.testDate ? new Date(record.testDate).toISOString().split('T')[0] : '',
+          testDate: formatDateString(record.testDate),
           educationLevel: record.educationLevel,
           testCount: record.testCount,
           showPinyin: record.showPinyin || false,
@@ -640,14 +666,20 @@ const loadTestList = async () => {
           createdAt: record.createTime,
           updatedAt: record.updateTime
         }))
-        total.value = data.total || 0
-        totalPages.value = data.pages || Math.ceil(total.value / pageSize.value)
-      } else {
+        total.value = data.total ?? recordList.length ?? 0
+        pageNum.value = data.current || pageNum.value
+        pageSize.value = data.size || pageSize.value
+        const pageCount = data.pages ?? null
+        totalPages.value = pageCount && pageCount > 0
+          ? pageCount
+          : (total.value > 0 ? Math.max(1, Math.ceil(total.value / pageSize.value)) : 0)
+      } else if (Array.isArray(data)) {
         // 兼容旧格式（无分页）
-        testList.value = Array.isArray(data) ? data.map(record => ({
+        useFrontendPagination.value = true
+        testList.value = data.map(record => ({
           id: record.id,
           studentName: record.studentName,
-          testDate: record.testDate ? new Date(record.testDate).toISOString().split('T')[0] : '',
+          testDate: formatDateString(record.testDate),
           educationLevel: record.educationLevel,
           testCount: record.testCount,
           showPinyin: record.showPinyin || false,
@@ -659,21 +691,29 @@ const loadTestList = async () => {
           masteryRate: record.masteryRate || 0,
           createdAt: record.createTime,
           updatedAt: record.updateTime
-        })) : []
+        }))
         total.value = testList.value.length
-        totalPages.value = 1
+        syncFrontendPagination()
+      } else {
+        useFrontendPagination.value = true
+        testList.value = []
+        total.value = 0
+        totalPages.value = 0
       }
     } else {
+      useFrontendPagination.value = false
       testList.value = []
       total.value = 0
       totalPages.value = 0
     }
   } catch (error) {
     console.error('加载测试列表失败:', error)
+  useFrontendPagination.value = false
     // 如果分页API失败，尝试使用旧API
     try {
       const response = await getAllTestRecords()
       if (response.code === 200 && response.data) {
+        useFrontendPagination.value = true
         testList.value = response.data.map(record => ({
           id: record.id,
           studentName: record.studentName,
@@ -691,14 +731,16 @@ const loadTestList = async () => {
           updatedAt: record.updateTime
         }))
         total.value = testList.value.length
-        totalPages.value = 1
+        syncFrontendPagination()
       } else {
+        useFrontendPagination.value = false
         testList.value = []
         total.value = 0
         totalPages.value = 0
       }
     } catch (fallbackError) {
       console.error('使用旧API也失败:', fallbackError)
+      useFrontendPagination.value = false
       testList.value = []
       total.value = 0
       totalPages.value = 0
@@ -729,10 +771,18 @@ const resetFilters = () => {
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     pageNum.value = page
-    loadTestList()
-    // 滚动到顶部
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (useFrontendPagination.value) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      loadTestList()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
+}
+
+// 分页切换（与 Persona 列表保持一致）
+const handlePageChange = (page) => {
+  goToPage(page)
 }
 
 // 显示设置页面
@@ -740,7 +790,7 @@ const showSettings = () => {
   currentView.value = 'settings'
   // 重置设置
   settings.studentName = ''
-  settings.testDate = new Date().toISOString().split('T')[0]
+  settings.testDate = getTodayString()
   settings.educationLevel = 'primary'
   settings.grade = 'primary-1'
   settings.testCount = 50
@@ -847,7 +897,7 @@ const saveTest = async () => {
       await showSuccess(t('characterTest.saveSuccess'))
       clearCountdown()
       await loadTestList() // 重新加载列表
-      // 不自动返回，让用户选择
+      backToList() // 保存后返回列表
     } else {
       await showError(response.msg || '保存失败')
     }
@@ -861,7 +911,7 @@ const saveTest = async () => {
 const loadTest = (test, readOnly = false) => {
   currentTestId.value = test.id
   settings.studentName = test.studentName
-  settings.testDate = test.testDate
+  settings.testDate = formatDateString(test.testDate)
   settings.educationLevel = test.educationLevel
   const existingGrade = (test.characters || []).find(item => item.grade)?.grade
   settings.grade = test.grade || existingGrade || (test.educationLevel === 'primary' ? 'primary-1' : '')
@@ -1061,7 +1111,11 @@ const countdownDisplay = computed(() => {
 const handleTimeUp = async () => {
   if (isReadOnly.value || currentView.value !== 'test') return
   await showError(t('characterTest.timeIsUp') || '时间到，已自动提交')
-  await saveTest()
+  try {
+    await saveTest()
+  } finally {
+    backToList() // 确保回到列表，即使保存失败
+  }
 }
 
 // 监听测试字符变化，自动保存（可选）
@@ -1465,8 +1519,9 @@ onUnmounted(() => {
 
 .filter-actions {
   display: flex;
+  width: 100%;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: stretch;
 }
 
 .filter-btn {
@@ -1476,6 +1531,7 @@ onUnmounted(() => {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
+  flex: 1;
 }
 
 .search-btn {
@@ -1525,8 +1581,8 @@ onUnmounted(() => {
 }
 
 .test-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 15px;
   max-height: 70vh;
   overflow-y: auto;
@@ -2037,6 +2093,15 @@ onUnmounted(() => {
   align-items: center;
 }
 
+.page-size-select {
+  padding: 8px 12px;
+  background: rgba(50, 50, 50, 0.6);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
 .pagination-btn {
   padding: 8px 16px;
   background: rgba(255, 215, 0, 0.2);
@@ -2055,6 +2120,40 @@ onUnmounted(() => {
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 与 Persona 列表统一的分页按钮样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-page {
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .page-numbers {
@@ -2122,6 +2221,10 @@ onUnmounted(() => {
 
   .filter-field {
     min-width: 100%;
+  }
+
+  .test-list {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 
   .test-item-statistics {

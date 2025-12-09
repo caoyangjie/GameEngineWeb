@@ -8,6 +8,9 @@ export const menuConfig = {
   // 任务日志
   showTaskLog: false,
   
+  // 专注力训练（包含父级和子级菜单）
+  showAttentionTraining: true,
+  
   // 旅程详情（包括一级菜单和二级菜单）
   showJourneyDetails: false,
   

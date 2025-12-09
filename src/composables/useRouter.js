@@ -63,7 +63,16 @@ export const ROUTES = {
   BESTPAY_REFUND: 'bestpay-refund',
   BESTPAY_REVERSE: 'bestpay-reverse',
   CHARACTER_TEST: 'character-test',
-  MATH_TEST: 'math-test'
+  MATH_TEST: 'math-test',
+  // 专注力训练
+  ATTENTION_TRAINING: 'attention-training',
+  ATTENTION_DIGIT_INTRO: 'attention-digit-intro',
+  ATTENTION_LETTER_REINFORCE: 'attention-letter-reinforce',
+  ATTENTION_IDIOM_ADVANCED: 'attention-idiom-advanced',
+  ATTENTION_POETRY_CHALLENGE: 'attention-poetry-challenge',
+  ATTENTION_SUDOKU: 'attention-sudoku',
+  ATTENTION_NUMBER_SLIDER: 'attention-number-slider',
+  ATTENTION_PHOTO_MEMORY: 'attention-photo-memory'
 }
 
 // 不需要登录的路由
@@ -277,6 +286,31 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToMathTest() {
       this.navigate(ROUTES.MATH_TEST)
+    },
+    // 专注力训练
+    goToAttentionTraining() {
+      this.navigate(ROUTES.ATTENTION_TRAINING)
+    },
+    goToAttentionDigitIntro() {
+      this.navigate(ROUTES.ATTENTION_DIGIT_INTRO)
+    },
+    goToAttentionLetterReinforce() {
+      this.navigate(ROUTES.ATTENTION_LETTER_REINFORCE)
+    },
+    goToAttentionIdiomAdvanced() {
+      this.navigate(ROUTES.ATTENTION_IDIOM_ADVANCED)
+    },
+    goToAttentionPoetryChallenge() {
+      this.navigate(ROUTES.ATTENTION_POETRY_CHALLENGE)
+    },
+    goToAttentionSudoku() {
+      this.navigate(ROUTES.ATTENTION_SUDOKU)
+    },
+    goToAttentionNumberSlider() {
+      this.navigate(ROUTES.ATTENTION_NUMBER_SLIDER)
+    },
+    goToAttentionPhotoMemory() {
+      this.navigate(ROUTES.ATTENTION_PHOTO_MEMORY)
     },
     
     // 登出（跳转到登录页）

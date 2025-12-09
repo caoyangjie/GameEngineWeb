@@ -272,6 +272,82 @@
           <span class="sidebar-icon">🔢</span>
           <span class="sidebar-text">数学测试</span>
         </div>
+        <div
+          v-if="menuConfig.showAttentionTraining"
+          class="sidebar-item"
+          :class="{ active: attentionActive }"
+          @click="toggleAttentionSubmenu"
+        >
+          <span class="sidebar-icon">🎯</span>
+          <span class="sidebar-text">专注力训练</span>
+          <span class="sidebar-arrow" :class="{ rotated: showAttentionSubmenu }">→</span>
+        </div>
+        <div v-if="menuConfig.showAttentionTraining && showAttentionSubmenu" class="submenu">
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_TRAINING }"
+            @click="handleNavigate(ROUTES.ATTENTION_TRAINING)"
+          >
+            <span class="submenu-icon">📑</span>
+            <span class="submenu-text">训练概览</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_DIGIT_INTRO }"
+            @click="handleNavigate(ROUTES.ATTENTION_DIGIT_INTRO)"
+          >
+            <span class="submenu-icon">🔢</span>
+            <span class="submenu-text">数字入门</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_LETTER_REINFORCE }"
+            @click="handleNavigate(ROUTES.ATTENTION_LETTER_REINFORCE)"
+          >
+            <span class="submenu-icon">🔠</span>
+            <span class="submenu-text">字母巩固</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_IDIOM_ADVANCED }"
+            @click="handleNavigate(ROUTES.ATTENTION_IDIOM_ADVANCED)"
+          >
+            <span class="submenu-icon">📜</span>
+            <span class="submenu-text">成语进阶</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_POETRY_CHALLENGE }"
+            @click="handleNavigate(ROUTES.ATTENTION_POETRY_CHALLENGE)"
+          >
+            <span class="submenu-icon">🖋️</span>
+            <span class="submenu-text">诗词挑战</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_SUDOKU }"
+            @click="handleNavigate(ROUTES.ATTENTION_SUDOKU)"
+          >
+            <span class="submenu-icon">🧩</span>
+            <span class="submenu-text">数独</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_NUMBER_SLIDER }"
+            @click="handleNavigate(ROUTES.ATTENTION_NUMBER_SLIDER)"
+          >
+            <span class="submenu-icon">🎛️</span>
+            <span class="submenu-text">数字华容道</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.ATTENTION_PHOTO_MEMORY }"
+            @click="handleNavigate(ROUTES.ATTENTION_PHOTO_MEMORY)"
+          >
+            <span class="submenu-icon">📸</span>
+            <span class="submenu-text">照相记忆</span>
+          </div>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -285,7 +361,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
 import { menuConfig } from '../../config/menu.js'
@@ -312,6 +388,20 @@ const showVaultSubmenu = ref(false)
 const showVaultHistorySubmenu = ref(false)
 const showIncomeHistorySubmenu = ref(false)
 const showMonthlyReportSubmenu = ref(false)
+const showAttentionSubmenu = ref(false)
+
+const attentionRoutes = [
+  ROUTES.ATTENTION_TRAINING,
+  ROUTES.ATTENTION_DIGIT_INTRO,
+  ROUTES.ATTENTION_LETTER_REINFORCE,
+  ROUTES.ATTENTION_IDIOM_ADVANCED,
+  ROUTES.ATTENTION_POETRY_CHALLENGE,
+  ROUTES.ATTENTION_SUDOKU,
+  ROUTES.ATTENTION_NUMBER_SLIDER,
+  ROUTES.ATTENTION_PHOTO_MEMORY
+]
+
+const attentionActive = computed(() => attentionRoutes.includes(props.activeRoute))
 
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
@@ -333,6 +423,9 @@ watch(() => props.activeRoute, (newRoute) => {
   }
   if (newRoute === ROUTES.MONTHLY_REPORT_START || newRoute === ROUTES.MONTHLY_REPORT_END) {
     showMonthlyReportSubmenu.value = true
+  }
+  if (attentionRoutes.includes(newRoute)) {
+    showAttentionSubmenu.value = true
   }
 }, { immediate: true })
 
@@ -356,6 +449,10 @@ const toggleMonthlyReportSubmenu = () => {
   showMonthlyReportSubmenu.value = !showMonthlyReportSubmenu.value
 }
 
+const toggleAttentionSubmenu = () => {
+  showAttentionSubmenu.value = !showAttentionSubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
@@ -375,6 +472,9 @@ const handleNavigate = (route) => {
   }
   if (route === ROUTES.MONTHLY_REPORT_START || route === ROUTES.MONTHLY_REPORT_END) {
     showMonthlyReportSubmenu.value = false
+  }
+  if (attentionRoutes.includes(route)) {
+    showAttentionSubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -472,6 +572,22 @@ const handleNavigate = (route) => {
     router.goToCharacterTest()
   } else if (route === ROUTES.MATH_TEST) {
     router.goToMathTest()
+  } else if (route === ROUTES.ATTENTION_TRAINING) {
+    router.goToAttentionTraining()
+  } else if (route === ROUTES.ATTENTION_DIGIT_INTRO) {
+    router.goToAttentionDigitIntro()
+  } else if (route === ROUTES.ATTENTION_LETTER_REINFORCE) {
+    router.goToAttentionLetterReinforce()
+  } else if (route === ROUTES.ATTENTION_IDIOM_ADVANCED) {
+    router.goToAttentionIdiomAdvanced()
+  } else if (route === ROUTES.ATTENTION_POETRY_CHALLENGE) {
+    router.goToAttentionPoetryChallenge()
+  } else if (route === ROUTES.ATTENTION_SUDOKU) {
+    router.goToAttentionSudoku()
+  } else if (route === ROUTES.ATTENTION_NUMBER_SLIDER) {
+    router.goToAttentionNumberSlider()
+  } else if (route === ROUTES.ATTENTION_PHOTO_MEMORY) {
+    router.goToAttentionPhotoMemory()
   }
   
   // 通知父组件关闭侧边栏

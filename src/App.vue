@@ -57,6 +57,14 @@
     <BestpayReversePage v-if="router.currentRoute.value === ROUTES.BESTPAY_REVERSE" />
     <CharacterTestPage v-if="router.currentRoute.value === ROUTES.CHARACTER_TEST" />
     <MathTestPage v-if="router.currentRoute.value === ROUTES.MATH_TEST" />
+    <AttentionTrainingHubPage v-if="router.currentRoute.value === ROUTES.ATTENTION_TRAINING" />
+    <DigitIntroPage v-if="router.currentRoute.value === ROUTES.ATTENTION_DIGIT_INTRO" />
+    <LetterReinforcePage v-if="router.currentRoute.value === ROUTES.ATTENTION_LETTER_REINFORCE" />
+    <IdiomAdvancedPage v-if="router.currentRoute.value === ROUTES.ATTENTION_IDIOM_ADVANCED" />
+    <PoetryChallengePage v-if="router.currentRoute.value === ROUTES.ATTENTION_POETRY_CHALLENGE" />
+    <SudokuPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SUDOKU" />
+    <NumberSliderPage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_SLIDER" />
+    <PhotoMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PHOTO_MEMORY" />
   </div>
 </template>
 
@@ -119,6 +127,14 @@ import BestpayRefundPage from './components/payment/BestpayRefundPage.vue'
 import BestpayReversePage from './components/payment/BestpayReversePage.vue'
 import CharacterTestPage from './components/characterTest/CharacterTestPage.vue'
 import MathTestPage from './components/mathTest/MathTestPage.vue'
+import AttentionTrainingHubPage from './components/attentionTraining/AttentionTrainingHubPage.vue'
+import DigitIntroPage from './components/attentionTraining/DigitIntroPage.vue'
+import LetterReinforcePage from './components/attentionTraining/LetterReinforcePage.vue'
+import IdiomAdvancedPage from './components/attentionTraining/IdiomAdvancedPage.vue'
+import PoetryChallengePage from './components/attentionTraining/PoetryChallengePage.vue'
+import SudokuPage from './components/attentionTraining/SudokuPage.vue'
+import NumberSliderPage from './components/attentionTraining/NumberSliderPage.vue'
+import PhotoMemoryPage from './components/attentionTraining/PhotoMemoryPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 
