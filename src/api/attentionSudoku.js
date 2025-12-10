@@ -31,3 +31,16 @@ export function saveSudokuRecord(record) {
   })
 }
 
+/**
+ * 校验数独查看答案验证码
+ * @param {string} code 验证码内容
+ * @param {string} uuid 验证码唯一标识
+ */
+export function verifySudokuCaptcha(code, uuid) {
+  return request({
+    url: '/attention/sudoku/verifyCaptcha',
+    method: 'post',
+    data: { code, uuid }
+  })
+}
+

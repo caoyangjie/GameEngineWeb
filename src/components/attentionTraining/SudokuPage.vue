@@ -103,7 +103,34 @@
               <div class="label">已填数量</div>
               <div class="next-number">{{ filledCount }} / {{ totalCells }}</div>
             </div>
+            <div class="control-item">
+              <label for="practice-count">练字帖份数</label>
+              <input
+                id="practice-count"
+                v-model.number="practiceCount"
+                type="number"
+                min="1"
+                max="10"
+                @change="normalizePracticeCount"
+                :disabled="isExportingPdf"
+              />
+              <span class="hint">1-10 份，默认 5 份</span>
+            </div>
             <div class="control-actions">
+              <button
+                class="ghost"
+                @click="openCaptchaDialog"
+                :disabled="!hasSolution || isCaptchaLoading"
+              >
+                查看正确答案
+              </button>
+              <button
+                class="ghost"
+                @click="exportPracticePdf"
+                :disabled="isExportingPdf"
+              >
+                {{ isExportingPdf ? '导出中...' : '导出练字帖PDF' }}
+              </button>
               <button class="ghost" @click="resetGame">重置</button>
             </div>
           </section>
@@ -133,6 +160,7 @@
                   :key="index"
                   class="sudoku-cell"
                   :class="getCellClass(cell, index)"
+                  :style="getCellStyle(cell)"
                   @click="handleCellClick(index)"
                 >
                   <!-- 固定数字显示 -->
@@ -207,6 +235,58 @@
       :active-route="ROUTES.ATTENTION_SUDOKU"
       @close="handleSidebarClose"
     />
+
+    <div v-if="captchaDialogVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>输入验证码查看答案</h3>
+        <p class="modal-desc">从后台获取验证码，验证后展示当前数独的正确答案。</p>
+        <div class="captcha-row">
+          <input
+            v-model.trim="captchaCode"
+            type="text"
+            placeholder="请输入验证码"
+            :disabled="isCaptchaLoading"
+          />
+          <div class="captcha-img-wrapper" @click="refreshCaptcha">
+            <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
+            <div v-else class="captcha-placeholder">
+              {{ isCaptchaLoading ? '加载中...' : '点击刷新' }}
+            </div>
+          </div>
+          <button class="ghost" @click="refreshCaptcha" :disabled="isCaptchaLoading">
+            {{ isCaptchaLoading ? '加载中...' : '换一张' }}
+          </button>
+        </div>
+        <div v-if="captchaError" class="error-text">{{ captchaError }}</div>
+        <div class="modal-actions">
+          <button class="ghost" @click="captchaDialogVisible = false">取消</button>
+          <button
+            class="primary"
+            @click="verifyCaptchaAndShow"
+            :disabled="isCaptchaVerifying || isCaptchaLoading"
+          >
+            {{ isCaptchaVerifying ? '校验中...' : '确认查看' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="solutionDialogVisible" class="modal-overlay">
+      <div class="modal wide">
+        <div class="modal-header">
+          <h3>数独答案</h3>
+          <button class="ghost" @click="closeSolutionDialog">关闭</button>
+        </div>
+        <div
+          class="solution-grid"
+          :style="{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }"
+        >
+          <div v-for="(cell, idx) in solutionFlat" :key="idx" class="solution-cell">
+            {{ cell }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -214,10 +294,12 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { getUserInfo } from '../../utils/auth.js'
-import { getSudokuTopRecords, saveSudokuRecord } from '../../api/attentionSudoku.js'
+import { getSudokuTopRecords, saveSudokuRecord, verifySudokuCaptcha } from '../../api/attentionSudoku.js'
+import { getCaptchaImage } from '../../api/auth.js'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { makepuzzle, solvepuzzle, ratepuzzle } from 'sudoku'
+import html2pdf from 'html2pdf.js'
 
 const router = useRouter()
 const gridSize = ref(9)
@@ -236,6 +318,16 @@ const topRecords = ref([])
 const sidebarOpen = ref(false)
 const selectedCellIndex = ref(null)
 const inputMode = ref('number') // 'number' 或 'candidate' - 数字模式或候选值模式
+const practiceCount = ref(5)
+const isExportingPdf = ref(false)
+const captchaDialogVisible = ref(false)
+const solutionDialogVisible = ref(false)
+const captchaImage = ref('')
+const captchaUuid = ref('')
+const captchaCode = ref('')
+const isCaptchaLoading = ref(false)
+const isCaptchaVerifying = ref(false)
+const captchaError = ref('')
 
 const userInfo = getUserInfo()
 const username = computed(() => userInfo?.username || userInfo?.nickName || 'guest')
@@ -267,6 +359,28 @@ const difficultyText = computed(() => {
   const map = { easy: '简单', medium: '中等', hard: '复杂' }
   return map[difficulty.value] || difficulty.value
 })
+const hasSolution = computed(() => {
+  if (!Array.isArray(solution.value) || !solution.value.length) return false
+  const first = solution.value[0]
+  if (Array.isArray(first)) {
+    return first.length > 0
+  }
+  return true
+})
+const solutionGridForView = computed(() => {
+  if (!hasSolution.value) return []
+  // solution.value 可能是二维数组，也可能是一维展平
+  if (Array.isArray(solution.value[0])) {
+    return solution.value
+  }
+  const size = gridSize.value
+  const result = []
+  for (let i = 0; i < solution.value.length; i += size) {
+    result.push(solution.value.slice(i, i + size))
+  }
+  return result
+})
+const solutionFlat = computed(() => solutionGridForView.value.flat())
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -833,6 +947,8 @@ const resetGame = () => {
   timer.elapsedMs = 0
   selectedCellIndex.value = null
   inputMode.value = 'number' // 重置为数字模式
+  captchaDialogVisible.value = false
+  solutionDialogVisible.value = false
   generateSudoku()
 }
 
@@ -959,7 +1075,35 @@ const getCellClass = (cell, index) => {
   if (cell.hasError) classes.push('error')
   if (selectedCellIndex.value === index) classes.push('selected')
   if (cell.value && !cell.isFixed && !cell.hasError) classes.push('filled')
+  const boxIdx = getBoxIndex(cell.row, cell.col)
+  classes.push(boxIdx % 2 === 0 ? 'box-even' : 'box-odd')
   return classes
+}
+
+const getBoxIndex = (row, col) => {
+  const size = gridSize.value
+  if (size === 6) {
+    const boxRow = Math.floor(row / 2)
+    const boxCol = Math.floor(col / 3)
+    return boxRow * 3 + boxCol
+  }
+  const boxSizeVal = Math.sqrt(size)
+  const boxRow = Math.floor(row / boxSizeVal)
+  const boxCol = Math.floor(col / boxSizeVal)
+  return boxRow * boxSizeVal + boxCol
+}
+
+const getCellStyle = (cell) => {
+  const styles = {}
+  const size = gridSize.value
+  const box = size === 6 ? { rows: 2, cols: 3 } : { rows: Math.sqrt(size), cols: Math.sqrt(size) }
+
+  if (cell.col % box.cols === 0) styles.borderLeft = '2px solid rgba(255, 215, 0, 0.35)'
+  if ((cell.col + 1) % box.cols === 0) styles.borderRight = '2px solid rgba(255, 215, 0, 0.35)'
+  if (cell.row % box.rows === 0) styles.borderTop = '2px solid rgba(255, 215, 0, 0.35)'
+  if ((cell.row + 1) % box.rows === 0) styles.borderBottom = '2px solid rgba(255, 215, 0, 0.35)'
+
+  return styles
 }
 
 const finalizeGame = async () => {
@@ -1005,6 +1149,248 @@ const fetchLeaderboard = async () => {
 const getDifficultyText = (diff) => {
   const map = { easy: '简单', medium: '中等', hard: '复杂' }
   return map[diff] || diff
+}
+
+const normalizePracticeCount = () => {
+  if (!practiceCount.value || Number.isNaN(practiceCount.value)) {
+    practiceCount.value = 5
+  }
+  practiceCount.value = Math.min(20, Math.max(1, Math.floor(practiceCount.value)))
+}
+
+const openCaptchaDialog = async () => {
+  if (!hasSolution.value) {
+    alert('请先生成数独题目')
+    return
+  }
+  captchaCode.value = ''
+  captchaError.value = ''
+  captchaDialogVisible.value = true
+  await loadCaptcha()
+}
+
+const loadCaptcha = async () => {
+  isCaptchaLoading.value = true
+  captchaError.value = ''
+  try {
+    const res = await getCaptchaImage()
+    const data = res?.data || res
+    const img = data?.img || data?.imgBase64 || ''
+    captchaImage.value = img?.startsWith('data:') ? img : (img ? `data:image/png;base64,${img}` : '')
+    captchaUuid.value = data?.uuid || ''
+  } catch (error) {
+    captchaError.value = error?.message || '验证码获取失败，请稍后重试'
+    captchaImage.value = ''
+    captchaUuid.value = ''
+  } finally {
+    isCaptchaLoading.value = false
+  }
+}
+
+const refreshCaptcha = () => loadCaptcha()
+
+const verifyCaptchaAndShow = async () => {
+  captchaError.value = ''
+  if (!captchaCode.value) {
+    captchaError.value = '请输入验证码'
+    return
+  }
+  isCaptchaVerifying.value = true
+  try {
+    await verifySudokuCaptcha(captchaCode.value, captchaUuid.value)
+    if (!hasSolution.value) {
+      captchaError.value = '未获取到当前题目的答案，请重新生成题目'
+      return
+    }
+    captchaDialogVisible.value = false
+    solutionDialogVisible.value = true
+  } catch (error) {
+    captchaError.value = error?.message || '验证码错误，请重试'
+    await loadCaptcha()
+  } finally {
+    isCaptchaVerifying.value = false
+  }
+}
+
+const closeSolutionDialog = () => {
+  solutionDialogVisible.value = false
+}
+
+const generateSudokuPair = (size, difficultyLevel) => {
+  const validSizes = [4, 6, 9]
+  if (!validSizes.includes(size)) {
+    throw new Error('数独尺寸必须是 4、6 或 9')
+  }
+
+  if (size === 9) {
+    const { puzzle, solution: sol } = generateSudokuWithLibrary(difficultyLevel)
+    return {
+      puzzle: puzzle.map(row => [...row]),
+      solution: sol.map(row => [...row])
+    }
+  }
+
+  const actualBoxSize = size === 4 ? 2 : size === 6 ? 2 : 3
+  const sol = generateCompleteSolution(size, actualBoxSize)
+  const puzzle = removeNumbersWithUniqueSolution(sol, difficultyLevel, size, actualBoxSize)
+  return { puzzle, solution: sol }
+}
+
+// 封装带重试的生成，避免单次生成失败导致题/答案数量不一致
+const generateSudokuPairSafe = (size, difficultyLevel, maxRetry = 3) => {
+  let lastErr = null
+  for (let i = 0; i <= maxRetry; i++) {
+    try {
+      return generateSudokuPair(size, difficultyLevel)
+    } catch (err) {
+      lastErr = err
+      console.warn(`生成数独失败，第 ${i + 1} 次重试`, err)
+    }
+  }
+  throw lastErr || new Error('生成数独失败')
+}
+
+const createSudokuTable = (grid, showAnswers = false) => {
+  const table = document.createElement('table')
+  table.style.borderCollapse = 'collapse'
+  table.style.width = '100%'
+  table.style.tableLayout = 'fixed'
+  table.style.marginBottom = '8px'
+  table.style.pageBreakInside = 'avoid'
+
+  grid.forEach(row => {
+    const tr = document.createElement('tr')
+    row.forEach(cell => {
+      const td = document.createElement('td')
+      td.style.border = '1px solid #aaa'
+      td.style.height = '26px'
+      td.style.textAlign = 'center'
+      td.style.fontSize = '14px'
+      td.style.padding = '4px'
+      td.textContent = showAnswers ? cell : (cell ?? '')
+      tr.appendChild(td)
+    })
+    table.appendChild(tr)
+  })
+
+  return table
+}
+
+const appendSudokuBlock = (parent, title, grid, showAnswers = false) => {
+  const block = document.createElement('div')
+  block.style.marginBottom = '14px'
+
+  const heading = document.createElement('div')
+  heading.textContent = `${title}（${showAnswers ? '答案' : '练习题'}）`
+  heading.style.fontWeight = '700'
+  heading.style.marginBottom = '6px'
+  block.appendChild(heading)
+
+  block.appendChild(createSudokuTable(grid, showAnswers))
+  parent.appendChild(block)
+}
+
+const exportPracticePdf = async () => {
+  normalizePracticeCount()
+  isExportingPdf.value = true
+  let wrapper = null
+  try {
+    const count = practiceCount.value
+    const pairs = []
+    // 为避免生成失败导致数量不匹配，带重试补足目标数量
+    let attempts = 0
+    const maxAttempts = count * 3
+    while (pairs.length < count && attempts < maxAttempts) {
+      try {
+        pairs.push(generateSudokuPairSafe(gridSize.value, difficulty.value, 2))
+      } catch (err) {
+        console.warn('单份生成失败，继续尝试填满目标份数', err)
+      }
+      attempts++
+    }
+    if (pairs.length < count) {
+      throw new Error(`仅生成 ${pairs.length} 份，未达到设定的 ${count} 份，请重试`)
+    }
+
+    const exportContainer = document.createElement('div')
+    exportContainer.style.width = '794px'
+    exportContainer.style.padding = '16px'
+    exportContainer.style.background = '#ffffff'
+    exportContainer.style.color = '#000'
+    exportContainer.style.fontFamily = 'Arial, sans-serif'
+
+    const title = document.createElement('h2')
+    title.textContent = `数独练字帖（${gridSize.value}×${gridSize.value}，${difficultyText.value}，共 ${count} 份）`
+    title.style.margin = '0 0 12px'
+    exportContainer.appendChild(title)
+
+    const info = document.createElement('div')
+    info.textContent = `生成时间：${new Date().toLocaleString()}`
+    info.style.marginBottom = '12px'
+    info.style.fontSize = '13px'
+    info.style.color = '#555'
+    exportContainer.appendChild(info)
+
+    const puzzleSection = document.createElement('div')
+    const puzzleHeader = document.createElement('h3')
+    puzzleHeader.textContent = '练习题'
+    puzzleHeader.style.margin = '8px 0'
+    puzzleSection.appendChild(puzzleHeader)
+    pairs.forEach((pair, idx) => appendSudokuBlock(puzzleSection, `第 ${idx + 1} 套`, pair.puzzle, false))
+    exportContainer.appendChild(puzzleSection)
+
+    const answerSection = document.createElement('div')
+    const answerHeader = document.createElement('h3')
+    answerHeader.textContent = '参考答案'
+    answerHeader.style.margin = '8px 0'
+    answerSection.appendChild(answerHeader)
+    pairs.forEach((pair, idx) => appendSudokuBlock(answerSection, `第 ${idx + 1} 套`, pair.solution, true))
+    pairs.forEach((pair, idx) => appendSudokuBlock(answerSection, `第 ${idx + 1} 套`, pair.solution, true))
+    exportContainer.appendChild(answerSection)
+
+
+
+    wrapper = document.createElement('div')
+    wrapper.style.position = 'fixed'
+    wrapper.style.left = '0'
+    wrapper.style.top = '0'
+    wrapper.style.opacity = '0'
+    wrapper.style.pointerEvents = 'none'
+    wrapper.style.zIndex = '-1'
+    wrapper.style.visibility = 'visible'
+    wrapper.appendChild(exportContainer)
+    document.body.appendChild(wrapper)
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `数独练字帖_${gridSize.value}x${gridSize.value}_${count}份.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: exportContainer.scrollWidth || 794,
+        height: exportContainer.scrollHeight || 1123,
+        windowWidth: exportContainer.scrollWidth || 794
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    }
+
+    await html2pdf().set(opt).from(exportContainer).save()
+  } catch (error) {
+    console.error('导出PDF失败:', error)
+    alert('导出PDF失败：' + (error?.message || '未知错误'))
+  } finally {
+    if (wrapper && wrapper.parentNode) {
+      wrapper.parentNode.removeChild(wrapper)
+    }
+    isExportingPdf.value = false
+  }
 }
 
 const goBack = () => {
@@ -1299,7 +1685,7 @@ onMounted(() => {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 1fr repeat(3, 1fr) 1.2fr;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   align-items: center;
   background: linear-gradient(
@@ -1506,6 +1892,14 @@ button:hover:not(:disabled) {
   cursor: pointer;
 }
 
+.sudoku-cell.box-even {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sudoku-cell.box-odd {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .sudoku-cell.fixed {
   background: rgba(255, 215, 0, 0.1);
   border-color: rgba(255, 215, 0, 0.3);
@@ -1702,6 +2096,116 @@ button:hover:not(:disabled) {
 .tips .secondary {
   color: #8aa0c2;
   margin-top: 4px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 16px;
+}
+
+.modal {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px;
+  width: 480px;
+  color: #f7f7f7;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.modal.wide {
+  width: 680px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-desc {
+  color: #8aa0c2;
+  font-size: 13px;
+  margin: 4px 0 12px;
+}
+
+.captcha-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.captcha-row input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f7f7f7;
+}
+
+.captcha-img-wrapper {
+  width: 120px;
+  height: 42px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.captcha-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.captcha-placeholder {
+  color: #c5c5c5;
+  font-size: 13px;
+}
+
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.solution-grid {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.solution-cell {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.4);
+  color: #1dd1a1;
 }
 
 @media (max-width: 960px) {
