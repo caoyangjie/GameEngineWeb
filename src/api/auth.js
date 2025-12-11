@@ -31,6 +31,17 @@ export function getUserInfo() {
 }
 
 /**
+ * 获取第三方登录授权地址
+ * @param {string} provider 第三方平台标识（wechat/qq/feishu/dingtalk）
+ */
+export function getSocialAuthorizeUrl(provider) {
+  return request({
+    url: `/oauth/authorize/${provider}`,
+    method: 'get'
+  })
+}
+
+/**
  * 获取验证码
  */
 export function getCaptchaImage() {

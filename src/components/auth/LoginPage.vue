@@ -182,6 +182,27 @@
           {{ isLoading ? (t('login.logging') || '登录中...') : t('login.login') }}
         </button>
 
+        <!-- 第三方登录 -->
+        <div class="social-login">
+          <div class="social-title">{{ t('login.socialLogin') || '使用第三方账号登录' }}</div>
+          <div class="social-buttons">
+            <button
+              v-for="item in socialProviders"
+              :key="item.key"
+              type="button"
+              class="social-button"
+              :class="item.key"
+              :disabled="isLoading || socialLoading"
+              @click="startSocialLogin(item.key)"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+          <div v-if="socialError" class="error-message">
+            {{ socialError }}
+          </div>
+        </div>
+
         <!-- 注册链接 -->
         <div class="register-link">
           <a href="#" @click.prevent="goToRegister" class="register-text">{{ t('login.noAccount') }}</a>
@@ -201,7 +222,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from '../../composables/useRouter.js'
 import { useI18n } from 'vue-i18n'
-import { login, getCaptchaImage } from '../../api/auth.js'
+import { login, getCaptchaImage, getSocialAuthorizeUrl } from '../../api/auth.js'
 import { setToken, setUserInfo } from '../../utils/auth.js'
 
 const { locale, t } = useI18n()
@@ -216,6 +237,16 @@ const currentLocale = computed(() => locale.value)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const isCaptchaLoading = ref(false)
+const socialLoading = ref(false)
+const socialError = ref('')
+const popupWindow = ref(null)
+
+const socialProviders = [
+  { key: 'wechat', label: '微信' },
+  { key: 'qq', label: 'QQ' },
+  { key: 'feishu', label: '飞书' },
+  { key: 'dingtalk', label: '钉钉' }
+]
 
 // 语言列表
 const languages = [
@@ -254,17 +285,19 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('message', handleSocialMessage)
   // 加载验证码
   loadCaptcha()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('message', handleSocialMessage)
 })
 
 const formData = reactive({
-  email: 'admin@qq.com',
-  password: '123456',
+  email: '',
+  password: '',
   verificationCode: ''
 })
 
@@ -297,6 +330,54 @@ const loadCaptcha = async () => {
 // 刷新验证码
 const refreshVerificationCode = () => {
   loadCaptcha()
+}
+
+const startSocialLogin = async (provider) => {
+  socialError.value = ''
+  errorMessage.value = ''
+  socialLoading.value = true
+  try {
+    const response = await getSocialAuthorizeUrl(provider)
+    if (response.code === 200 && response.data?.authorizeUrl) {
+      const popupFeatures = 'width=520,height=720,menubar=no,toolbar=no,location=no,status=no'
+      popupWindow.value = window.open(response.data.authorizeUrl, `${provider}-login`, popupFeatures) || null
+      if (!popupWindow.value) {
+        socialError.value = t('login.enablePopup') || '请允许浏览器弹出窗口以完成登录'
+      }
+    } else {
+      socialError.value = response.msg || t('login.failed') || '获取授权地址失败'
+    }
+  } catch (error) {
+    socialError.value = error.message || '获取授权地址失败'
+  } finally {
+    socialLoading.value = false
+  }
+}
+
+const handleSocialMessage = async (event) => {
+  const payload = event?.data
+  if (!payload || payload.type !== 'social-login') {
+    return
+  }
+  if (popupWindow.value && !popupWindow.value.closed) {
+    popupWindow.value.close()
+  }
+  if (payload.success && payload.token) {
+    socialError.value = ''
+    setToken(payload.token)
+    try {
+      const { getUserInfo } = await import('../../api/auth.js')
+      const userInfoResponse = await getUserInfo()
+      if (userInfoResponse.code === 200 && userInfoResponse.data) {
+        setUserInfo(userInfoResponse.data)
+      }
+    } catch (err) {
+      console.warn('获取用户信息失败:', err)
+    }
+    router.goToHome()
+  } else {
+    socialError.value = payload.error || t('login.failed') || '第三方登录失败'
+  }
 }
 
 const handleLogin = async () => {
@@ -1698,6 +1779,66 @@ const getParticleStyle = (index) => {
     0 0 20px rgba(255, 215, 0, 0.6),
     0 4px 15px rgba(255, 140, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* 第三方登录 */
+.social-login {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.social-title {
+  color: #ffd700;
+  margin-bottom: 10px;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.social-button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  min-width: 90px;
+  font-weight: 600;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.social-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+}
+
+.social-button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.social-button.wechat {
+  background: linear-gradient(135deg, #1aad19, #2ecc71);
+}
+
+.social-button.qq {
+  background: linear-gradient(135deg, #12b7f5, #2980b9);
+}
+
+.social-button.feishu {
+  background: linear-gradient(135deg, #4b7cff, #2d5cf6);
+}
+
+.social-button.dingtalk {
+  background: linear-gradient(135deg, #2a8bff, #0e6fe6);
 }
 
 /* 注册链接 */

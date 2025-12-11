@@ -9,7 +9,7 @@
     "limitedEvent": "限时活动：双倍经验加成中",
     "vipPrivileges": "VIP会员享受专属特权",
     "teamDungeon": "团队副本即将开启",
-    "appName": "西域旅",
+    "appName": "游戏中学习",
     "appSubtitle": "挑战边界 • 超越极限",
     "alertConfirm": "确定",
     "alertCancel": "取消"
@@ -56,6 +56,7 @@
     "verificationCode": "验证码",
     "forgotPassword": "忘记密码?",
     "login": "登录",
+    "socialLogin": "第三方登录",
     "logging": "登录中...",
     "captchaLoading": "加载中...",
     "noAccount": "没有用户?注册",
