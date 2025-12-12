@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { chatWithMessages, chatSimple, createSystemMessage, createUserMessage } from '@/api/deepseek.js'
+import { chatWithMessages, chatSimple, createSystemMessage, createUserMessage } from '../../api/deepseek.js'
 
 export default {
   name: 'DeepSeekChat',

@@ -242,6 +242,43 @@
               <button class="primary" @click="goBack">返回训练中心</button>
             </div>
           </section>
+
+          <section class="answer-review" v-if="gameStatus === 'completed'">
+            <div class="review-header">
+              <div class="badge ghost">答案回顾</div>
+              <h3>正确顺序 vs 你的顺序</h3>
+            </div>
+            <div class="review-panes">
+              <div class="review-column">
+                <div class="review-title">正确牌序</div>
+                <div class="review-grid">
+                  <div
+                    v-for="(card, index) in cardSequence"
+                    :key="`truth-${card.id}`"
+                    class="review-card"
+                  >
+                    <img :src="card.image" :alt="card.label" />
+                    <div class="review-label">#{{ index + 1 }} · {{ card.label }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="review-column">
+                <div class="review-title">你的牌序</div>
+                <div class="review-grid">
+                  <div
+                    v-for="(card, index) in userSequence"
+                    :key="`user-${card.id}-${index}`"
+                    class="review-card"
+                    :class="{ correct: isCardCorrect(index), error: !isCardCorrect(index) }"
+                  >
+                    <img :src="card.image" :alt="card.label" />
+                    <div class="review-label">#{{ index + 1 }} · {{ card.label }}</div>
+                  </div>
+                  <div v-if="!userSequence.length" class="empty-tip">尚未提交牌序</div>
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
 
         <section class="info-column">
@@ -290,44 +327,6 @@
             </div>
           </div>
 
-          <div class="info-card" v-if="gameStatus === 'completed'">
-            <div class="info-header">
-              <div class="badge ghost">答案回顾</div>
-              <h3>正确顺序 vs 你的顺序</h3>
-            </div>
-            <div class="info-content">
-              <div class="review-list">
-                <div class="review-column">
-                  <div class="review-title">正确牌序</div>
-                  <div class="review-grid">
-                    <div
-                      v-for="(card, index) in cardSequence"
-                      :key="`truth-${card.id}`"
-                      class="review-card"
-                    >
-                      <img :src="card.image" :alt="card.label" />
-                      <div class="review-label">#{{ index + 1 }} · {{ card.label }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="review-column">
-                  <div class="review-title">你的牌序</div>
-                  <div class="review-grid">
-                    <div
-                      v-for="(card, index) in userSequence"
-                      :key="`user-${card.id}-${index}`"
-                      class="review-card"
-                      :class="{ correct: isCardCorrect(index), error: !isCardCorrect(index) }"
-                    >
-                      <img :src="card.image" :alt="card.label" />
-                      <div class="review-label">#{{ index + 1 }} · {{ card.label }}</div>
-                    </div>
-                    <div v-if="!userSequence.length" class="empty-tip">尚未提交牌序</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
       </div>
     </main>
@@ -459,6 +458,20 @@ const shuffle = (arr) => {
   return copy
 }
 
+const buildDeck = (size) => {
+  if (size <= 0) return []
+  const suitsOrder = shuffle(suits.map((s) => s.name))
+  let suitCount = 4
+  if (size <= 13) {
+    suitCount = 1
+  } else if (size <= 26) {
+    suitCount = 2
+  }
+  const pickedSuits = suitsOrder.slice(0, suitCount)
+  const filtered = CARD_POOL.filter((card) => pickedSuits.includes(card.suitName))
+  return shuffle(filtered).slice(0, size)
+}
+
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
@@ -487,7 +500,7 @@ const clearTimer = () => {
 
 const startGame = () => {
   isTransitioning.value = true
-  cardSequence.value = shuffle(CARD_POOL).slice(0, totalCards.value)
+  cardSequence.value = buildDeck(totalCards.value)
   userSequence.value = []
   correctCount.value = 0
   recallElapsed.value = 0
@@ -1292,9 +1305,36 @@ button:hover:not(:disabled) {
   font-weight: 700;
 }
 
-.review-list {
+.answer-review {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.32);
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 12px;
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.12),
+    inset 0 0 24px rgba(255, 215, 0, 0.05),
+    0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.review-header h3 {
+  color: #ffd700;
+}
+
+.review-panes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
 }
 
