@@ -67,6 +67,7 @@
     <PhotoMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PHOTO_MEMORY" />
     <NumberMemoryCodePage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_MEMORY_CODE" />
     <NumberFaxPage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_FAX" />
+    <CardMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_CARD_MEMORY" />
   </div>
 </template>
 
@@ -139,6 +140,7 @@ import NumberSliderPage from './components/attentionTraining/NumberSliderPage.vu
 import PhotoMemoryPage from './components/attentionTraining/PhotoMemoryPage.vue'
 import NumberMemoryCodePage from './components/attentionTraining/NumberMemoryCodePage.vue'
 import NumberFaxPage from './components/attentionTraining/NumberFaxPage.vue'
+import CardMemoryPage from './components/attentionTraining/CardMemoryPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

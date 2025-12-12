@@ -17,7 +17,7 @@
 		  <div>
 			<div class="badge">数字传真 · 记忆力训练</div>
 			<h1 class="page-title">数字传真训练</h1>
-			<p class="subtitle">选择0-9中的一个数字，系统会生成10-20组数字（每组4-8个数字）。认真记住每组数字，然后统计你选择的数字在所有组中出现的总次数。</p>
+			<p class="subtitle">选择0-9中的一个数字，系统会生成10-20组数字（每组5个数字）。认真专注于每组数字，然后统计你选择的数字在所有组中出现的总次数。</p>
 		  </div>
 		  <div class="header-actions">
 			<button class="btn-secondary" @click="goBack">返回训练中心</button>

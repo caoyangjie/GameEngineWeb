@@ -80,7 +80,8 @@ const games = [
   { title: '数字华容道', route: ROUTES.ATTENTION_NUMBER_SLIDER, icon: '🎛️', desc: '滑块拼数与路径规划' },
   { title: '照相记忆', route: ROUTES.ATTENTION_PHOTO_MEMORY, icon: '📸', desc: '瞬时视觉记忆与回忆训练' },
   { title: '数字记忆编码', route: ROUTES.ATTENTION_NUMBER_MEMORY_CODE, icon: '🔑', desc: '00-99 数字编码图片记忆训练' },
-  { title: '数字传真', route: ROUTES.ATTENTION_NUMBER_FAX, icon: '📠', desc: '选择目标数字，统计在多组数字中的出现次数' }
+  { title: '数字传真', route: ROUTES.ATTENTION_NUMBER_FAX, icon: '📠', desc: '选择目标数字，统计在多组数字中的出现次数' },
+  { title: '扑克牌快速记忆', route: ROUTES.ATTENTION_CARD_MEMORY, icon: '🃏', desc: '参考记忆大师顺背技巧的整副牌速记练习' }
 ]
 
 const handleEnter = (route) => {
