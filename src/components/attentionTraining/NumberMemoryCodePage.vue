@@ -69,6 +69,11 @@
 
           <section class="game-card" v-if="gameStatus !== 'idle'">
             <div class="game-content">
+              <!-- 退出按钮 -->
+              <div class="exit-button-container">
+                <button class="btn-exit" @click="exitGame">退出模式</button>
+              </div>
+              
               <!-- 学习模式 -->
               <div v-if="gameMode === 'learn'" class="learn-mode">
                 <div class="number-display">{{ currentNumber }}</div>
@@ -250,6 +255,7 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
+import { showConfirm } from '../../utils/alert.js'
 
 // 预加载所有图片 (00-99)
 const imageModules = import.meta.glob('../../images/icons/*.png', { eager: true })
@@ -444,6 +450,15 @@ const resetGame = () => {
     clearInterval(timerInterval)
     timerInterval = null
   }
+}
+
+const exitGame = () => {
+  showConfirm('确定要退出当前模式吗？退出后当前进度将不会保存。', { confirmText: '确定', cancelText: '取消' })
+    .then((confirmed) => {
+      if (confirmed) {
+        resetGame()
+      }
+    })
 }
 
 const formatTime = (seconds) => {
@@ -767,6 +782,31 @@ button:hover:not(:disabled) {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+}
+
+.exit-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.btn-exit {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: #e74c3c;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.25s;
+}
+
+.btn-exit:hover {
+  background: rgba(231, 76, 60, 0.3);
+  border-color: rgba(231, 76, 60, 0.6);
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
 }
 
 .learn-mode,
