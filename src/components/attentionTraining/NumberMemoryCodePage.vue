@@ -197,6 +197,28 @@
         <section class="info-column">
           <div class="info-card">
             <div class="info-header">
+              <div class="badge ghost">数字编码转换</div>
+              <h3>编码转换工具</h3>
+            </div>
+            <div class="info-content">
+              <p class="hint">输入一串数字，系统将自动转换为对应的编码图片序列</p>
+              <div class="encode-converter">
+                <input
+                  type="text"
+                  v-model="encodeInput"
+                  placeholder="输入数字串，如：123456"
+                  class="encode-input"
+                  @keyup.enter="convertToImages"
+                />
+                <button class="primary" @click="convertToImages" :disabled="!encodeInput.trim()">
+                  转换为编码图片
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-header">
               <div class="badge ghost">编码说明</div>
               <h3>数字编码系统</h3>
             </div>
@@ -238,9 +260,46 @@
               </ul>
             </div>
           </div>
+
+          
         </section>
       </div>
     </main>
+
+    <!-- 编码图片弹窗 -->
+    <div v-if="showEncodeModal" class="encode-modal-overlay" @click="closeEncodeModal">
+      <div class="encode-modal" @click.stop>
+        <div class="encode-modal-header">
+          <h3>数字编码转换结果</h3>
+          <button class="btn-close" @click="closeEncodeModal">×</button>
+        </div>
+        <div class="encode-modal-content">
+          <div class="encode-original">
+            <span class="encode-label">原始数字：</span>
+            <span class="encode-value">{{ encodeInput }}</span>
+          </div>
+          <div class="encode-images-grid">
+            <div
+              v-for="(number, index) in encodedNumbers"
+              :key="index"
+              class="encode-image-item"
+            >
+              <div class="encode-image-number">{{ number }}</div>
+              <div class="encode-image-display">
+                <img
+                  :src="getImageUrl(number)"
+                  :alt="`数字 ${number} 的编码图片`"
+                  @error="(e) => handleEncodeImageError(e, number)"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="encode-modal-footer">
+          <button class="ghost" @click="closeEncodeModal">关闭</button>
+        </div>
+      </div>
+    </div>
 
     <Sidebar
       :is-open="sidebarOpen"
@@ -261,7 +320,7 @@ import { showConfirm } from '../../utils/alert.js'
 const imageModules = import.meta.glob('../../images/icons/*.png', { eager: true })
 const imageMap = {}
 for (const path in imageModules) {
-  const match = path.match(/(\d{2})\.png$/)
+  const match = path.match(/(\d{1,2})\.png$/)
   if (match) {
     imageMap[match[1]] = imageModules[path].default || imageModules[path]
   }
@@ -296,6 +355,11 @@ const wrongCount = ref(0)
 const showTimer = ref(false)
 const remainingTime = ref(0)
 let timerInterval = null
+
+// 数字编码转换功能
+const encodeInput = ref('')
+const showEncodeModal = ref(false)
+const encodedNumbers = ref([])
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -332,7 +396,7 @@ const isLastQuestion = computed(() => {
 })
 
 const getImageUrl = (number) => {
-  const numStr = String(number).padStart(2, '0')
+  const numStr = String(number)
   return imageMap[numStr] || ''
 }
 
@@ -402,7 +466,7 @@ const submitAnswer = async () => {
   if (!userAnswer.value.trim()) return
   
   isTransitioning.value = true
-  const answer = userAnswer.value.trim().padStart(2, '0')
+  const answer = userAnswer.value.trim()
   const isCorrect = answer === currentNumber.value
   
   if (isCorrect) {
@@ -469,6 +533,53 @@ const formatTime = (seconds) => {
 
 const goBack = () => {
   router.navigate(ROUTES.ATTENTION_TRAINING)
+}
+
+// 数字编码转换功能
+const convertToImages = () => {
+  const input = encodeInput.value.trim()
+  if (!input) return
+  
+  // 只保留数字字符
+  const numbersOnly = input.replace(/\D/g, '')
+  if (!numbersOnly) {
+    alert('请输入有效的数字')
+    return
+  }
+  
+  // 将数字串按每两位分割
+  const numbers = []
+  for (let i = 0; i < numbersOnly.length; i += 2) {
+    const numStr = numbersOnly.slice(i, i + 2)
+    // 如果只有一位数字，补0
+    const paddedNum = numStr.length === 1 ? `${numStr}` : numStr
+    numbers.push(paddedNum)
+    // 确保数字在00-99范围内
+    // const num = parseInt(paddedNum, 10)
+    // if (num >= 0 && num <= 99) {
+    // }
+  }
+  
+  if (numbers.length === 0) {
+    alert('无法生成有效的编码，请确保输入的数字在00-99范围内')
+    return
+  }
+  
+  encodedNumbers.value = numbers
+  showEncodeModal.value = true
+}
+
+const closeEncodeModal = () => {
+  showEncodeModal.value = false
+  encodedNumbers.value = []
+}
+
+const handleEncodeImageError = (event, number) => {
+  event.target.style.display = 'none'
+  const parent = event.target.parentElement
+  if (parent) {
+    parent.innerHTML = `<div class="image-placeholder">图片 ${number}</div>`
+  }
 }
 
 watch(() => gameMode.value, () => {
@@ -1080,6 +1191,183 @@ button:hover:not(:disabled) {
   font-weight: 700;
 }
 
+.encode-converter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.encode-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #f7f7f7;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.encode-input:focus {
+  outline: none;
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.encode-input::placeholder {
+  color: #888;
+}
+
+/* 编码图片弹窗样式 */
+.encode-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.encode-modal {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.98) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1200px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 50px rgba(255, 215, 0, 0.2),
+    inset 0 0 40px rgba(255, 215, 0, 0.05),
+    0 20px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.encode-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.encode-modal-header h3 {
+  font-size: 24px;
+  color: #ffd700;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.btn-close {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: #e74c3c;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s;
+  padding: 0;
+}
+
+.btn-close:hover {
+  background: rgba(231, 76, 60, 0.3);
+  border-color: rgba(231, 76, 60, 0.6);
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+  transform: scale(1.1);
+}
+
+.encode-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.encode-original {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.encode-label {
+  color: #c5c5c5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.encode-value {
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.encode-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.encode-image-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.encode-image-number {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffd700;
+  text-align: center;
+}
+
+.encode-image-display {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.encode-image-display img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.encode-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 960px) {
   .main-content {
     padding: 100px 20px 20px;
@@ -1101,6 +1389,21 @@ button:hover:not(:disabled) {
 
   .result-stats {
     grid-template-columns: 1fr;
+  }
+
+  .encode-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .encode-images-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+  }
+
+  .encode-image-display {
+    width: 80px;
+    height: 80px;
   }
 }
 </style>
