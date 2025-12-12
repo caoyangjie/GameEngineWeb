@@ -73,7 +73,8 @@ export const ROUTES = {
   ATTENTION_SUDOKU: 'attention-sudoku',
   ATTENTION_NUMBER_SLIDER: 'attention-number-slider',
   ATTENTION_PHOTO_MEMORY: 'attention-photo-memory',
-  ATTENTION_NUMBER_MEMORY_CODE: 'attention-number-memory-code'
+  ATTENTION_NUMBER_MEMORY_CODE: 'attention-number-memory-code',
+  ATTENTION_NUMBER_FAX: 'attention-number-fax'
 }
 
 // 不需要登录的路由
@@ -315,6 +316,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToAttentionNumberMemoryCode() {
       this.navigate(ROUTES.ATTENTION_NUMBER_MEMORY_CODE)
+    },
+    goToAttentionNumberFax() {
+      this.navigate(ROUTES.ATTENTION_NUMBER_FAX)
     },
     
     // 登出（跳转到登录页）

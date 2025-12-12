@@ -79,7 +79,8 @@ const games = [
   { title: '数独', route: ROUTES.ATTENTION_SUDOKU, icon: '🧩', desc: '逻辑与专注融合的数独关卡' },
   { title: '数字华容道', route: ROUTES.ATTENTION_NUMBER_SLIDER, icon: '🎛️', desc: '滑块拼数与路径规划' },
   { title: '照相记忆', route: ROUTES.ATTENTION_PHOTO_MEMORY, icon: '📸', desc: '瞬时视觉记忆与回忆训练' },
-  { title: '数字记忆编码', route: ROUTES.ATTENTION_NUMBER_MEMORY_CODE, icon: '🔑', desc: '00-99 数字编码图片记忆训练' }
+  { title: '数字记忆编码', route: ROUTES.ATTENTION_NUMBER_MEMORY_CODE, icon: '🔑', desc: '00-99 数字编码图片记忆训练' },
+  { title: '数字传真', route: ROUTES.ATTENTION_NUMBER_FAX, icon: '📠', desc: '选择目标数字，统计在多组数字中的出现次数' }
 ]
 
 const handleEnter = (route) => {
