@@ -72,7 +72,8 @@ export const ROUTES = {
   ATTENTION_POETRY_CHALLENGE: 'attention-poetry-challenge',
   ATTENTION_SUDOKU: 'attention-sudoku',
   ATTENTION_NUMBER_SLIDER: 'attention-number-slider',
-  ATTENTION_PHOTO_MEMORY: 'attention-photo-memory'
+  ATTENTION_PHOTO_MEMORY: 'attention-photo-memory',
+  ATTENTION_NUMBER_MEMORY_CODE: 'attention-number-memory-code'
 }
 
 // 不需要登录的路由
@@ -311,6 +312,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToAttentionPhotoMemory() {
       this.navigate(ROUTES.ATTENTION_PHOTO_MEMORY)
+    },
+    goToAttentionNumberMemoryCode() {
+      this.navigate(ROUTES.ATTENTION_NUMBER_MEMORY_CODE)
     },
     
     // 登出（跳转到登录页）

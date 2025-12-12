@@ -18,7 +18,7 @@
           <div class="badge">专注力训练</div>
           <h1 class="page-title">训练中心</h1>
           <p class="subtitle">
-            七大训练模块，数据按当前登录用户隔离，进入后均有分页检索。
+            八大训练模块，数据按当前登录用户隔离，进入后均有分页检索。
           </p>
         </div>
         <div class="header-actions">
@@ -78,7 +78,8 @@ const games = [
   { title: '诗词挑战', route: ROUTES.ATTENTION_POETRY_CHALLENGE, icon: '🖋️', desc: '诗句补全与记忆跨度训练' },
   { title: '数独', route: ROUTES.ATTENTION_SUDOKU, icon: '🧩', desc: '逻辑与专注融合的数独关卡' },
   { title: '数字华容道', route: ROUTES.ATTENTION_NUMBER_SLIDER, icon: '🎛️', desc: '滑块拼数与路径规划' },
-  { title: '照相记忆', route: ROUTES.ATTENTION_PHOTO_MEMORY, icon: '📸', desc: '瞬时视觉记忆与回忆训练' }
+  { title: '照相记忆', route: ROUTES.ATTENTION_PHOTO_MEMORY, icon: '📸', desc: '瞬时视觉记忆与回忆训练' },
+  { title: '数字记忆编码', route: ROUTES.ATTENTION_NUMBER_MEMORY_CODE, icon: '🔑', desc: '00-99 数字编码图片记忆训练' }
 ]
 
 const handleEnter = (route) => {
