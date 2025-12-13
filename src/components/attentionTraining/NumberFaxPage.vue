@@ -47,6 +47,15 @@
 				<div class="status" :class="gameStatus">
 				  {{ statusText }}
 				</div>
+				<div v-if="isGeneratingAudio" class="audio-generating">
+				  正在生成语音包...
+				</div>
+				<div v-if="audioGenerationError" class="audio-error">
+				  语音生成失败
+				</div>
+				<div v-if="cachedAudioData && !isGeneratingAudio && gameStatus === 'idle'" class="audio-ready">
+				  语音包已就绪
+				</div>
 			  </div>
 			  <div class="control-item compact">
 				<div class="label">当前组</div>
@@ -56,10 +65,40 @@
 			  </div>
 			  <div class="control-actions">
 				<button class="ghost" @click="resetGame" v-if="!isRunning">重置</button>
+				<button class="secondary" @click="generateAndPlayAudio" v-if="!isRunning" :disabled="!selectedNumber || isGeneratingAudio">语音播报</button>
 				<button class="primary" @click="startGame" v-if="!isRunning" :disabled="!selectedNumber">开始</button>
 			  </div>
 			</section>
   
+			<!-- 语音播放控件 -->
+			<section class="audio-player-card">
+			  <div class="audio-player-header">
+				<div class="badge ghost">语音播放</div>
+				<h3>语音播报</h3>
+			  </div>
+			  <div class="audio-player-content">
+				<div v-if="!audioUrl && !isGeneratingAudio" class="audio-placeholder">
+				  <p>点击"语音播报"按钮生成并播放语音</p>
+				</div>
+				<div v-if="isGeneratingAudio" class="audio-generating-status">
+				  <p>正在生成语音包...</p>
+				</div>
+				<div v-if="audioUrl" class="audio-controls">
+				  <button class="primary" @click="playAudioFromUrlControl" :disabled="isPlayingAudio">
+					{{ isPlayingAudio ? '播放中...' : '播放' }}
+				  </button>
+				  <button class="ghost" @click="stopAudio" :disabled="!isPlayingAudio">停止</button>
+				</div>
+				<div v-if="audioUrl" class="audio-url-info">
+				  <span class="audio-url-label">语音包地址：</span>
+				  <span class="audio-url-value">{{ audioUrl }}</span>
+				</div>
+				<div v-if="audioGenerationError" class="audio-error-message">
+				  <span>语音生成失败：{{ audioGenerationError }}</span>
+				</div>
+			  </div>
+			</section>
+
 			<section class="game-card" v-if="gameStatus !== 'idle'">
 			  <div class="game-content">
 				<!-- 退出按钮 -->
@@ -164,7 +203,7 @@
 			  </div>
 			  <div class="info-content">
 				<p>1. 首先选择0-9中的一个目标数字</p>
-				<p>2. 系统会生成多组数字（每组4-8个数字）</p>
+				<p>2. 系统会生成多组数字（每组6个数字）</p>
 				<p>3. 认真观察并记住每组数字</p>
 				<p>4. 所有组展示完毕后，统计你选择的目标数字在所有组中出现的总次数</p>
 				<p>5. 输入统计结果并提交答案</p>
@@ -230,11 +269,13 @@
   </template>
   
   <script setup>
-  import { computed, ref, watch, nextTick } from 'vue'
+  import { computed, ref, watch, nextTick, onUnmounted } from 'vue'
   import { useRouter, ROUTES } from '../../composables/useRouter.js'
   import TopHeader from '../common/TopHeader.vue'
   import Sidebar from '../common/Sidebar.vue'
   import { showConfirm } from '../../utils/alert.js'
+  import { synthesizeTts } from '../../api/tts.js'
+  import { saveNumberFaxRecord } from '../../api/attentionNumberFax.js'
   
   const router = useRouter()
   const sidebarOpen = ref(false)
@@ -265,6 +306,17 @@
   const showTimer = ref(false)
   const remainingTime = ref(0)
   let timerInterval = null
+  
+  // TTS 相关
+  let audioContext = null
+  let currentAudio = null // 当前播放的音频对象
+  const enableTTS = ref(true) // 是否启用 TTS
+  const voice = 'Cherry' // 发音人，默认为 Cherry
+  const cachedAudioData = ref(null) // 缓存的音频数据（可能是 URL 或 Base64）
+  const isGeneratingAudio = ref(false) // 是否正在生成音频
+  const audioGenerationError = ref(null) // 音频生成错误
+  const audioUrl = ref(null) // 语音包下载地址
+  const isPlayingAudio = ref(false) // 是否正在播放音频
   
   const toggleSidebar = () => {
 	sidebarOpen.value = !sidebarOpen.value
@@ -314,20 +366,401 @@
 	return group.filter(num => String(num) === String(target)).length
   }
   
-  const startGame = () => {
+  // 将数字组转换为语音文本
+  const groupsToText = (groups) => {
+	// 将所有数字组合并，用空格分隔每个数字，用"组"分隔每组
+	return groups.map((group, index) => {
+	  const groupText = group.join(' ')
+	  return `第${index + 1}组：${groupText}`
+	}).join('。')
+  }
+  
+  // 进入答题阶段
+  const enterAnsweringStage = () => {
+	gameStatus.value = 'answering'
+	nextTick(() => {
+	  const input = document.querySelector('input[type="number"]')
+	  if (input) {
+		input.focus()
+	  }
+	})
+  }
+  
+  // 手动切换组（当 TTS 未启用时）
+  const switchGroupsManually = async () => {
+	for (let i = 0; i < allGroups.value.length; i++) {
+	  currentGroupIndex.value = i + 1
+	  isTransitioning.value = true
+	  await new Promise(resolve => setTimeout(resolve, 2000)) // 每组显示 2 秒
+	  isTransitioning.value = false
+	}
+	enterAnsweringStage()
+  }
+  
+  // 初始化 Web Audio API
+  const initAudioContext = () => {
+	if (!audioContext) {
+	  const AudioContext = window.AudioContext || window.webkitAudioContext
+	  if (!AudioContext) {
+		throw new Error('浏览器不支持 Web Audio API')
+	  }
+	  audioContext = new AudioContext({ sampleRate: 16000 })
+	}
+	return audioContext
+  }
+
+  // 播放音频 URL（直接使用 URL 播放）
+  const playAudioFromUrl = async (audioUrl) => {
+	try {
+	  // 停止当前播放的音频
+	  if (currentAudio) {
+		currentAudio.pause()
+		currentAudio = null
+	  }
+	  
+	  // 使用 HTML5 Audio 直接播放 URL
+	  return new Promise((resolve, reject) => {
+		const audio = new Audio(audioUrl)
+		currentAudio = audio
+		
+		audio.onended = () => {
+		  currentAudio = null
+		  resolve()
+		}
+		
+		audio.onerror = (e) => {
+		  currentAudio = null
+		  reject(new Error('音频播放失败'))
+		}
+		
+		audio.play().catch(err => {
+		  currentAudio = null
+		  reject(err)
+		})
+	  })
+	} catch (error) {
+	  console.error('播放音频失败:', error)
+	  throw error
+	}
+  }
+
+  // 播放音频数据（Base64 编码，支持多种格式如 MP3、WAV 等）
+  const playAudioFromBase64 = async (base64Audio) => {
+	try {
+	  // 停止当前播放的音频
+	  if (currentAudio) {
+		currentAudio.pause()
+		currentAudio = null
+	  }
+	  
+	  // 解码 Base64 为二进制数据
+	  const binary = atob(base64Audio)
+	  const bytes = new Uint8Array(binary.length)
+	  for (let i = 0; i < binary.length; i++) {
+		bytes[i] = binary.charCodeAt(i)
+	  }
+	  
+	  // 创建 Blob（自动检测音频格式）
+	  const blob = new Blob([bytes], { type: 'audio/mpeg' }) // 默认 MP3，浏览器会自动检测
+	  const audioUrl = URL.createObjectURL(blob)
+	  
+	  // 使用 HTML5 Audio 播放（支持多种格式）
+	  return new Promise((resolve, reject) => {
+		const audio = new Audio(audioUrl)
+		currentAudio = audio
+		
+		audio.onended = () => {
+		  URL.revokeObjectURL(audioUrl)
+		  currentAudio = null
+		  resolve()
+		}
+		
+		audio.onerror = (e) => {
+		  URL.revokeObjectURL(audioUrl)
+		  currentAudio = null
+		  reject(new Error('音频播放失败'))
+		}
+		
+		audio.play().catch(err => {
+		  URL.revokeObjectURL(audioUrl)
+		  currentAudio = null
+		  reject(err)
+		})
+	  })
+	} catch (error) {
+	  console.error('播放音频失败:', error)
+	  throw error
+	}
+  }
+
+  // 通用的音频播放函数，自动判断是 URL 还是 Base64
+  const playAudio = async (audioData) => {
+	if (!audioData) {
+	  throw new Error('音频数据为空')
+	}
+	
+	// 判断是否为 URL（以 http:// 或 https:// 开头）
+	if (typeof audioData === 'string' && (audioData.startsWith('http://') || audioData.startsWith('https://'))) {
+	  return await playAudioFromUrl(audioData)
+	} else {
+	  // 否则当作 Base64 处理
+	  return await playAudioFromBase64(audioData)
+	}
+  }
+
+  // 处理 TTS 错误后的恢复
+  const handleTTSError = (switchTimers) => {
+	// 清除所有定时器
+	if (switchTimers) {
+	  switchTimers.forEach(timer => clearTimeout(timer))
+	}
+	
+	// 出错时，快速切换完成剩余组
+	const remainingGroups = totalGroups.value - currentGroupIndex.value
+	if (remainingGroups > 0) {
+	  for (let i = currentGroupIndex.value; i < totalGroups.value; i++) {
+		setTimeout(() => {
+		  currentGroupIndex.value = i + 1
+		  if (i === totalGroups.value - 1) {
+			setTimeout(() => enterAnsweringStage(), 500)
+		  }
+		}, (i - currentGroupIndex.value + 1) * 1000)
+	  }
+	} else {
+	  enterAnsweringStage()
+	}
+  }
+  
+  // 生成语音包（提前生成）
+  const generateAudio = async (groups) => {
+	if (!enableTTS.value || !groups || groups.length === 0) {
+	  cachedAudioData.value = null
+	  return
+	}
+	
+	try {
+	  isGeneratingAudio.value = true
+	  audioGenerationError.value = null
+	  
+	  // 将所有数字组合并成文本，每组格式为"第X组：数字1 数字2 ..."
+	  const allText = groups.map((group, index) => {
+		const groupText = group.join(' ')
+		return `第${index + 1}组：${groupText}`
+	  }).join('。')
+	  
+	  console.log('开始生成语音包...')
+	  const audioData = await synthesizeTts(allText, voice)
+	  cachedAudioData.value = audioData
+	  
+	  // 如果返回的是 URL，保存到 audioUrl
+	  if (typeof audioData === 'string' && (audioData.startsWith('http://') || audioData.startsWith('https://'))) {
+		audioUrl.value = audioData
+	  } else {
+		// 如果是 Base64，audioUrl 保持为 null
+		audioUrl.value = null
+	  }
+	  
+	  console.log('语音包生成成功')
+	} catch (error) {
+	  console.error('生成语音包失败:', error)
+	  audioGenerationError.value = error.message
+	  cachedAudioData.value = null
+	  audioUrl.value = null
+	} finally {
+	  isGeneratingAudio.value = false
+	}
+  }
+
+  // 生成并播放语音（语音播报按钮）
+  const generateAndPlayAudio = async () => {
+	if (!selectedNumber.value) return
+	
+	// 如果还没有生成数字组，先生成
+	if (allGroups.value.length === 0) {
+	  allGroups.value = generateGroups()
+	  correctAnswer.value = countTargetNumber(allGroups.value, selectedNumber.value)
+	}
+	
+	// 生成语音包
+	await generateAudio(allGroups.value)
+	
+	// 如果成功生成且是 URL，自动播放
+	if (audioUrl.value) {
+	  // 保存到数据库
+	  await saveToDatabase()
+	  // 自动播放
+	  await playAudioFromUrl()
+	} else if (cachedAudioData.value) {
+	  // 如果是 Base64，也保存并播放
+	  await saveToDatabase()
+	  await playAudio(cachedAudioData.value)
+	}
+  }
+
+  // 从 URL 播放音频（播放控件使用）
+  const playAudioFromUrlControl = async () => {
+	if (!audioUrl.value) return
+	
+	try {
+	  isPlayingAudio.value = true
+	  await playAudio(audioUrl.value)
+	} catch (error) {
+	  console.error('播放音频失败:', error)
+	} finally {
+	  isPlayingAudio.value = false
+	}
+  }
+
+  // 停止音频播放
+  const stopAudio = () => {
+	if (currentAudio) {
+	  currentAudio.pause()
+	  currentAudio.currentTime = 0
+	  currentAudio = null
+	}
+	isPlayingAudio.value = false
+  }
+
+  // 保存到数据库
+  const saveToDatabase = async () => {
+	try {
+	  const record = {
+		targetNumber: parseInt(selectedNumber.value),
+		groupCount: totalGroups.value,
+		groups: JSON.stringify(allGroups.value),
+		audioUrl: audioUrl.value || null,
+		correctAnswer: correctAnswer.value,
+		userAnswer: null,
+		isCorrect: null
+	  }
+	  
+	  await saveNumberFaxRecord(record)
+	  console.log('训练记录已保存到数据库')
+	} catch (error) {
+	  console.error('保存训练记录失败:', error)
+	}
+  }
+
+  // 按组播报数字
+  const playGroupsWithTTS = async () => {
+	if (!enableTTS.value) {
+	  // 如果未启用 TTS，则手动切换组
+	  console.warn('TTS 未启用，使用手动切换模式')
+	  await switchGroupsManually()
+	  return
+	}
+	
+	// 检查是否有缓存的音频
+	if (!cachedAudioData.value) {
+	  // 如果没有缓存的音频，尝试生成（这种情况不应该发生，因为应该在生成数字组时就生成）
+	  console.warn('没有缓存的音频，尝试实时生成...')
+	  try {
+		const allText = allGroups.value.map((group, index) => {
+		  const groupText = group.join(' ')
+		  return `第${index + 1}组：${groupText}`
+		}).join('。')
+		cachedAudioData.value = await synthesizeTts(allText, voice)
+	  } catch (error) {
+		console.error('实时生成音频失败:', error)
+		handleTTSError(null)
+		return
+	  }
+	}
+	
+	try {
+	  // 显示第一组
+	  currentGroupIndex.value = 1
+	  isTransitioning.value = true
+	  setTimeout(() => {
+		isTransitioning.value = false
+	  }, 300)
+	  
+	  // 计算每组数字的字符数，用于估算切换时间
+	  const groupCharCounts = allGroups.value.map(group => {
+		// 每个数字约 1 个字符，加上空格
+		return group.length * 2 - 1
+	  })
+	  
+	  // 估算每组播报时间（每个字符约 0.15 秒）
+	  const groupDurations = groupCharCounts.map(count => {
+		return Math.max(count * 150, 1500) // 至少 1.5 秒
+	  })
+	  
+	  // 启动按组切换的定时器
+	  const switchTimers = []
+	  
+	  for (let i = 1; i < allGroups.value.length; i++) {
+		let delay = 0
+		for (let j = 0; j < i; j++) {
+		  delay += groupDurations[j]
+		}
+		
+		const timer = setTimeout(() => {
+		  currentGroupIndex.value = i + 1
+		  isTransitioning.value = true
+		  setTimeout(() => {
+			isTransitioning.value = false
+		  }, 300)
+		}, delay)
+		
+		switchTimers.push(timer)
+	  }
+	  
+	  // 播放缓存的音频
+	  console.log('开始播放音频...')
+	  await playAudio(cachedAudioData.value)
+	  
+	  // 清除所有定时器
+	  switchTimers.forEach(timer => clearTimeout(timer))
+	  
+	  // 确保显示最后一组
+	  if (currentGroupIndex.value < totalGroups.value) {
+		currentGroupIndex.value = totalGroups.value
+	  }
+	  
+	  // 短暂延迟后进入答题阶段
+	  setTimeout(() => enterAnsweringStage(), 500)
+	  
+	} catch (error) {
+	  console.error('TTS 合成或播放失败:', error)
+	  // 失败时，手动切换完成
+	  handleTTSError(null)
+	}
+  }
+  
+  const startGame = async () => {
 	if (!selectedNumber.value) return
 	
 	gameStatus.value = 'showing'
 	currentGroupIndex.value = 0
 	userAnswer.value = ''
 	showFeedback.value = false
-	allGroups.value = generateGroups()
 	
-	// 计算正确答案
-	correctAnswer.value = countTargetNumber(allGroups.value, selectedNumber.value)
+	// 如果已经有预生成的数字组，使用它；否则重新生成
+	if (allGroups.value.length === 0) {
+	  allGroups.value = generateGroups()
+	  correctAnswer.value = countTargetNumber(allGroups.value, selectedNumber.value)
+	}
 	
-	// 显示第一组
-	nextGroup()
+	// 如果音频还未生成，等待生成完成
+	if (enableTTS.value && isGeneratingAudio.value) {
+	  console.log('等待语音包生成...')
+	  // 等待音频生成完成（最多等待60秒）
+	  let waitCount = 0
+	  while (isGeneratingAudio.value && waitCount < 120) {
+		await new Promise(resolve => setTimeout(resolve, 500))
+		waitCount++
+	  }
+	  
+	  if (audioGenerationError.value) {
+		console.error('语音包生成失败，使用手动模式')
+		await switchGroupsManually()
+		return
+	  }
+	}
+	
+	// 开始 TTS 播报并同步显示数字
+	await playGroupsWithTTS()
   }
   
   const nextGroup = () => {
@@ -369,6 +802,24 @@
 	
 	showFeedback.value = true
 	
+	// 保存答案到数据库
+	try {
+	  const record = {
+		targetNumber: parseInt(selectedNumber.value),
+		groupCount: totalGroups.value,
+		groups: JSON.stringify(allGroups.value),
+		audioUrl: audioUrl.value || null,
+		correctAnswer: correctAnswer.value,
+		userAnswer: answer,
+		isCorrect: isCorrect
+	  }
+	  
+	  await saveNumberFaxRecord(record)
+	  console.log('答案已保存到数据库')
+	} catch (error) {
+	  console.error('保存答案失败:', error)
+	}
+	
 	await new Promise(resolve => setTimeout(resolve, 2000))
 	
 	showFeedback.value = false
@@ -377,17 +828,61 @@
   }
   
   const resetGame = () => {
+	// 停止音频播放
+	stopAudio()
+	if (audioContext) {
+	  audioContext.close().catch(console.error)
+	  audioContext = null
+	}
+	
 	gameStatus.value = 'idle'
 	currentGroupIndex.value = 0
 	userAnswer.value = ''
 	showFeedback.value = false
 	allGroups.value = []
 	correctAnswer.value = 0
+	cachedAudioData.value = null // 清除缓存的音频
+	audioUrl.value = null // 清除语音包地址
+	audioGenerationError.value = null
 	if (timerInterval) {
 	  clearInterval(timerInterval)
 	  timerInterval = null
 	}
   }
+  
+  // 当选择数字或组数变化时，提前生成语音包
+  const preGenerateAudio = () => {
+	if (!selectedNumber.value || gameStatus.value !== 'idle') {
+	  return
+	}
+	
+	// 生成数字组（用于生成语音）
+	const groups = generateGroups()
+	
+	// 保存生成的数字组，以便在开始游戏时使用
+	allGroups.value = groups
+	
+	// 计算正确答案
+	correctAnswer.value = countTargetNumber(groups, selectedNumber.value)
+	
+	// 立即生成语音包
+	if (enableTTS.value) {
+	  generateAudio(groups)
+	}
+  }
+  
+  // 组件卸载时清理资源
+  onUnmounted(() => {
+	stopAudio()
+	if (audioContext) {
+	  audioContext.close().catch(console.error)
+	  audioContext = null
+	}
+	if (timerInterval) {
+	  clearInterval(timerInterval)
+	  timerInterval = null
+	}
+  })
   
   const exitGame = () => {
 	showConfirm('确定要退出当前模式吗？退出后当前进度将不会保存。', { confirmText: '确定', cancelText: '取消' })
@@ -561,6 +1056,18 @@
 	  0 0 20px rgba(255, 215, 0, 0.35),
 	  0 8px 24px rgba(0, 0, 0, 0.35);
   }
+
+  button.secondary {
+	background: rgba(52, 152, 219, 0.2);
+	border-color: rgba(52, 152, 219, 0.4);
+	color: #3498db;
+  }
+
+  button.secondary:hover:not(:disabled) {
+	background: rgba(52, 152, 219, 0.3);
+	border-color: rgba(52, 152, 219, 0.6);
+	box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+  }
   
   .content-grid {
 	display: grid;
@@ -654,6 +1161,24 @@
 	font-size: 18px;
 	font-weight: 700;
 	color: #ffd700;
+  }
+  
+  .audio-generating {
+	font-size: 12px;
+	color: #f4d03f;
+	margin-top: 4px;
+  }
+  
+  .audio-ready {
+	font-size: 12px;
+	color: #1dd1a1;
+	margin-top: 4px;
+  }
+  
+  .audio-error {
+	font-size: 12px;
+	color: #e74c3c;
+	margin-top: 4px;
   }
   
   .control-actions {
@@ -1060,6 +1585,88 @@
 	font-weight: 700;
 	min-width: 50px;
 	text-align: right;
+  }
+
+  .audio-player-card {
+	background: linear-gradient(
+	  to bottom,
+	  rgba(0, 0, 0, 0.78) 0%,
+	  rgba(0, 0, 0, 0.9) 100%
+	);
+	border: 2px solid rgba(52, 152, 219, 0.32);
+	border-radius: 14px;
+	padding: 20px;
+	position: relative;
+	z-index: 5;
+	box-shadow:
+	  0 0 30px rgba(52, 152, 219, 0.12),
+	  inset 0 0 24px rgba(52, 152, 219, 0.05),
+	  0 12px 30px rgba(0, 0, 0, 0.35);
+	margin-bottom: 12px;
+  }
+
+  .audio-player-header {
+	margin-bottom: 16px;
+  }
+
+  .audio-player-header h3 {
+	font-size: 18px;
+	color: #3498db;
+	margin-top: 8px;
+  }
+
+  .audio-player-content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+  }
+
+  .audio-controls {
+	display: flex;
+	gap: 10px;
+  }
+
+  .audio-url-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.3);
+	border-radius: 8px;
+	font-size: 12px;
+  }
+
+  .audio-url-label {
+	color: #c5c5c5;
+  }
+
+  .audio-url-value {
+	color: #3498db;
+	word-break: break-all;
+  }
+
+  .audio-placeholder {
+	padding: 20px;
+	text-align: center;
+	color: #c5c5c5;
+	font-size: 14px;
+  }
+
+  .audio-generating-status {
+	padding: 20px;
+	text-align: center;
+	color: #f4d03f;
+	font-size: 14px;
+  }
+
+  .audio-error-message {
+	padding: 10px;
+	background: rgba(231, 76, 60, 0.2);
+	border: 1px solid rgba(231, 76, 60, 0.4);
+	border-radius: 8px;
+	color: #e74c3c;
+	font-size: 12px;
+	margin-top: 10px;
   }
   
   @media (max-width: 960px) {

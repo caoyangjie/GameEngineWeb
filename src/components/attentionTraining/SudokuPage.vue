@@ -120,7 +120,7 @@
               <button
                 class="ghost"
                 @click="openCaptchaDialog"
-                :disabled="!hasSolution || isCaptchaLoading"
+                :disabled="!hasSolution"
               >
                 查看正确答案
               </button>
@@ -236,41 +236,6 @@
       @close="handleSidebarClose"
     />
 
-    <div v-if="captchaDialogVisible" class="modal-overlay">
-      <div class="modal">
-        <h3>输入验证码查看答案</h3>
-        <p class="modal-desc">从后台获取验证码，验证后展示当前数独的正确答案。</p>
-        <div class="captcha-row">
-          <input
-            v-model.trim="captchaCode"
-            type="text"
-            placeholder="请输入验证码"
-            :disabled="isCaptchaLoading"
-          />
-          <div class="captcha-img-wrapper" @click="refreshCaptcha">
-            <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
-            <div v-else class="captcha-placeholder">
-              {{ isCaptchaLoading ? '加载中...' : '点击刷新' }}
-            </div>
-          </div>
-          <button class="ghost" @click="refreshCaptcha" :disabled="isCaptchaLoading">
-            {{ isCaptchaLoading ? '加载中...' : '换一张' }}
-          </button>
-        </div>
-        <div v-if="captchaError" class="error-text">{{ captchaError }}</div>
-        <div class="modal-actions">
-          <button class="ghost" @click="captchaDialogVisible = false">取消</button>
-          <button
-            class="primary"
-            @click="verifyCaptchaAndShow"
-            :disabled="isCaptchaVerifying || isCaptchaLoading"
-          >
-            {{ isCaptchaVerifying ? '校验中...' : '确认查看' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div v-if="solutionDialogVisible" class="modal-overlay">
       <div class="modal wide">
         <div class="modal-header">
@@ -294,8 +259,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import { getUserInfo } from '../../utils/auth.js'
-import { getSudokuTopRecords, saveSudokuRecord, verifySudokuCaptcha } from '../../api/attentionSudoku.js'
-import { getCaptchaImage } from '../../api/auth.js'
+import { getSudokuTopRecords, saveSudokuRecord } from '../../api/attentionSudoku.js'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { makepuzzle, solvepuzzle, ratepuzzle } from 'sudoku'
@@ -320,14 +284,7 @@ const selectedCellIndex = ref(null)
 const inputMode = ref('number') // 'number' 或 'candidate' - 数字模式或候选值模式
 const practiceCount = ref(5)
 const isExportingPdf = ref(false)
-const captchaDialogVisible = ref(false)
 const solutionDialogVisible = ref(false)
-const captchaImage = ref('')
-const captchaUuid = ref('')
-const captchaCode = ref('')
-const isCaptchaLoading = ref(false)
-const isCaptchaVerifying = ref(false)
-const captchaError = ref('')
 
 const userInfo = getUserInfo()
 const username = computed(() => userInfo?.username || userInfo?.nickName || 'guest')
@@ -947,7 +904,6 @@ const resetGame = () => {
   timer.elapsedMs = 0
   selectedCellIndex.value = null
   inputMode.value = 'number' // 重置为数字模式
-  captchaDialogVisible.value = false
   solutionDialogVisible.value = false
   generateSudoku()
 }
@@ -1163,53 +1119,8 @@ const openCaptchaDialog = async () => {
     alert('请先生成数独题目')
     return
   }
-  captchaCode.value = ''
-  captchaError.value = ''
-  captchaDialogVisible.value = true
-  await loadCaptcha()
-}
-
-const loadCaptcha = async () => {
-  isCaptchaLoading.value = true
-  captchaError.value = ''
-  try {
-    const res = await getCaptchaImage()
-    const data = res?.data || res
-    const img = data?.img || data?.imgBase64 || ''
-    captchaImage.value = img?.startsWith('data:') ? img : (img ? `data:image/png;base64,${img}` : '')
-    captchaUuid.value = data?.uuid || ''
-  } catch (error) {
-    captchaError.value = error?.message || '验证码获取失败，请稍后重试'
-    captchaImage.value = ''
-    captchaUuid.value = ''
-  } finally {
-    isCaptchaLoading.value = false
-  }
-}
-
-const refreshCaptcha = () => loadCaptcha()
-
-const verifyCaptchaAndShow = async () => {
-  captchaError.value = ''
-  if (!captchaCode.value) {
-    captchaError.value = '请输入验证码'
-    return
-  }
-  isCaptchaVerifying.value = true
-  try {
-    await verifySudokuCaptcha(captchaCode.value, captchaUuid.value)
-    if (!hasSolution.value) {
-      captchaError.value = '未获取到当前题目的答案，请重新生成题目'
-      return
-    }
-    captchaDialogVisible.value = false
-    solutionDialogVisible.value = true
-  } catch (error) {
-    captchaError.value = error?.message || '验证码错误，请重试'
-    await loadCaptcha()
-  } finally {
-    isCaptchaVerifying.value = false
-  }
+  // 直接显示答案
+  solutionDialogVisible.value = true
 }
 
 const closeSolutionDialog = () => {
@@ -2128,64 +2039,6 @@ button:hover:not(:disabled) {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-}
-
-.modal-desc {
-  color: #8aa0c2;
-  font-size: 13px;
-  margin: 4px 0 12px;
-}
-
-.captcha-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.captcha-row input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: #f7f7f7;
-}
-
-.captcha-img-wrapper {
-  width: 120px;
-  height: 42px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.captcha-img-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.captcha-placeholder {
-  color: #c5c5c5;
-  font-size: 13px;
-}
-
-.modal-actions {
-  margin-top: 14px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.error-text {
-  color: #e74c3c;
-  font-size: 13px;
-  margin-top: 8px;
 }
 
 .solution-grid {

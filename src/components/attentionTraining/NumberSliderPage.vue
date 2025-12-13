@@ -257,76 +257,91 @@ const makeSolvable = (puzzle, emptyIndex) => {
 }
 
 // 生成可解的打乱状态
+// 使用从已解决状态开始，通过合法移动来打乱的方法，保证生成的状态一定是可解的
 const generateSolvablePuzzle = () => {
   const total = totalCells.value
-  const numbers = Array.from({ length: total - 1 }, (_, idx) => idx + 1)
+  const size = gridSize.value
   
-  let puzzle = []
-  let emptyIndex = 0
-  let attempts = 0
-  const maxAttempts = 200
+  // 从已解决状态开始：[1, 2, 3, ..., N²-1, 0]
+  const solvedState = Array.from({ length: total - 1 }, (_, idx) => idx + 1)
+  solvedState.push(0)
   
-  // 尝试生成可解的谜题
-  while (attempts < maxAttempts) {
-    // 随机选择空格位置
-    emptyIndex = Math.floor(Math.random() * total)
+  let puzzle = [...solvedState]
+  let emptyIndex = total - 1 // 空格在最后
+  
+  // 通过随机移动来打乱，移动次数根据网格大小调整
+  const shuffleMoves = Math.max(100, size * size * 20) // 确保充分打乱
+  
+  for (let i = 0; i < shuffleMoves; i++) {
+    // 获取空格周围可以移动的位置
+    const emptyRow = Math.floor(emptyIndex / size)
+    const emptyCol = emptyIndex % size
+    const possibleMoves = []
     
-    // 生成随机排列
-    const shuffled = shuffle(numbers)
+    // 检查上下左右四个方向
+    const directions = [
+      { row: -1, col: 0 }, // 上
+      { row: 1, col: 0 },  // 下
+      { row: 0, col: -1 }, // 左
+      { row: 0, col: 1 }   // 右
+    ]
     
-    // 将空格插入到指定位置
-    puzzle = [...shuffled]
-    puzzle.splice(emptyIndex, 0, 0)
-    
-    // 检查是否可解
-    if (isSolvable(puzzle, emptyIndex)) {
-      // 最终校验：确保返回的谜题一定是可解的
-      if (isSolvable(puzzle, emptyIndex)) {
-        return { puzzle, emptyIndex }
+    for (const dir of directions) {
+      const newRow = emptyRow + dir.row
+      const newCol = emptyCol + dir.col
+      
+      if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+        const newIndex = newRow * size + newCol
+        possibleMoves.push(newIndex)
       }
     }
     
-    attempts++
-  }
-  
-  // 如果多次尝试都失败，使用强制可解的方法
-  let finalAttempts = 0
-  const maxFinalAttempts = 50
-  
-  while (finalAttempts < maxFinalAttempts) {
-    const shuffled = shuffle(numbers)
-    puzzle = [...shuffled]
-    emptyIndex = Math.floor(Math.random() * total)
-    puzzle.splice(emptyIndex, 0, 0)
-    
-    // 如果不可解，强制使其可解
-    if (!isSolvable(puzzle, emptyIndex)) {
-      puzzle = makeSolvable(puzzle, emptyIndex)
-    }
-    
-    // 最终校验：确保返回的谜题一定是可解的
-    if (isSolvable(puzzle, emptyIndex)) {
-      return { puzzle, emptyIndex }
-    }
-    
-    finalAttempts++
-  }
-  
-  // 如果所有方法都失败，返回一个已知可解的状态（打乱顺序但保证可解）
-  console.warn('无法生成可解谜题，使用备用方案')
-  puzzle = [...numbers, 0]
-  emptyIndex = puzzle.length - 1
-  // 通过交换相邻元素来打乱，但保持可解性
-  for (let i = 0; i < 100; i++) {
-    const swapIndex = Math.floor(Math.random() * (puzzle.length - 2))
-    if (swapIndex !== emptyIndex && swapIndex + 1 !== emptyIndex) {
-      ;[puzzle[swapIndex], puzzle[swapIndex + 1]] = [puzzle[swapIndex + 1], puzzle[swapIndex]]
+    // 随机选择一个方向移动
+    if (possibleMoves.length > 0) {
+      const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
+      
+      // 交换空格和目标位置
+      puzzle[emptyIndex] = puzzle[randomMove]
+      puzzle[randomMove] = 0
+      emptyIndex = randomMove
     }
   }
   
-  // 最终校验
+  // 验证生成的状态是可解的（理论上应该总是可解的，因为是从已解决状态通过合法移动得到的）
   if (!isSolvable(puzzle, emptyIndex)) {
-    puzzle = makeSolvable(puzzle, emptyIndex)
+    console.warn('生成的状态不可解，使用备用方案')
+    // 如果不可解（理论上不应该发生），使用备用方案
+    puzzle = [...solvedState]
+    emptyIndex = total - 1
+    
+    // 进行少量合法移动
+    for (let i = 0; i < 50; i++) {
+      const emptyRow = Math.floor(emptyIndex / size)
+      const emptyCol = emptyIndex % size
+      const possibleMoves = []
+      
+      const directions = [
+        { row: -1, col: 0 },
+        { row: 1, col: 0 },
+        { row: 0, col: -1 },
+        { row: 0, col: 1 }
+      ]
+      
+      for (const dir of directions) {
+        const newRow = emptyRow + dir.row
+        const newCol = emptyCol + dir.col
+        if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+          possibleMoves.push(newRow * size + newCol)
+        }
+      }
+      
+      if (possibleMoves.length > 0) {
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
+        puzzle[emptyIndex] = puzzle[randomMove]
+        puzzle[randomMove] = 0
+        emptyIndex = randomMove
+      }
+    }
   }
   
   return { puzzle, emptyIndex }

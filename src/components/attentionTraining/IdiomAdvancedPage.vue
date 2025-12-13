@@ -228,8 +228,8 @@
       @close="handleSidebarClose"
     />
 
-    <div v-if="showLexiconModal" class="lexicon-overlay">
-      <div class="lexicon-modal" :class="{ maximized: isMaximized }">
+    <div v-if="showLexiconModal" class="lexicon-overlay" @click.self="closeLexiconModal">
+      <div class="lexicon-modal" :class="{ maximized: isMaximized }" @click.stop>
         <header class="lexicon-header">
           <div>
             <div class="badge ghost">成语单词卡</div>
@@ -268,7 +268,7 @@
                   v-for="tag in tagOptions"
                   :key="tag"
                   class="tag-chip"
-                  :class="{ active: tag === selectedTag }"
+                  :class="{ active: tag === selectedTag && !selectedDynasty }"
                   @click="selectTag(tag)"
                 >
                   {{ tag }}
@@ -276,12 +276,27 @@
               </div>
               <div class="tag-empty" v-else>暂无标签，请先生成并保存词单</div>
             </div>
+            <div class="tag-section">
+              <div class="tag-title">朝代归类</div>
+              <div class="tag-list" v-if="dynastyOptions.length">
+                <button
+                  v-for="dynasty in dynastyOptions"
+                  :key="dynasty"
+                  class="tag-chip"
+                  :class="{ active: dynasty === selectedDynasty && !selectedTag }"
+                  @click="selectDynasty(dynasty)"
+                >
+                  {{ dynasty }}
+                </button>
+              </div>
+              <div class="tag-empty" v-else>暂无朝代数据</div>
+            </div>
           </aside>
 
           <section class="lexicon-content">
             <div class="lexicon-list">
               <div class="list-title">
-                {{ selectedTag ? `「${selectedTag}」的成语` : '请选择标签' }}
+                {{ selectedTag ? `「${selectedTag}」的成语` : selectedDynasty ? `「${selectedDynasty}」的成语` : '请选择标签或朝代' }}
                 <span class="list-count" v-if="tagIdioms.length">{{ tagIdioms.length }} 条</span>
               </div>
               <div class="idiom-list">
@@ -409,7 +424,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
@@ -449,6 +464,8 @@ const leaderboard = ref([])
 const showLexiconModal = ref(false)
 const tagOptions = ref([])
 const selectedTag = ref('')
+const dynastyOptions = ref([])
+const selectedDynasty = ref('')
 const tagIdioms = ref([])
 const selectedLexiconIdiom = ref(null)
 const lexiconLoading = ref(false)
@@ -700,6 +717,8 @@ const closeLexiconModal = () => {
   searchInput.value = ''
   isMaximized.value = false
   lexiconMode.value = 'focus'
+  selectedTag.value = ''
+  selectedDynasty.value = ''
 }
 
 const toggleMaximize = () => {
@@ -712,15 +731,37 @@ const fetchTagsAndIdioms = async () => {
     const tagRes = await getIdiomTags()
     const tags = tagRes?.data || tagRes || []
     tagOptions.value = tags
+    
+    // 获取成语以提取朝代列表
+    let allIdioms = []
+    if (tags.length > 0) {
+      // 从多个标签获取数据以提取朝代
+      const promises = tags.slice(0, 10).map(tag => getIdiomsByTag(tag, 100))
+      const results = await Promise.all(promises)
+      allIdioms = results.flatMap(res => normalizeIdioms(res?.data || res || []))
+    } else {
+      // 如果没有标签，获取最近的数据
+      const latestRes = await getLatestIdioms(500)
+      allIdioms = normalizeIdioms(latestRes?.data || latestRes || [])
+    }
+    // 去重并提取朝代
+    const uniqueIdioms = Array.from(new Map(allIdioms.map(i => [i.idiom, i])).values())
+    const dynasties = [...new Set(uniqueIdioms.map(i => i.originDynasty).filter(Boolean))].sort()
+    dynastyOptions.value = dynasties
+    
     if (tags.length) {
       selectedTag.value = selectedTag.value || tags[0]
       await fetchIdiomsBySelectedTag()
+    } else if (dynasties.length) {
+      selectedDynasty.value = selectedDynasty.value || dynasties[0]
+      await fetchIdiomsBySelectedDynasty()
     } else {
       tagIdioms.value = []
     }
   } catch (error) {
     console.warn('获取标签失败', error)
     tagOptions.value = []
+    dynastyOptions.value = []
     tagIdioms.value = []
   } finally {
     lexiconLoading.value = false
@@ -750,7 +791,48 @@ const fetchIdiomsBySelectedTag = async () => {
 const selectTag = (tag) => {
   if (tag === selectedTag.value) return
   selectedTag.value = tag
+  selectedDynasty.value = '' // 清除朝代选择
   fetchIdiomsBySelectedTag()
+}
+
+const selectDynasty = (dynasty) => {
+  if (dynasty === selectedDynasty.value) return
+  selectedDynasty.value = dynasty
+  selectedTag.value = '' // 清除标签选择
+  fetchIdiomsBySelectedDynasty()
+}
+
+const fetchIdiomsBySelectedDynasty = async () => {
+  if (!selectedDynasty.value) {
+    tagIdioms.value = []
+    return
+  }
+  lexiconLoading.value = true
+  try {
+    // 尝试从所有标签获取数据，然后按朝代过滤
+    // 如果标签为空，尝试获取最近的数据
+    let allIdioms = []
+    if (tagOptions.value.length > 0) {
+      // 从所有标签获取数据
+      const promises = tagOptions.value.slice(0, 10).map(tag => getIdiomsByTag(tag, 100))
+      const results = await Promise.all(promises)
+      allIdioms = results.flatMap(res => normalizeIdioms(res?.data || res || []))
+    } else {
+      // 如果没有标签，尝试获取最近的数据
+      const latestRes = await getLatestIdioms(500)
+      allIdioms = normalizeIdioms(latestRes?.data || latestRes || [])
+    }
+    // 去重并过滤
+    const uniqueIdioms = Array.from(new Map(allIdioms.map(i => [i.idiom, i])).values())
+    tagIdioms.value = uniqueIdioms.filter(i => i.originDynasty === selectedDynasty.value)
+    selectedLexiconIdiom.value = tagIdioms.value[0] || null
+  } catch (error) {
+    console.warn('按朝代获取成语失败', error)
+    tagIdioms.value = []
+    selectedLexiconIdiom.value = null
+  } finally {
+    lexiconLoading.value = false
+  }
 }
 
 const selectLexiconIdiom = (idiom) => {
@@ -902,9 +984,20 @@ const goBack = () => {
   router.navigate(ROUTES.ATTENTION_TRAINING)
 }
 
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && showLexiconModal.value) {
+    closeLexiconModal()
+  }
+}
+
 onMounted(() => {
   loadLatestIdioms()
   fetchLeaderboard()
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 

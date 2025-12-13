@@ -228,8 +228,8 @@
       @close="handleSidebarClose"
     />
 
-    <div v-if="showLexiconModal" class="lexicon-overlay">
-      <div class="lexicon-modal" :class="{ maximized: isMaximized }">
+    <div v-if="showLexiconModal" class="lexicon-overlay" @click.self="closeLexiconModal">
+      <div class="lexicon-modal" :class="{ maximized: isMaximized }" @click.stop>
         <header class="lexicon-header">
           <div>
             <div class="badge ghost">诗词单词卡</div>
@@ -268,7 +268,7 @@
                   v-for="tag in tagOptions"
                   :key="tag"
                   class="tag-chip"
-                  :class="{ active: tag === selectedTag }"
+                  :class="{ active: tag === selectedTag && !selectedAuthor }"
                   @click="selectTag(tag)"
                 >
                   {{ tag }}
@@ -276,12 +276,27 @@
               </div>
               <div class="tag-empty" v-else>暂无标签，请先生成并保存词单</div>
             </div>
+            <div class="tag-section">
+              <div class="tag-title">作者归类</div>
+              <div class="tag-list" v-if="authorOptions.length">
+                <button
+                  v-for="author in authorOptions"
+                  :key="author"
+                  class="tag-chip"
+                  :class="{ active: author === selectedAuthor && !selectedTag }"
+                  @click="selectAuthor(author)"
+                >
+                  {{ author }}
+                </button>
+              </div>
+              <div class="tag-empty" v-else>暂无作者数据</div>
+            </div>
           </aside>
 
           <section class="lexicon-content">
             <div class="lexicon-list">
               <div class="list-title">
-                {{ selectedTag ? `「${selectedTag}」的诗词` : '请选择标签' }}
+                {{ selectedTag ? `「${selectedTag}」的诗词` : selectedAuthor ? `「${selectedAuthor}」的诗词` : '请选择标签或作者' }}
                 <span class="list-count" v-if="tagPoetries.length">{{ tagPoetries.length }} 首</span>
               </div>
               <div class="poetry-list">
@@ -297,7 +312,7 @@
                 >
                   <div class="poetry-row-content" @click="enterFocusMode(item)">
                     <div class="poetry-row-main">
-                      <span class="lexicon-poetry-name">{{ item.title }}</span>
+                      <span class="lexicon-poetry-name clickable" @click.stop="showPoetryPinyinModal(item)" title="点击查看中文和拼音">{{ item.title }}</span>
                       <span class="lexicon-poetry-pinyin">{{ item.content }}</span>
                     </div>
                     <div class="poetry-row-meta">
@@ -421,6 +436,35 @@
         </div>
       </div>
     </div>
+
+    <!-- 诗词中文和拼音弹窗 -->
+    <div v-if="showPinyinModal && selectedPoetryForPinyin" class="pinyin-overlay" @click.self="closePinyinModal">
+      <div class="pinyin-modal" @click.stop>
+        <header class="pinyin-header">
+          <div>
+            <div class="badge ghost">诗词详情</div>
+            <h3>{{ selectedPoetryForPinyin.title }}</h3>
+          </div>
+          <button class="btn-close" @click="closePinyinModal" title="关闭">关闭</button>
+        </header>
+        <div class="pinyin-body">
+          <div class="pinyin-content">
+            <div class="pinyin-chinese">
+              <div class="pinyin-label">中文</div>
+              <div class="pinyin-text">{{ selectedPoetryForPinyin.content || '暂无内容' }}</div>
+            </div>
+            <div class="pinyin-pinyin" v-if="selectedPoetryForPinyin.pinyin">
+              <div class="pinyin-label">拼音</div>
+              <div class="pinyin-text">{{ selectedPoetryForPinyin.pinyin }}</div>
+            </div>
+            <div class="pinyin-meta" v-if="selectedPoetryForPinyin.author || selectedPoetryForPinyin.dynasty">
+              <span v-if="selectedPoetryForPinyin.dynasty">{{ selectedPoetryForPinyin.dynasty }}</span>
+              <span v-if="selectedPoetryForPinyin.author"> · {{ selectedPoetryForPinyin.author }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -465,6 +509,8 @@ const leaderboard = ref([])
 const showLexiconModal = ref(false)
 const tagOptions = ref([])
 const selectedTag = ref('')
+const authorOptions = ref([])
+const selectedAuthor = ref('')
 const tagPoetries = ref([])
 const selectedLexiconPoetry = ref(null)
 const lexiconLoading = ref(false)
@@ -472,6 +518,8 @@ const searchInput = ref('')
 const isSearching = ref(false)
 const isMaximized = ref(false)
 const lexiconMode = ref('focus') // 'focus' 专注记忆模式 | 'video' 视频记忆模式
+const showPinyinModal = ref(false)
+const selectedPoetryForPinyin = ref(null)
 
 let timerInterval = null
 let recallTimerInterval = null
@@ -732,6 +780,18 @@ const closeLexiconModal = () => {
   searchInput.value = ''
   isMaximized.value = false
   lexiconMode.value = 'focus'
+  selectedTag.value = ''
+  selectedAuthor.value = ''
+}
+
+const showPoetryPinyinModal = (poetry) => {
+  selectedPoetryForPinyin.value = poetry
+  showPinyinModal.value = true
+}
+
+const closePinyinModal = () => {
+  showPinyinModal.value = false
+  selectedPoetryForPinyin.value = null
 }
 
 const toggleMaximize = () => {
@@ -744,15 +804,37 @@ const fetchTagsAndPoetries = async () => {
     const tagRes = await getPoetryTags()
     const tags = tagRes?.data || tagRes || []
     tagOptions.value = tags
+    
+    // 获取诗词以提取作者列表
+    let allPoetries = []
+    if (tags.length > 0) {
+      // 从多个标签获取数据以提取作者
+      const promises = tags.slice(0, 10).map(tag => getPoetriesByTag(tag, 100))
+      const results = await Promise.all(promises)
+      allPoetries = results.flatMap(res => normalizePoetries(res?.data || res || []))
+    } else {
+      // 如果没有标签，获取最近的数据
+      const latestRes = await getLatestPoetries(500)
+      allPoetries = normalizePoetries(latestRes?.data || latestRes || [])
+    }
+    // 去重并提取作者
+    const uniquePoetries = Array.from(new Map(allPoetries.map(p => [p.title, p])).values())
+    const authors = [...new Set(uniquePoetries.map(p => p.author).filter(Boolean))].sort()
+    authorOptions.value = authors
+    
     if (tags.length) {
       selectedTag.value = selectedTag.value || tags[0]
       await fetchPoetriesBySelectedTag()
+    } else if (authors.length) {
+      selectedAuthor.value = selectedAuthor.value || authors[0]
+      await fetchPoetriesBySelectedAuthor()
     } else {
       tagPoetries.value = []
     }
   } catch (error) {
     console.warn('获取标签失败', error)
     tagOptions.value = []
+    authorOptions.value = []
     tagPoetries.value = []
   } finally {
     lexiconLoading.value = false
@@ -782,7 +864,47 @@ const fetchPoetriesBySelectedTag = async () => {
 const selectTag = (tag) => {
   if (tag === selectedTag.value) return
   selectedTag.value = tag
+  selectedAuthor.value = '' // 清除作者选择
   fetchPoetriesBySelectedTag()
+}
+
+const selectAuthor = (author) => {
+  if (author === selectedAuthor.value) return
+  selectedAuthor.value = author
+  selectedTag.value = '' // 清除标签选择
+  fetchPoetriesBySelectedAuthor()
+}
+
+const fetchPoetriesBySelectedAuthor = async () => {
+  if (!selectedAuthor.value) {
+    tagPoetries.value = []
+    return
+  }
+  lexiconLoading.value = true
+  try {
+    // 尝试从所有标签获取数据，然后按作者过滤
+    let allPoetries = []
+    if (tagOptions.value.length > 0) {
+      // 从所有标签获取数据
+      const promises = tagOptions.value.slice(0, 10).map(tag => getPoetriesByTag(tag, 100))
+      const results = await Promise.all(promises)
+      allPoetries = results.flatMap(res => normalizePoetries(res?.data || res || []))
+    } else {
+      // 如果没有标签，尝试获取最近的数据
+      const latestRes = await getLatestPoetries(500)
+      allPoetries = normalizePoetries(latestRes?.data || latestRes || [])
+    }
+    // 去重并过滤
+    const uniquePoetries = Array.from(new Map(allPoetries.map(p => [p.title, p])).values())
+    tagPoetries.value = uniquePoetries.filter(p => p.author === selectedAuthor.value)
+    selectedLexiconPoetry.value = tagPoetries.value[0] || null
+  } catch (error) {
+    console.warn('按作者获取诗词失败', error)
+    tagPoetries.value = []
+    selectedLexiconPoetry.value = null
+  } finally {
+    lexiconLoading.value = false
+  }
 }
 
 const selectLexiconPoetry = (poetry) => {
@@ -935,14 +1057,27 @@ const goBack = () => {
   router.navigate(ROUTES.ATTENTION_TRAINING)
 }
 
+
+const handleKeydown = (e) => {
+  if (e.key === 'Escape') {
+    if (showPinyinModal.value) {
+      closePinyinModal()
+    } else if (showLexiconModal.value) {
+      closeLexiconModal()
+    }
+  }
+}
+
 onMounted(() => {
   loadLatestPoetries()
   fetchLeaderboard()
+  window.addEventListener('keydown', handleKeydown)
 })
 
 onBeforeUnmount(() => {
   clearTimer()
   clearRecallTimer()
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -2012,8 +2147,106 @@ button:hover:not(:disabled) {
   font-size: 20px;
 }
 
+.lexicon-poetry-name.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+}
+
+.lexicon-poetry-name.clickable:hover {
+  color: #f4d03f;
+  text-decoration-color: #f4d03f;
+}
+
 .lexicon-poetry-pinyin {
   color: #c5c5c5;
   font-size: 12px;
+}
+
+.pinyin-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.pinyin-modal {
+  width: min(600px, 90vw);
+  max-height: 80vh;
+  background: #0d0f1a;
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.pinyin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pinyin-header h3 {
+  color: #ffd700;
+  font-size: 20px;
+  margin: 8px 0 0;
+}
+
+.pinyin-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.pinyin-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pinyin-chinese,
+.pinyin-pinyin {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.pinyin-label {
+  color: #8fd19e;
+  font-size: 12px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.pinyin-text {
+  color: #f7f7f7;
+  font-size: 16px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pinyin-meta {
+  color: #c5c5c5;
+  font-size: 14px;
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
 }
 </style>
