@@ -70,12 +70,15 @@ export const ROUTES = {
   ATTENTION_LETTER_REINFORCE: 'attention-letter-reinforce',
   ATTENTION_IDIOM_ADVANCED: 'attention-idiom-advanced',
   ATTENTION_POETRY_CHALLENGE: 'attention-poetry-challenge',
+  ATTENTION_POETRY_REINFORCE: 'attention-poetry-reinforce',
   ATTENTION_SUDOKU: 'attention-sudoku',
   ATTENTION_NUMBER_SLIDER: 'attention-number-slider',
   ATTENTION_PHOTO_MEMORY: 'attention-photo-memory',
   ATTENTION_NUMBER_MEMORY_CODE: 'attention-number-memory-code',
   ATTENTION_NUMBER_FAX: 'attention-number-fax',
-  ATTENTION_CARD_MEMORY: 'attention-card-memory'
+  ATTENTION_CARD_MEMORY: 'attention-card-memory',
+  ATTENTION_SENSORY_MEMORY: 'attention-sensory-memory',
+  ATTENTION_PEG_MEMORY: 'attention-peg-memory'
 }
 
 // 不需要登录的路由
@@ -306,6 +309,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     goToAttentionPoetryChallenge() {
       this.navigate(ROUTES.ATTENTION_POETRY_CHALLENGE)
     },
+    goToAttentionPoetryReinforce() {
+      this.navigate(ROUTES.ATTENTION_POETRY_REINFORCE)
+    },
     goToAttentionSudoku() {
       this.navigate(ROUTES.ATTENTION_SUDOKU)
     },
@@ -323,6 +329,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToAttentionCardMemory() {
       this.navigate(ROUTES.ATTENTION_CARD_MEMORY)
+    },
+    goToAttentionSensoryMemory() {
+      this.navigate(ROUTES.ATTENTION_SENSORY_MEMORY)
     },
     
     // 登出（跳转到登录页）

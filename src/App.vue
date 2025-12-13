@@ -62,12 +62,15 @@
     <LetterReinforcePage v-if="router.currentRoute.value === ROUTES.ATTENTION_LETTER_REINFORCE" />
     <IdiomAdvancedPage v-if="router.currentRoute.value === ROUTES.ATTENTION_IDIOM_ADVANCED" />
     <PoetryChallengePage v-if="router.currentRoute.value === ROUTES.ATTENTION_POETRY_CHALLENGE" />
+    <PoetryReinforcePage v-if="router.currentRoute.value === ROUTES.ATTENTION_POETRY_REINFORCE" />
     <SudokuPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SUDOKU" />
     <NumberSliderPage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_SLIDER" />
     <PhotoMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PHOTO_MEMORY" />
     <NumberMemoryCodePage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_MEMORY_CODE" />
     <NumberFaxPage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_FAX" />
     <CardMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_CARD_MEMORY" />
+    <SensoryMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SENSORY_MEMORY" />
+    <PegMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PEG_MEMORY" />
   </div>
 </template>
 
@@ -135,12 +138,15 @@ import DigitIntroPage from './components/attentionTraining/DigitIntroPage.vue'
 import LetterReinforcePage from './components/attentionTraining/LetterReinforcePage.vue'
 import IdiomAdvancedPage from './components/attentionTraining/IdiomAdvancedPage.vue'
 import PoetryChallengePage from './components/attentionTraining/PoetryChallengePage.vue'
+import PoetryReinforcePage from './components/attentionTraining/PoetryReinforcePage.vue'
 import SudokuPage from './components/attentionTraining/SudokuPage.vue'
 import NumberSliderPage from './components/attentionTraining/NumberSliderPage.vue'
 import PhotoMemoryPage from './components/attentionTraining/PhotoMemoryPage.vue'
 import NumberMemoryCodePage from './components/attentionTraining/NumberMemoryCodePage.vue'
 import NumberFaxPage from './components/attentionTraining/NumberFaxPage.vue'
 import CardMemoryPage from './components/attentionTraining/CardMemoryPage.vue'
+import SensoryMemoryPage from './components/attentionTraining/SensoryMemoryPage.vue'
+import PegMemoryPage from './components/attentionTraining/PegMemoryPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

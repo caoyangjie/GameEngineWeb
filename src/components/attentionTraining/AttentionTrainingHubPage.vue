@@ -76,12 +76,15 @@ const games = [
   { title: '字母巩固', route: ROUTES.ATTENTION_LETTER_REINFORCE, icon: '🔠', desc: '字母顺序与反射巩固训练' },
   { title: '成语进阶', route: ROUTES.ATTENTION_IDIOM_ADVANCED, icon: '📜', desc: '语义匹配与专注力结合' },
   { title: '诗词挑战', route: ROUTES.ATTENTION_POETRY_CHALLENGE, icon: '🖋️', desc: '诗句补全与记忆跨度训练' },
+  { title: '诗词巩固', route: ROUTES.ATTENTION_POETRY_REINFORCE, icon: '📝', desc: '诗词字格记忆游戏，按顺序点击完成' },
   { title: '数独', route: ROUTES.ATTENTION_SUDOKU, icon: '🧩', desc: '逻辑与专注融合的数独关卡' },
   { title: '数字华容道', route: ROUTES.ATTENTION_NUMBER_SLIDER, icon: '🎛️', desc: '滑块拼数与路径规划' },
   { title: '照相记忆', route: ROUTES.ATTENTION_PHOTO_MEMORY, icon: '📸', desc: '瞬时视觉记忆与回忆训练' },
   { title: '数字记忆编码', route: ROUTES.ATTENTION_NUMBER_MEMORY_CODE, icon: '🔑', desc: '00-99 数字编码图片记忆训练' },
   { title: '数字传真', route: ROUTES.ATTENTION_NUMBER_FAX, icon: '📠', desc: '选择目标数字，统计在多组数字中的出现次数' },
-  { title: '扑克牌快速记忆', route: ROUTES.ATTENTION_CARD_MEMORY, icon: '🃏', desc: '参考记忆大师顺背技巧的整副牌速记练习' }
+  { title: '扑克牌快速记忆', route: ROUTES.ATTENTION_CARD_MEMORY, icon: '🃏', desc: '参考记忆大师顺背技巧的整副牌速记练习' },
+  { title: '感官探险记忆法', route: ROUTES.ATTENTION_SENSORY_MEMORY, icon: '🧠', desc: '通过视觉、听觉、嗅觉、触觉、味觉的协同运用，增强记忆力和联想能力' },
+  { title: '定桩记忆法', route: ROUTES.ATTENTION_PEG_MEMORY, icon: '📍', desc: '自定义定桩模板，强化数字与记忆目标的对应关系' }
 ]
 
 const handleEnter = (route) => {
