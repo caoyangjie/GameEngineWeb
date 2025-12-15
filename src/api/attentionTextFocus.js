@@ -31,3 +31,11 @@ export function getTextFocusUserRecords(limit = 10) {
     params: { limit }
   })
 }
+
+export function updateTextFocusAudioUrl(contentId, audioUrl) {
+  return request({
+    url: `/attention/textFocus/contents/${contentId}/audioUrl`,
+    method: 'post',
+    params: { audioUrl }
+  })
+}

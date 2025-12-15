@@ -216,7 +216,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { ROUTES, useRouter } from '../../composables/useRouter.js'
-import { generateTextFocusContents, getLatestTextFocusContents, saveTextFocusRecord } from '../../api/attentionTextFocus.js'
+import { generateTextFocusContents, getLatestTextFocusContents, saveTextFocusRecord, updateTextFocusAudioUrl } from '../../api/attentionTextFocus.js'
 import { synthesizeTts } from '../../api/tts.js'
 
 const router = useRouter()
@@ -482,6 +482,31 @@ const buildTtsText = () => {
 
 const playQuestionsTts = async () => {
   if (!selectedContent.value || isGeneratingTts.value) return
+
+  // 如果数据库中已有音频地址，则直接播放
+  const existedUrl = selectedContent.value.audioUrl
+  if (existedUrl) {
+    try {
+      ttsError.value = ''
+      disposeTtsAudio()
+      ttsAudioUrl.value = existedUrl
+      ttsAudio = new Audio(existedUrl)
+      isPlayingTts.value = true
+      await ttsAudio.play()
+      ttsAudio.onended = () => {
+        isPlayingTts.value = false
+      }
+      ttsAudio.onerror = () => {
+        isPlayingTts.value = false
+        ttsError.value = '音频播放失败'
+      }
+    } catch (e) {
+      console.error(e)
+      ttsError.value = e?.message || '音频播放失败'
+    }
+    return
+  }
+
   const text = buildTtsText()
   if (!text) return
   isGeneratingTts.value = true
@@ -506,6 +531,7 @@ const playQuestionsTts = async () => {
     } else {
       throw new Error('无法识别的音频数据')
     }
+
     ttsAudioUrl.value = url
     ttsAudio = new Audio(url)
     isPlayingTts.value = true
@@ -516,6 +542,17 @@ const playQuestionsTts = async () => {
     ttsAudio.onerror = () => {
       isPlayingTts.value = false
       ttsError.value = '音频播放失败'
+    }
+
+    // 语音生成成功后，回写到后端的 audio_url 字段
+    try {
+      if (selectedContent.value?.id && url) {
+        await updateTextFocusAudioUrl(selectedContent.value.id, url)
+        // 更新本地数据，避免再次刷新前端仍然认为没有 audioUrl
+        selectedContent.value.audioUrl = url
+      }
+    } catch (err) {
+      console.error('更新音频地址失败', err)
     }
   } catch (e) {
     console.error(e)
