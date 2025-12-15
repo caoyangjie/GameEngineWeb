@@ -358,6 +358,26 @@
           <span class="sidebar-text">顶级思维模式训练</span>
           <span class="sidebar-arrow" :class="{ rotated: showThinkingSubmenu }">→</span>
         </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: learningActive }"
+          @click="toggleLearningSubmenu"
+        >
+          <span class="sidebar-icon">📖</span>
+          <span class="sidebar-text">学习</span>
+          <span class="sidebar-arrow" :class="{ rotated: showLearningSubmenu }">→</span>
+        </div>
+        <!-- 学习二级菜单 -->
+        <div v-if="showLearningSubmenu" class="submenu">
+          <div 
+            class="submenu-item" 
+            :class="{ active: activeRoute === ROUTES.LEARNING_RECORD_LIST }" 
+            @click="handleNavigate(ROUTES.LEARNING_RECORD_LIST)"
+          >
+            <span class="submenu-icon">📝</span>
+            <span class="submenu-text">学习记录管理</span>
+          </div>
+        </div>
         <div v-if="menuConfig.showThinkingModeTraining && showThinkingSubmenu" class="submenu">
           <div
             class="submenu-item"
@@ -482,6 +502,7 @@ const showIncomeHistorySubmenu = ref(false)
 const showMonthlyReportSubmenu = ref(false)
 const showAttentionSubmenu = ref(false)
 const showThinkingSubmenu = ref(false)
+const showLearningSubmenu = ref(false)
 
 const attentionRoutes = [
   ROUTES.ATTENTION_TRAINING,
@@ -511,6 +532,13 @@ const thinkingRoutes = [
 
 const thinkingActive = computed(() => thinkingRoutes.includes(props.activeRoute))
 
+const learningRoutes = [
+  ROUTES.LEARNING_STEPS,
+  ROUTES.LEARNING_RECORD_LIST
+]
+
+const learningActive = computed(() => learningRoutes.includes(props.activeRoute))
+
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
   if (newRoute === ROUTES.JOURNEY || newRoute === ROUTES.UPGRADE_BOUNTY) {
@@ -537,6 +565,9 @@ watch(() => props.activeRoute, (newRoute) => {
   }
   if (thinkingRoutes.includes(newRoute)) {
     showThinkingSubmenu.value = true
+  }
+  if (learningRoutes.includes(newRoute)) {
+    showLearningSubmenu.value = true
   }
 }, { immediate: true })
 
@@ -568,6 +599,10 @@ const toggleThinkingSubmenu = () => {
   showThinkingSubmenu.value = !showThinkingSubmenu.value
 }
 
+const toggleLearningSubmenu = () => {
+  showLearningSubmenu.value = !showLearningSubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
@@ -593,6 +628,9 @@ const handleNavigate = (route) => {
   }
   if (thinkingRoutes.includes(route)) {
     showThinkingSubmenu.value = false
+  }
+  if (learningRoutes.includes(route)) {
+    showLearningSubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -726,6 +764,10 @@ const handleNavigate = (route) => {
     router.goToThinkingSixHats()
   } else if (route === ROUTES.THINKING_BRAINSTORMING) {
     router.goToThinkingBrainstorming()
+  } else if (route === ROUTES.LEARNING_RECORD_LIST) {
+    // 学习记录管理：不传 templateId，显示模板选择界面
+    // router.goToLearningRecordList(null)
+    router.goToLearningMethodology()
   }
   
   // 通知父组件关闭侧边栏

@@ -425,16 +425,19 @@
 		
 		audio.onended = () => {
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  resolve()
 		}
 		
 		audio.onerror = (e) => {
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  reject(new Error('音频播放失败'))
 		}
 		
 		audio.play().catch(err => {
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  reject(err)
 		})
 	  })
@@ -472,18 +475,21 @@
 		audio.onended = () => {
 		  URL.revokeObjectURL(audioUrl)
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  resolve()
 		}
 		
 		audio.onerror = (e) => {
 		  URL.revokeObjectURL(audioUrl)
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  reject(new Error('音频播放失败'))
 		}
 		
 		audio.play().catch(err => {
 		  URL.revokeObjectURL(audioUrl)
 		  currentAudio = null
+		  isPlayingAudio.value = false
 		  reject(err)
 		})
 	  })
@@ -499,12 +505,20 @@
 	  throw new Error('音频数据为空')
 	}
 	
-	// 判断是否为 URL（以 http:// 或 https:// 开头）
-	if (typeof audioData === 'string' && (audioData.startsWith('http://') || audioData.startsWith('https://'))) {
-	  return await playAudioFromUrl(audioData)
-	} else {
-	  // 否则当作 Base64 处理
-	  return await playAudioFromBase64(audioData)
+	isPlayingAudio.value = true
+	try {
+	  // 判断是否为 URL（以 http:// 或 https:// 开头）
+	  if (typeof audioData === 'string' && (audioData.startsWith('http://') || audioData.startsWith('https://'))) {
+		return await playAudioFromUrl(audioData)
+	  } else {
+		// 否则当作 Base64 处理
+		return await playAudioFromBase64(audioData)
+	  }
+	} finally {
+	  // playAudioFrom* 在播放结束会将 isPlayingAudio 置为 false；此处兜底
+	  if (isPlayingAudio.value && !currentAudio) {
+		isPlayingAudio.value = false
+	  }
 	}
   }
 
@@ -549,7 +563,15 @@
 	  }).join('。')
 	  
 	  console.log('开始生成语音包...')
-	  const audioData = await synthesizeTts(allText, voice)
+	  const audioData = await synthesizeTts({
+		text: allText,
+		voice,
+		targetNumber: parseInt(selectedNumber.value),
+		groupCount: totalGroups.value,
+		groupsJson: JSON.stringify(allGroups.value),
+		correctAnswer: correctAnswer.value,
+		userAnswer: null
+	  })
 	  cachedAudioData.value = audioData
 	  
 	  // 如果返回的是 URL，保存到 audioUrl
@@ -586,12 +608,9 @@
 	
 	// 如果成功生成且是 URL，自动播放
 	if (audioUrl.value) {
-	  // 保存到数据库
 	  await saveToDatabase()
-	  // 自动播放
-	  await playAudioFromUrl()
+	  await playAudio(audioUrl.value)
 	} else if (cachedAudioData.value) {
-	  // 如果是 Base64，也保存并播放
 	  await saveToDatabase()
 	  await playAudio(cachedAudioData.value)
 	}
@@ -659,7 +678,15 @@
 		  const groupText = group.join(' ')
 		  return `第${index + 1}组：${groupText}`
 		}).join('。')
-		cachedAudioData.value = await synthesizeTts(allText, voice)
+		cachedAudioData.value = await synthesizeTts({
+		  text: allText,
+		  voice,
+		  targetNumber: parseInt(selectedNumber.value),
+		  groupCount: totalGroups.value,
+		  groupsJson: JSON.stringify(allGroups.value),
+		  correctAnswer: correctAnswer.value,
+		  userAnswer: null
+		})
 	  } catch (error) {
 		console.error('实时生成音频失败:', error)
 		handleTTSError(null)

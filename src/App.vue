@@ -68,10 +68,14 @@
     <PhotoMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PHOTO_MEMORY" />
     <NumberMemoryCodePage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_MEMORY_CODE" />
     <NumberFaxPage v-if="router.currentRoute.value === ROUTES.ATTENTION_NUMBER_FAX" />
+    <TextFocusPage v-if="router.currentRoute.value === ROUTES.ATTENTION_TEXT_FOCUS" />
     <CardMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_CARD_MEMORY" />
     <SensoryMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SENSORY_MEMORY" />
     <PegMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PEG_MEMORY" />
     <ThinkingModeTrainingHubPage v-if="router.currentRoute.value === ROUTES.THINKING_MODE_TRAINING" />
+    <LearningMethodologyPage v-if="router.currentRoute.value === ROUTES.LEARNING_METHODOLOGY" />
+    <LearningStepsPage v-if="router.currentRoute.value === ROUTES.LEARNING_STEPS" />
+    <LearningRecordListPage v-if="router.currentRoute.value === ROUTES.LEARNING_RECORD_LIST" />
   </div>
 </template>
 
@@ -145,10 +149,14 @@ import NumberSliderPage from './components/attentionTraining/NumberSliderPage.vu
 import PhotoMemoryPage from './components/attentionTraining/PhotoMemoryPage.vue'
 import NumberMemoryCodePage from './components/attentionTraining/NumberMemoryCodePage.vue'
 import NumberFaxPage from './components/attentionTraining/NumberFaxPage.vue'
+import TextFocusPage from './components/attentionTraining/TextFocusPage.vue'
 import CardMemoryPage from './components/attentionTraining/CardMemoryPage.vue'
 import SensoryMemoryPage from './components/attentionTraining/SensoryMemoryPage.vue'
 import PegMemoryPage from './components/attentionTraining/PegMemoryPage.vue'
 import ThinkingModeTrainingHubPage from './components/thinkingModeTraining/ThinkingModeTrainingHubPage.vue'
+import LearningMethodologyPage from './components/learningMethodology/LearningMethodologyPage.vue'
+import LearningStepsPage from './components/learningMethodology/LearningStepsPage.vue'
+import LearningRecordListPage from './components/learningMethodology/LearningRecordListPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

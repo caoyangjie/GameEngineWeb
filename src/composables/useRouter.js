@@ -76,6 +76,7 @@ export const ROUTES = {
   ATTENTION_PHOTO_MEMORY: 'attention-photo-memory',
   ATTENTION_NUMBER_MEMORY_CODE: 'attention-number-memory-code',
   ATTENTION_NUMBER_FAX: 'attention-number-fax',
+  ATTENTION_TEXT_FOCUS: 'attention-text-focus',
   ATTENTION_CARD_MEMORY: 'attention-card-memory',
   ATTENTION_SENSORY_MEMORY: 'attention-sensory-memory',
   ATTENTION_PEG_MEMORY: 'attention-peg-memory',
@@ -89,7 +90,11 @@ export const ROUTES = {
   THINKING_QUADRANT: 'thinking-quadrant',
   THINKING_GROW: 'thinking-grow',
   THINKING_SIX_HATS: 'thinking-six-hats',
-  THINKING_BRAINSTORMING: 'thinking-brainstorming'
+  THINKING_BRAINSTORMING: 'thinking-brainstorming',
+  // 教育学习方法论
+  LEARNING_METHODOLOGY: 'learning-methodology',
+  LEARNING_STEPS: 'learning-steps',
+  LEARNING_RECORD_LIST: 'learning-record-list'
 }
 
 // 不需要登录的路由
@@ -338,6 +343,9 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     goToAttentionNumberFax() {
       this.navigate(ROUTES.ATTENTION_NUMBER_FAX)
     },
+    goToAttentionTextFocus() {
+      this.navigate(ROUTES.ATTENTION_TEXT_FOCUS)
+    },
     goToAttentionCardMemory() {
       this.navigate(ROUTES.ATTENTION_CARD_MEMORY)
     },
@@ -374,6 +382,29 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToThinkingBrainstorming() {
       this.navigate(ROUTES.THINKING_BRAINSTORMING)
+    },
+    // 教育学习方法论
+    goToLearningMethodology() {
+      this.navigate(ROUTES.LEARNING_RECORD_LIST)
+    },
+    goToLearningSteps(templateId, learningTopic, studentName) {
+      // 将参数存储到window对象，供页面组件使用
+      window.learningStepsParams = {
+        templateId,
+        learningTopic,
+        studentName
+      }
+      this.navigate(ROUTES.LEARNING_STEPS)
+    },
+    goToLearningRecordList(templateId) {
+      // 将模板ID存储到window对象，供页面组件使用（如果提供）
+      if (templateId) {
+        window.learningRecordTemplateId = templateId
+      } else {
+        // 如果为 null，清除之前的值
+        delete window.learningRecordTemplateId
+      }
+      this.navigate(ROUTES.LEARNING_RECORD_LIST)
     },
     
     // 登出（跳转到登录页）

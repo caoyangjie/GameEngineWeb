@@ -19,11 +19,28 @@ function getCurrentLocale() {
 
 /**
  * 合成语音
- * @param {string} text - 要合成的文本
- * @param {string} voice - 发音人，默认为 Cherry
+ * @param {Object} payload
+ * @param {string} payload.text - 要合成的文本
+ * @param {string} [payload.voice] - 发音人，默认为 Cherry
+ * @param {number} [payload.targetNumber] - 数字传真目标数字
+ * @param {number} [payload.groupCount] - 数字组数
+ * @param {string} [payload.groupsJson] - 所有数字组的 JSON 字符串
+ * @param {number} [payload.correctAnswer] - 正确答案
+ * @param {number|null} [payload.userAnswer] - 用户答案（可空）
  * @returns {Promise<string>} 音频 URL 或 Base64 编码的音频数据
  */
-export function synthesizeTts(text, voice = 'Cherry') {
+export function synthesizeTts({
+  text,
+  voice = 'Cherry',
+  targetNumber,
+  groupCount,
+  groupsJson,
+  correctAnswer,
+  userAnswer
+}) {
+  if (!text) {
+    return Promise.reject(new Error('文本不能为空'))
+  }
   // 为 TTS 请求创建单独的 axios 实例，设置更长的超时时间（60秒）
   const ttsRequest = axios.create({
     baseURL: '/api',
@@ -84,7 +101,12 @@ export function synthesizeTts(text, voice = 'Cherry') {
     method: 'post',
     data: {
       text,
-      voice
+      voice,
+      targetNumber,
+      groupCount,
+      groupsJson,
+      correctAnswer,
+      userAnswer
     }
   }).then(res => {
     if (res.code === 200 && res.data) {
