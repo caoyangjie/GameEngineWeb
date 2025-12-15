@@ -348,6 +348,98 @@
             <span class="submenu-text">照相记忆</span>
           </div>
         </div>
+        <div
+          v-if="menuConfig.showThinkingModeTraining"
+          class="sidebar-item"
+          :class="{ active: thinkingActive }"
+          @click="toggleThinkingSubmenu"
+        >
+          <span class="sidebar-icon">🧠</span>
+          <span class="sidebar-text">顶级思维模式训练</span>
+          <span class="sidebar-arrow" :class="{ rotated: showThinkingSubmenu }">→</span>
+        </div>
+        <div v-if="menuConfig.showThinkingModeTraining && showThinkingSubmenu" class="submenu">
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_MODE_TRAINING }"
+            @click="handleNavigate(ROUTES.THINKING_MODE_TRAINING)"
+          >
+            <span class="submenu-icon">📑</span>
+            <span class="submenu-text">训练概览</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_5W2H }"
+            @click="handleNavigate(ROUTES.THINKING_5W2H)"
+          >
+            <span class="submenu-icon">❓</span>
+            <span class="submenu-text">5W2H分析法</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_DESCARTES }"
+            @click="handleNavigate(ROUTES.THINKING_DESCARTES)"
+          >
+            <span class="submenu-icon">🧮</span>
+            <span class="submenu-text">笛卡尔思维模型</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_FEYNMAN }"
+            @click="handleNavigate(ROUTES.THINKING_FEYNMAN)"
+          >
+            <span class="submenu-icon">📚</span>
+            <span class="submenu-text">费曼学习法</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_DELIBERATE_PRACTICE }"
+            @click="handleNavigate(ROUTES.THINKING_DELIBERATE_PRACTICE)"
+          >
+            <span class="submenu-icon">🎯</span>
+            <span class="submenu-text">刻意练习思维模型</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_SMART }"
+            @click="handleNavigate(ROUTES.THINKING_SMART)"
+          >
+            <span class="submenu-icon">🎪</span>
+            <span class="submenu-text">SMART目标模式</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_QUADRANT }"
+            @click="handleNavigate(ROUTES.THINKING_QUADRANT)"
+          >
+            <span class="submenu-icon">📊</span>
+            <span class="submenu-text">四象限法则</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_GROW }"
+            @click="handleNavigate(ROUTES.THINKING_GROW)"
+          >
+            <span class="submenu-icon">🌱</span>
+            <span class="submenu-text">GROW模型</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_SIX_HATS }"
+            @click="handleNavigate(ROUTES.THINKING_SIX_HATS)"
+          >
+            <span class="submenu-icon">🎩</span>
+            <span class="submenu-text">六顶思考帽</span>
+          </div>
+          <div
+            class="submenu-item"
+            :class="{ active: activeRoute === ROUTES.THINKING_BRAINSTORMING }"
+            @click="handleNavigate(ROUTES.THINKING_BRAINSTORMING)"
+          >
+            <span class="submenu-icon">💡</span>
+            <span class="submenu-text">头脑风暴法</span>
+          </div>
+        </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
           <span class="sidebar-text">{{ t('sidebar.logout') }}</span>
@@ -389,6 +481,7 @@ const showVaultHistorySubmenu = ref(false)
 const showIncomeHistorySubmenu = ref(false)
 const showMonthlyReportSubmenu = ref(false)
 const showAttentionSubmenu = ref(false)
+const showThinkingSubmenu = ref(false)
 
 const attentionRoutes = [
   ROUTES.ATTENTION_TRAINING,
@@ -402,6 +495,21 @@ const attentionRoutes = [
 ]
 
 const attentionActive = computed(() => attentionRoutes.includes(props.activeRoute))
+
+const thinkingRoutes = [
+  ROUTES.THINKING_MODE_TRAINING,
+  ROUTES.THINKING_5W2H,
+  ROUTES.THINKING_DESCARTES,
+  ROUTES.THINKING_FEYNMAN,
+  ROUTES.THINKING_DELIBERATE_PRACTICE,
+  ROUTES.THINKING_SMART,
+  ROUTES.THINKING_QUADRANT,
+  ROUTES.THINKING_GROW,
+  ROUTES.THINKING_SIX_HATS,
+  ROUTES.THINKING_BRAINSTORMING
+]
+
+const thinkingActive = computed(() => thinkingRoutes.includes(props.activeRoute))
 
 // 监听 activeRoute，如果当前路由是 journey 或 upgrade-bounty，自动展开二级菜单
 watch(() => props.activeRoute, (newRoute) => {
@@ -426,6 +534,9 @@ watch(() => props.activeRoute, (newRoute) => {
   }
   if (attentionRoutes.includes(newRoute)) {
     showAttentionSubmenu.value = true
+  }
+  if (thinkingRoutes.includes(newRoute)) {
+    showThinkingSubmenu.value = true
   }
 }, { immediate: true })
 
@@ -453,6 +564,10 @@ const toggleAttentionSubmenu = () => {
   showAttentionSubmenu.value = !showAttentionSubmenu.value
 }
 
+const toggleThinkingSubmenu = () => {
+  showThinkingSubmenu.value = !showThinkingSubmenu.value
+}
+
 const handleNavigate = (route) => {
   if (route === ROUTES.JOURNEY || route === ROUTES.UPGRADE_BOUNTY) {
     showJourneySubmenu.value = false
@@ -475,6 +590,9 @@ const handleNavigate = (route) => {
   }
   if (attentionRoutes.includes(route)) {
     showAttentionSubmenu.value = false
+  }
+  if (thinkingRoutes.includes(route)) {
+    showThinkingSubmenu.value = false
   }
   
   // 直接使用 router 进行导航
@@ -588,6 +706,26 @@ const handleNavigate = (route) => {
     router.goToAttentionNumberSlider()
   } else if (route === ROUTES.ATTENTION_PHOTO_MEMORY) {
     router.goToAttentionPhotoMemory()
+  } else if (route === ROUTES.THINKING_MODE_TRAINING) {
+    router.goToThinkingModeTraining()
+  } else if (route === ROUTES.THINKING_5W2H) {
+    router.goToThinking5W2H()
+  } else if (route === ROUTES.THINKING_DESCARTES) {
+    router.goToThinkingDescartes()
+  } else if (route === ROUTES.THINKING_FEYNMAN) {
+    router.goToThinkingFeynman()
+  } else if (route === ROUTES.THINKING_DELIBERATE_PRACTICE) {
+    router.goToThinkingDeliberatePractice()
+  } else if (route === ROUTES.THINKING_SMART) {
+    router.goToThinkingSmart()
+  } else if (route === ROUTES.THINKING_QUADRANT) {
+    router.goToThinkingQuadrant()
+  } else if (route === ROUTES.THINKING_GROW) {
+    router.goToThinkingGrow()
+  } else if (route === ROUTES.THINKING_SIX_HATS) {
+    router.goToThinkingSixHats()
+  } else if (route === ROUTES.THINKING_BRAINSTORMING) {
+    router.goToThinkingBrainstorming()
   }
   
   // 通知父组件关闭侧边栏

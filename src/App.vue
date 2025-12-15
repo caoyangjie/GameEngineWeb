@@ -71,6 +71,7 @@
     <CardMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_CARD_MEMORY" />
     <SensoryMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SENSORY_MEMORY" />
     <PegMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PEG_MEMORY" />
+    <ThinkingModeTrainingHubPage v-if="router.currentRoute.value === ROUTES.THINKING_MODE_TRAINING" />
   </div>
 </template>
 
@@ -147,6 +148,7 @@ import NumberFaxPage from './components/attentionTraining/NumberFaxPage.vue'
 import CardMemoryPage from './components/attentionTraining/CardMemoryPage.vue'
 import SensoryMemoryPage from './components/attentionTraining/SensoryMemoryPage.vue'
 import PegMemoryPage from './components/attentionTraining/PegMemoryPage.vue'
+import ThinkingModeTrainingHubPage from './components/thinkingModeTraining/ThinkingModeTrainingHubPage.vue'
 import { createRouter, ROUTES } from './composables/useRouter.js'
 import { isAuthenticated } from './utils/auth.js'
 

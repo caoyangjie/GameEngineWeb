@@ -11,6 +11,9 @@ export const menuConfig = {
   // 专注力训练（包含父级和子级菜单）
   showAttentionTraining: true,
   
+  // 顶级思维模式训练（包含父级和子级菜单）
+  showThinkingModeTraining: true,
+  
   // 旅程详情（包括一级菜单和二级菜单）
   showJourneyDetails: false,
   

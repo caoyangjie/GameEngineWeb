@@ -78,7 +78,18 @@ export const ROUTES = {
   ATTENTION_NUMBER_FAX: 'attention-number-fax',
   ATTENTION_CARD_MEMORY: 'attention-card-memory',
   ATTENTION_SENSORY_MEMORY: 'attention-sensory-memory',
-  ATTENTION_PEG_MEMORY: 'attention-peg-memory'
+  ATTENTION_PEG_MEMORY: 'attention-peg-memory',
+  // 顶级思维模式训练
+  THINKING_MODE_TRAINING: 'thinking-mode-training',
+  THINKING_5W2H: 'thinking-5w2h',
+  THINKING_DESCARTES: 'thinking-descartes',
+  THINKING_FEYNMAN: 'thinking-feynman',
+  THINKING_DELIBERATE_PRACTICE: 'thinking-deliberate-practice',
+  THINKING_SMART: 'thinking-smart',
+  THINKING_QUADRANT: 'thinking-quadrant',
+  THINKING_GROW: 'thinking-grow',
+  THINKING_SIX_HATS: 'thinking-six-hats',
+  THINKING_BRAINSTORMING: 'thinking-brainstorming'
 }
 
 // 不需要登录的路由
@@ -332,6 +343,37 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToAttentionSensoryMemory() {
       this.navigate(ROUTES.ATTENTION_SENSORY_MEMORY)
+    },
+    // 顶级思维模式训练
+    goToThinkingModeTraining() {
+      this.navigate(ROUTES.THINKING_MODE_TRAINING)
+    },
+    goToThinking5W2H() {
+      this.navigate(ROUTES.THINKING_5W2H)
+    },
+    goToThinkingDescartes() {
+      this.navigate(ROUTES.THINKING_DESCARTES)
+    },
+    goToThinkingFeynman() {
+      this.navigate(ROUTES.THINKING_FEYNMAN)
+    },
+    goToThinkingDeliberatePractice() {
+      this.navigate(ROUTES.THINKING_DELIBERATE_PRACTICE)
+    },
+    goToThinkingSmart() {
+      this.navigate(ROUTES.THINKING_SMART)
+    },
+    goToThinkingQuadrant() {
+      this.navigate(ROUTES.THINKING_QUADRANT)
+    },
+    goToThinkingGrow() {
+      this.navigate(ROUTES.THINKING_GROW)
+    },
+    goToThinkingSixHats() {
+      this.navigate(ROUTES.THINKING_SIX_HATS)
+    },
+    goToThinkingBrainstorming() {
+      this.navigate(ROUTES.THINKING_BRAINSTORMING)
     },
     
     // 登出（跳转到登录页）

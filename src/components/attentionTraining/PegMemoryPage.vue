@@ -157,12 +157,10 @@
                   </div>
                   <div v-else class="number-input-group">
                     <input
-                      type="number"
-                      v-model.number="currentQuestion.userAnswer"
-                      :placeholder="`请输入数字（1-${selectedTemplate.totalPegs}）`"
+                      type="text"
+                      v-model="currentQuestion.userAnswer"
+                      placeholder="请输入对应的数字或汉字"
                       class="number-input"
-                      min="1"
-                      :max="selectedTemplate.totalPegs"
                       @keyup.enter="handleEnterKey"
                     />
                   </div>
@@ -740,7 +738,8 @@ const finalizeGame = async () => {
     if (trainingMode.value === 'number_to_target') {
       isCorrect = q.userAnswer === q.answer
     } else {
-      isCorrect = parseInt(q.userAnswer, 10) === q.answer
+      // 支持数字和汉字，使用字符串比较
+      isCorrect = String(q.userAnswer || '').trim() === String(q.answer || '').trim()
     }
     return {
       ...q,
@@ -768,7 +767,7 @@ const saveRecord = async (correct, total, accuracy, duration) => {
       correct:
         trainingMode.value === 'number_to_target'
           ? q.userAnswer === q.answer
-          : parseInt(q.userAnswer, 10) === q.answer
+          : String(q.userAnswer || '').trim() === String(q.answer || '').trim()
     }))
     await savePegMemoryRecord({
       templateId: selectedTemplate.value.id,

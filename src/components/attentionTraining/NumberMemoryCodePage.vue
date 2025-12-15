@@ -310,7 +310,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onUnmounted } from 'vue'
 import { useRouter, ROUTES } from '../../composables/useRouter.js'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
@@ -581,6 +581,27 @@ const handleEncodeImageError = (event, number) => {
     parent.innerHTML = `<div class="image-placeholder">图片 ${number}</div>`
   }
 }
+
+// ESC 键关闭弹窗
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && showEncodeModal.value) {
+    closeEncodeModal()
+  }
+}
+
+// 监听弹窗显示状态，动态添加/移除键盘事件监听器
+watch(() => showEncodeModal.value, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('keydown', handleKeyDown)
+  } else {
+    document.removeEventListener('keydown', handleKeyDown)
+  }
+})
+
+// 组件卸载时移除事件监听器
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+})
 
 watch(() => gameMode.value, () => {
   if (gameStatus.value === 'running') {

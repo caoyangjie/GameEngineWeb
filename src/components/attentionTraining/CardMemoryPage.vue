@@ -39,9 +39,9 @@
             <div class="control-item">
               <label for="memorize-seconds">基础记忆时长</label>
               <select id="memorize-seconds" v-model="memorizeSeconds" :disabled="isRunning">
-                <option value="30">30 秒 · 极速</option>
-                <option value="60">60 秒 · 经典</option>
-                <option value="120">120 秒 · 稳妥</option>
+                <option value="90">90 秒 · 极速</option>
+                <option value="180">180 秒 · 经典</option>
+                <option value="360">360 秒 · 稳妥</option>
               </select>
             </div>
             <div class="control-item">
@@ -349,7 +349,7 @@ import { showConfirm } from '../../utils/alert.js'
 const router = useRouter()
 const sidebarOpen = ref(false)
 const selectedDeckSize = ref('26')
-const memorizeSeconds = ref('60')
+const memorizeSeconds = ref('180')
 const revealMode = ref('grid')
 const gameStatus = ref('idle') // idle | memorizing | recalling | completed
 const isTransitioning = ref(false)
@@ -411,9 +411,14 @@ const statusText = computed(() => {
 })
 const isRunning = computed(() => gameStatus.value !== 'idle')
 const currentPosition = computed(() => Math.min(userSequence.value.length + 1, totalCards.value))
-const availableCards = computed(() =>
-  cardSequence.value.filter((card) => !userSequence.value.some((sel) => sel.id === card.id))
-)
+const availableCards = computed(() => {
+  const filtered = cardSequence.value.filter((card) => !userSequence.value.some((sel) => sel.id === card.id))
+  // 在复现阶段，打乱可用牌的顺序
+  if (gameStatus.value === 'recalling') {
+    return shuffle(filtered)
+  }
+  return filtered
+})
 const recallProgress = computed(() => {
   if (!totalCards.value) return 0
   return Math.round((userSequence.value.length / totalCards.value) * 100)
