@@ -80,6 +80,23 @@ export const ROUTES = {
   ATTENTION_CARD_MEMORY: 'attention-card-memory',
   ATTENTION_SENSORY_MEMORY: 'attention-sensory-memory',
   ATTENTION_PEG_MEMORY: 'attention-peg-memory',
+  // 作文提升训练
+  WRITING_TRAINING: 'writing-training',
+  WRITING_WORD_EXPANSION: 'writing-word-expansion',
+  WRITING_OVERVIEW_STRUCTURE: 'writing-overview-structure',
+  WRITING_CHARACTER: 'writing-character',
+  WRITING_EVENT: 'writing-event',
+  WRITING_SCENERY: 'writing-scenery',
+  WRITING_ANIMAL: 'writing-animal',
+  WRITING_PLANT: 'writing-plant',
+  WRITING_OBJECT: 'writing-object',
+  WRITING_OPENING: 'writing-opening',
+  WRITING_CLOSING: 'writing-closing',
+  WRITING_BODY: 'writing-body',
+  WRITING_FIVE_SENSES: 'writing-five-senses',
+  WRITING_EXPERIENCE_REFLECTION: 'writing-experience-reflection',
+  WRITING_SCENE_CHARACTER_ACTION: 'writing-scene-character-action',
+  WRITING_PROBLEM_SOLUTION_RESULT: 'writing-problem-solution-result',
   // 顶级思维模式训练
   THINKING_MODE_TRAINING: 'thinking-mode-training',
   THINKING_5W2H: 'thinking-5w2h',
@@ -351,6 +368,58 @@ export function createRouter(initialRoute = ROUTES.LOGIN) {
     },
     goToAttentionSensoryMemory() {
       this.navigate(ROUTES.ATTENTION_SENSORY_MEMORY)
+    },
+    goToAttentionPegMemory() {
+      this.navigate(ROUTES.ATTENTION_PEG_MEMORY)
+    },
+    // 作文提升训练
+    goToWritingTraining() {
+      this.navigate(ROUTES.WRITING_TRAINING)
+    },
+    goToWritingWordExpansion() {
+      this.navigate(ROUTES.WRITING_WORD_EXPANSION)
+    },
+    goToWritingOverviewStructure() {
+      this.navigate(ROUTES.WRITING_OVERVIEW_STRUCTURE)
+    },
+    goToWritingCharacter() {
+      this.navigate(ROUTES.WRITING_CHARACTER)
+    },
+    goToWritingEvent() {
+      this.navigate(ROUTES.WRITING_EVENT)
+    },
+    goToWritingScenery() {
+      this.navigate(ROUTES.WRITING_SCENERY)
+    },
+    goToWritingAnimal() {
+      this.navigate(ROUTES.WRITING_ANIMAL)
+    },
+    goToWritingPlant() {
+      this.navigate(ROUTES.WRITING_PLANT)
+    },
+    goToWritingObject() {
+      this.navigate(ROUTES.WRITING_OBJECT)
+    },
+    goToWritingOpening() {
+      this.navigate(ROUTES.WRITING_OPENING)
+    },
+    goToWritingClosing() {
+      this.navigate(ROUTES.WRITING_CLOSING)
+    },
+    goToWritingBody() {
+      this.navigate(ROUTES.WRITING_BODY)
+    },
+    goToWritingFiveSenses() {
+      this.navigate(ROUTES.WRITING_FIVE_SENSES)
+    },
+    goToWritingExperienceReflection() {
+      this.navigate(ROUTES.WRITING_EXPERIENCE_REFLECTION)
+    },
+    goToWritingSceneCharacterAction() {
+      this.navigate(ROUTES.WRITING_SCENE_CHARACTER_ACTION)
+    },
+    goToWritingProblemSolutionResult() {
+      this.navigate(ROUTES.WRITING_PROBLEM_SOLUTION_RESULT)
     },
     // 顶级思维模式训练
     goToThinkingModeTraining() {

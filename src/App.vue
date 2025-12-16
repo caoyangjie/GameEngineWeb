@@ -72,6 +72,22 @@
     <CardMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_CARD_MEMORY" />
     <SensoryMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_SENSORY_MEMORY" />
     <PegMemoryPage v-if="router.currentRoute.value === ROUTES.ATTENTION_PEG_MEMORY" />
+    <WritingTrainingHubPage v-if="router.currentRoute.value === ROUTES.WRITING_TRAINING" />
+    <WordExpansionPage v-if="router.currentRoute.value === ROUTES.WRITING_WORD_EXPANSION" />
+    <OverviewStructurePage v-if="router.currentRoute.value === ROUTES.WRITING_OVERVIEW_STRUCTURE" />
+    <CharacterPage v-if="router.currentRoute.value === ROUTES.WRITING_CHARACTER" />
+    <EventPage v-if="router.currentRoute.value === ROUTES.WRITING_EVENT" />
+    <SceneryPage v-if="router.currentRoute.value === ROUTES.WRITING_SCENERY" />
+    <AnimalPage v-if="router.currentRoute.value === ROUTES.WRITING_ANIMAL" />
+    <PlantPage v-if="router.currentRoute.value === ROUTES.WRITING_PLANT" />
+    <ObjectPage v-if="router.currentRoute.value === ROUTES.WRITING_OBJECT" />
+    <OpeningPage v-if="router.currentRoute.value === ROUTES.WRITING_OPENING" />
+    <ClosingPage v-if="router.currentRoute.value === ROUTES.WRITING_CLOSING" />
+    <BodyPage v-if="router.currentRoute.value === ROUTES.WRITING_BODY" />
+    <FiveSensesPage v-if="router.currentRoute.value === ROUTES.WRITING_FIVE_SENSES" />
+    <ExperienceReflectionPage v-if="router.currentRoute.value === ROUTES.WRITING_EXPERIENCE_REFLECTION" />
+    <SceneCharacterActionPage v-if="router.currentRoute.value === ROUTES.WRITING_SCENE_CHARACTER_ACTION" />
+    <ProblemSolutionResultPage v-if="router.currentRoute.value === ROUTES.WRITING_PROBLEM_SOLUTION_RESULT" />
     <ThinkingModeTrainingHubPage v-if="router.currentRoute.value === ROUTES.THINKING_MODE_TRAINING" />
     <LearningMethodologyPage v-if="router.currentRoute.value === ROUTES.LEARNING_METHODOLOGY" />
     <LearningStepsPage v-if="router.currentRoute.value === ROUTES.LEARNING_STEPS" />
@@ -153,6 +169,22 @@ import TextFocusPage from './components/attentionTraining/TextFocusPage.vue'
 import CardMemoryPage from './components/attentionTraining/CardMemoryPage.vue'
 import SensoryMemoryPage from './components/attentionTraining/SensoryMemoryPage.vue'
 import PegMemoryPage from './components/attentionTraining/PegMemoryPage.vue'
+import WritingTrainingHubPage from './components/writingTraining/WritingTrainingHubPage.vue'
+import WordExpansionPage from './components/writingTraining/WordExpansionPage.vue'
+import OverviewStructurePage from './components/writingTraining/OverviewStructurePage.vue'
+import CharacterPage from './components/writingTraining/CharacterPage.vue'
+import EventPage from './components/writingTraining/EventPage.vue'
+import SceneryPage from './components/writingTraining/SceneryPage.vue'
+import AnimalPage from './components/writingTraining/AnimalPage.vue'
+import PlantPage from './components/writingTraining/PlantPage.vue'
+import ObjectPage from './components/writingTraining/ObjectPage.vue'
+import OpeningPage from './components/writingTraining/OpeningPage.vue'
+import ClosingPage from './components/writingTraining/ClosingPage.vue'
+import BodyPage from './components/writingTraining/BodyPage.vue'
+import FiveSensesPage from './components/writingTraining/FiveSensesPage.vue'
+import ExperienceReflectionPage from './components/writingTraining/ExperienceReflectionPage.vue'
+import SceneCharacterActionPage from './components/writingTraining/SceneCharacterActionPage.vue'
+import ProblemSolutionResultPage from './components/writingTraining/ProblemSolutionResultPage.vue'
 import ThinkingModeTrainingHubPage from './components/thinkingModeTraining/ThinkingModeTrainingHubPage.vue'
 import LearningMethodologyPage from './components/learningMethodology/LearningMethodologyPage.vue'
 import LearningStepsPage from './components/learningMethodology/LearningStepsPage.vue'

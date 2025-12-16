@@ -10,6 +10,8 @@ export const menuConfig = {
   
   // 专注力训练（包含父级和子级菜单）
   showAttentionTraining: true,
+  // 作文提升训练（包含父级和子级菜单）
+  showWritingTraining: true,
   
   // 顶级思维模式训练（包含父级和子级菜单）
   showThinkingModeTraining: true,

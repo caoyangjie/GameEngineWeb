@@ -276,189 +276,36 @@
           v-if="menuConfig.showAttentionTraining"
           class="sidebar-item"
           :class="{ active: attentionActive }"
-          @click="toggleAttentionSubmenu"
+          @click="handleNavigate(ROUTES.ATTENTION_TRAINING)"
         >
           <span class="sidebar-icon">🎯</span>
           <span class="sidebar-text">专注力训练</span>
-          <span class="sidebar-arrow" :class="{ rotated: showAttentionSubmenu }">→</span>
         </div>
-        <div v-if="menuConfig.showAttentionTraining && showAttentionSubmenu" class="submenu">
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_TRAINING }"
-            @click="handleNavigate(ROUTES.ATTENTION_TRAINING)"
-          >
-            <span class="submenu-icon">📑</span>
-            <span class="submenu-text">训练概览</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_DIGIT_INTRO }"
-            @click="handleNavigate(ROUTES.ATTENTION_DIGIT_INTRO)"
-          >
-            <span class="submenu-icon">🔢</span>
-            <span class="submenu-text">数字入门</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_LETTER_REINFORCE }"
-            @click="handleNavigate(ROUTES.ATTENTION_LETTER_REINFORCE)"
-          >
-            <span class="submenu-icon">🔠</span>
-            <span class="submenu-text">字母巩固</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_IDIOM_ADVANCED }"
-            @click="handleNavigate(ROUTES.ATTENTION_IDIOM_ADVANCED)"
-          >
-            <span class="submenu-icon">📜</span>
-            <span class="submenu-text">成语进阶</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_POETRY_CHALLENGE }"
-            @click="handleNavigate(ROUTES.ATTENTION_POETRY_CHALLENGE)"
-          >
-            <span class="submenu-icon">🖋️</span>
-            <span class="submenu-text">诗词挑战</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_SUDOKU }"
-            @click="handleNavigate(ROUTES.ATTENTION_SUDOKU)"
-          >
-            <span class="submenu-icon">🧩</span>
-            <span class="submenu-text">数独</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_NUMBER_SLIDER }"
-            @click="handleNavigate(ROUTES.ATTENTION_NUMBER_SLIDER)"
-          >
-            <span class="submenu-icon">🎛️</span>
-            <span class="submenu-text">数字华容道</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.ATTENTION_PHOTO_MEMORY }"
-            @click="handleNavigate(ROUTES.ATTENTION_PHOTO_MEMORY)"
-          >
-            <span class="submenu-icon">📸</span>
-            <span class="submenu-text">照相记忆</span>
-          </div>
+        <div
+          v-if="menuConfig.showWritingTraining"
+          class="sidebar-item"
+          :class="{ active: writingActive }"
+          @click="handleNavigate(ROUTES.WRITING_TRAINING)"
+        >
+          <span class="sidebar-icon">📝</span>
+          <span class="sidebar-text">作文提升训练</span>
+        </div>
+        <div 
+          class="sidebar-item" 
+          :class="{ active: learningActive }"
+          @click="handleNavigate(ROUTES.LEARNING_RECORD_LIST)"
+        >
+          <span class="sidebar-icon">📖</span>
+          <span class="sidebar-text">学习</span>
         </div>
         <div
           v-if="menuConfig.showThinkingModeTraining"
           class="sidebar-item"
           :class="{ active: thinkingActive }"
-          @click="toggleThinkingSubmenu"
+          @click="handleNavigate(ROUTES.THINKING_MODE_TRAINING)"
         >
           <span class="sidebar-icon">🧠</span>
           <span class="sidebar-text">顶级思维模式训练</span>
-          <span class="sidebar-arrow" :class="{ rotated: showThinkingSubmenu }">→</span>
-        </div>
-        <div 
-          class="sidebar-item" 
-          :class="{ active: learningActive }"
-          @click="toggleLearningSubmenu"
-        >
-          <span class="sidebar-icon">📖</span>
-          <span class="sidebar-text">学习</span>
-          <span class="sidebar-arrow" :class="{ rotated: showLearningSubmenu }">→</span>
-        </div>
-        <!-- 学习二级菜单 -->
-        <div v-if="showLearningSubmenu" class="submenu">
-          <div 
-            class="submenu-item" 
-            :class="{ active: activeRoute === ROUTES.LEARNING_RECORD_LIST }" 
-            @click="handleNavigate(ROUTES.LEARNING_RECORD_LIST)"
-          >
-            <span class="submenu-icon">📝</span>
-            <span class="submenu-text">学习记录管理</span>
-          </div>
-        </div>
-        <div v-if="menuConfig.showThinkingModeTraining && showThinkingSubmenu" class="submenu">
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_MODE_TRAINING }"
-            @click="handleNavigate(ROUTES.THINKING_MODE_TRAINING)"
-          >
-            <span class="submenu-icon">📑</span>
-            <span class="submenu-text">训练概览</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_5W2H }"
-            @click="handleNavigate(ROUTES.THINKING_5W2H)"
-          >
-            <span class="submenu-icon">❓</span>
-            <span class="submenu-text">5W2H分析法</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_DESCARTES }"
-            @click="handleNavigate(ROUTES.THINKING_DESCARTES)"
-          >
-            <span class="submenu-icon">🧮</span>
-            <span class="submenu-text">笛卡尔思维模型</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_FEYNMAN }"
-            @click="handleNavigate(ROUTES.THINKING_FEYNMAN)"
-          >
-            <span class="submenu-icon">📚</span>
-            <span class="submenu-text">费曼学习法</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_DELIBERATE_PRACTICE }"
-            @click="handleNavigate(ROUTES.THINKING_DELIBERATE_PRACTICE)"
-          >
-            <span class="submenu-icon">🎯</span>
-            <span class="submenu-text">刻意练习思维模型</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_SMART }"
-            @click="handleNavigate(ROUTES.THINKING_SMART)"
-          >
-            <span class="submenu-icon">🎪</span>
-            <span class="submenu-text">SMART目标模式</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_QUADRANT }"
-            @click="handleNavigate(ROUTES.THINKING_QUADRANT)"
-          >
-            <span class="submenu-icon">📊</span>
-            <span class="submenu-text">四象限法则</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_GROW }"
-            @click="handleNavigate(ROUTES.THINKING_GROW)"
-          >
-            <span class="submenu-icon">🌱</span>
-            <span class="submenu-text">GROW模型</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_SIX_HATS }"
-            @click="handleNavigate(ROUTES.THINKING_SIX_HATS)"
-          >
-            <span class="submenu-icon">🎩</span>
-            <span class="submenu-text">六顶思考帽</span>
-          </div>
-          <div
-            class="submenu-item"
-            :class="{ active: activeRoute === ROUTES.THINKING_BRAINSTORMING }"
-            @click="handleNavigate(ROUTES.THINKING_BRAINSTORMING)"
-          >
-            <span class="submenu-icon">💡</span>
-            <span class="submenu-text">头脑风暴法</span>
-          </div>
         </div>
         <div class="sidebar-item logout" @click="handleLogout">
           <span class="sidebar-icon">🚪</span>
@@ -501,6 +348,7 @@ const showVaultHistorySubmenu = ref(false)
 const showIncomeHistorySubmenu = ref(false)
 const showMonthlyReportSubmenu = ref(false)
 const showAttentionSubmenu = ref(false)
+const showWritingSubmenu = ref(false)
 const showThinkingSubmenu = ref(false)
 const showLearningSubmenu = ref(false)
 
@@ -516,6 +364,27 @@ const attentionRoutes = [
 ]
 
 const attentionActive = computed(() => attentionRoutes.includes(props.activeRoute))
+
+const writingRoutes = [
+  ROUTES.WRITING_TRAINING,
+  ROUTES.WRITING_WORD_EXPANSION,
+  ROUTES.WRITING_OVERVIEW_STRUCTURE,
+  ROUTES.WRITING_CHARACTER,
+  ROUTES.WRITING_EVENT,
+  ROUTES.WRITING_SCENERY,
+  ROUTES.WRITING_ANIMAL,
+  ROUTES.WRITING_PLANT,
+  ROUTES.WRITING_OBJECT,
+  ROUTES.WRITING_OPENING,
+  ROUTES.WRITING_CLOSING,
+  ROUTES.WRITING_BODY,
+  ROUTES.WRITING_FIVE_SENSES,
+  ROUTES.WRITING_EXPERIENCE_REFLECTION,
+  ROUTES.WRITING_SCENE_CHARACTER_ACTION,
+  ROUTES.WRITING_PROBLEM_SOLUTION_RESULT
+]
+
+const writingActive = computed(() => writingRoutes.includes(props.activeRoute))
 
 const thinkingRoutes = [
   ROUTES.THINKING_MODE_TRAINING,
@@ -563,6 +432,9 @@ watch(() => props.activeRoute, (newRoute) => {
   if (attentionRoutes.includes(newRoute)) {
     showAttentionSubmenu.value = true
   }
+  if (writingRoutes.includes(newRoute)) {
+    showWritingSubmenu.value = true
+  }
   if (thinkingRoutes.includes(newRoute)) {
     showThinkingSubmenu.value = true
   }
@@ -595,6 +467,10 @@ const toggleAttentionSubmenu = () => {
   showAttentionSubmenu.value = !showAttentionSubmenu.value
 }
 
+const toggleWritingSubmenu = () => {
+  showWritingSubmenu.value = !showWritingSubmenu.value
+}
+
 const toggleThinkingSubmenu = () => {
   showThinkingSubmenu.value = !showThinkingSubmenu.value
 }
@@ -625,6 +501,9 @@ const handleNavigate = (route) => {
   }
   if (attentionRoutes.includes(route)) {
     showAttentionSubmenu.value = false
+  }
+  if (writingRoutes.includes(route)) {
+    showWritingSubmenu.value = false
   }
   if (thinkingRoutes.includes(route)) {
     showThinkingSubmenu.value = false
@@ -744,6 +623,40 @@ const handleNavigate = (route) => {
     router.goToAttentionNumberSlider()
   } else if (route === ROUTES.ATTENTION_PHOTO_MEMORY) {
     router.goToAttentionPhotoMemory()
+  } else if (route === ROUTES.ATTENTION_PEG_MEMORY) {
+    router.goToAttentionPegMemory()
+  } else if (route === ROUTES.WRITING_TRAINING) {
+    router.goToWritingTraining()
+  } else if (route === ROUTES.WRITING_WORD_EXPANSION) {
+    router.goToWritingWordExpansion()
+  } else if (route === ROUTES.WRITING_OVERVIEW_STRUCTURE) {
+    router.goToWritingOverviewStructure()
+  } else if (route === ROUTES.WRITING_CHARACTER) {
+    router.goToWritingCharacter()
+  } else if (route === ROUTES.WRITING_EVENT) {
+    router.goToWritingEvent()
+  } else if (route === ROUTES.WRITING_SCENERY) {
+    router.goToWritingScenery()
+  } else if (route === ROUTES.WRITING_ANIMAL) {
+    router.goToWritingAnimal()
+  } else if (route === ROUTES.WRITING_PLANT) {
+    router.goToWritingPlant()
+  } else if (route === ROUTES.WRITING_OBJECT) {
+    router.goToWritingObject()
+  } else if (route === ROUTES.WRITING_OPENING) {
+    router.goToWritingOpening()
+  } else if (route === ROUTES.WRITING_CLOSING) {
+    router.goToWritingClosing()
+  } else if (route === ROUTES.WRITING_BODY) {
+    router.goToWritingBody()
+  } else if (route === ROUTES.WRITING_FIVE_SENSES) {
+    router.goToWritingFiveSenses()
+  } else if (route === ROUTES.WRITING_EXPERIENCE_REFLECTION) {
+    router.goToWritingExperienceReflection()
+  } else if (route === ROUTES.WRITING_SCENE_CHARACTER_ACTION) {
+    router.goToWritingSceneCharacterAction()
+  } else if (route === ROUTES.WRITING_PROBLEM_SOLUTION_RESULT) {
+    router.goToWritingProblemSolutionResult()
   } else if (route === ROUTES.THINKING_MODE_TRAINING) {
     router.goToThinkingModeTraining()
   } else if (route === ROUTES.THINKING_5W2H) {
