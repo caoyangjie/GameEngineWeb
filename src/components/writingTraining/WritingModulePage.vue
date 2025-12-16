@@ -137,7 +137,7 @@
                     v-for="(q, idx) in generatedQuestions"
                     :key="q.id || idx"
                     :class="{ selected: selectedQuestionId === (q.id || idx) }"
-                    @click="selectQuestion(q.id || idx, q)"
+                    @click="handleQuestionClick(q, idx)"
                   >
                     <div class="question-index">
                       <input
@@ -166,33 +166,6 @@
                   <div class="question-text">{{ selectedQuestion.content || selectedQuestion }}</div>
                 </div>
                 <div v-else class="question-empty">请先在左侧选择一道题目</div>
-
-                <div v-if="selectedQuestionRecords.length > 0" class="question-records">
-                  <h4 class="records-title">该题目的训练记录</h4>
-                  <div class="question-record-list">
-                    <div
-                      v-for="record in selectedQuestionRecords"
-                      :key="record.id"
-                      class="question-record-item"
-                      :class="{ expanded: expandedRecordIds.includes(record.id) }"
-                    >
-                      <div class="record-meta-small" @click="toggleRecord(record.id)">
-                        <div class="record-time-small">
-                          {{ formatDate(record.createTime || record.createdAt) }}
-                        </div>
-                        <div class="record-toggle">
-                          {{ expandedRecordIds.includes(record.id) ? '收起' : '展开' }}
-                        </div>
-                      </div>
-                      <div v-if="expandedRecordIds.includes(record.id)" class="record-body-small">
-                        <div
-                          class="record-content"
-                          v-html="marked.parse(record.content || record.answerContent)"
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div class="editor-section">
@@ -210,42 +183,8 @@
                 ></textarea>
                 <div class="actions">
                   <button class="btn-primary" @click="handleSubmitAnswer">提交作答</button>
+                  <button class="btn-primary" @click="handleViewExamples">查看示例</button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel wide-panel">
-          <div class="panel-title">
-            <span>训练记录</span>
-            <span class="pill">数据库保存</span>
-          </div>
-          <div v-if="trainingRecords.length === 0" class="question-empty">
-            暂无记录，提交作答后自动保存。
-          </div>
-          <div v-else class="record-list">
-            <div
-              v-for="record in trainingRecords"
-              :key="record.id"
-              class="record-item"
-              :class="{ expanded: expandedRecordIds.includes(record.id) }"
-            >
-              <div class="record-meta" @click="toggleRecord(record.id)">
-                <div>
-                  <div class="record-title">
-                    {{ record.moduleTitle || record.module }} ·
-                    {{ record.difficultyLabel || record.difficulty }}
-                  </div>
-                  <div class="record-time">{{ formatDate(record.createTime || record.createdAt) }}</div>
-                </div>
-                <div class="record-questions">
-                  题目：
-                  {{ record.questionContent || (record.questions && record.questions[0]) || '未知题目' }}
-                </div>
-              </div>
-              <div v-if="expandedRecordIds.includes(record.id)" class="record-body">
-                <div class="record-content" v-html="marked.parse(record.content || record.answerContent)"></div>
               </div>
             </div>
           </div>
@@ -258,6 +197,93 @@
       :active-route="activeRoute"
       @close="handleSidebarClose"
     />
+
+    <!-- 题目详情弹窗：示例答案 + 用户作答 -->
+    <!-- 使用更高层级的弹窗，使其在“写作训练管理列表”之上显示 -->
+    <div
+      v-if="questionDetailVisible"
+      class="modal-overlay modal-overlay-detail"
+      @click="questionDetailVisible = false"
+    >
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>题目详情</h2>
+          <button class="modal-close" @click="questionDetailVisible = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="management-filter-item" style="margin-bottom: 12px">
+            <span class="management-filter-label">题目：</span>
+            <span class="management-filter-value">
+              {{ (selectedQuestion && (selectedQuestion.content || selectedQuestion.questionContent || selectedQuestion)) || '未选择题目' }}
+            </span>
+          </div>
+
+          <div v-if="questionDetailLoading" class="question-empty">
+            正在加载该题目的示例与训练记录...
+          </div>
+
+          <template v-else>
+            <!-- 示例答案 -->
+            <div class="panel" style="margin-bottom: 16px">
+              <div class="panel-title">
+                <span>示例答案（AI 提供）</span>
+              </div>
+              <div v-if="questionDetailExamples.length === 0" class="question-empty">
+                暂无示例答案。
+              </div>
+              <div v-else class="question-record-list">
+                <div
+                  v-for="record in questionDetailExamples"
+                  :key="record.id"
+                  class="question-record-item"
+                >
+                  <div class="record-meta-small">
+                    <div class="record-time-small">
+                      {{ formatDate(record.createTime || record.createdAt) }}
+                    </div>
+                  </div>
+                  <div class="record-body-small">
+                    <div
+                      class="record-content"
+                      v-html="marked.parse(record.content || record.answerContent)"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 用户作答记录 -->
+            <div class="panel">
+              <div class="panel-title">
+                <span>用户训练记录</span>
+              </div>
+              <div v-if="questionDetailUserRecords.length === 0" class="question-empty">
+                暂无用户作答记录。
+              </div>
+              <div v-else class="question-record-list">
+                <div
+                  v-for="record in questionDetailUserRecords"
+                  :key="record.id"
+                  class="question-record-item"
+                >
+                  <div class="record-meta-small">
+                    <div class="record-time-small">
+                      {{ formatDate(record.createTime || record.createdAt) }}
+                    </div>
+                  </div>
+                  <div class="record-body-small">
+                    <div
+                      class="record-content"
+                      v-html="marked.parse(record.content || record.answerContent)"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
 
     <!-- 题目管理弹框 -->
     <div v-if="showQuestionManagementDialog" class="modal-overlay" @click="showQuestionManagementDialog = false">
@@ -278,25 +304,20 @@
                 id="management-difficulty-select"
                 v-model="selectedDifficulty"
                 class="management-filter-select"
+                @change="loadQuestionManagement(1)"
               >
                 <option v-for="item in difficultyOptions" :key="item.value" :value="item.value">
                   {{ item.label }}
                 </option>
               </select>
             </div>
-            <button
-              class="btn-secondary management-filter-button"
-              :disabled="loadingQuestionManagement"
-              @click="loadQuestionManagement(1)"
-            >
-              查询
-            </button>
           </div>
           <div v-if="questionManagementList.length" class="management-list">
             <div
               class="management-item"
               v-for="item in questionManagementList"
               :key="item.id"
+              @click="handleManagementItemClick(item)"
             >
               <div class="management-content">
                 {{ item.content || item.questionContent || '未找到题目内容' }}
@@ -347,14 +368,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import TopHeader from '../common/TopHeader.vue'
 import Sidebar from '../common/Sidebar.vue'
 import { ROUTES, useRouter } from '../../composables/useRouter.js'
-import { chatWithMessages } from '../../api/deepseek.js'
 import { marked } from 'marked'
 import {
-  saveWritingQuestions,
+  generateWritingQuestions,
   getWritingQuestions,
   getRandomWritingQuestions,
   saveWritingRecord,
-  getWritingRecords
+  getWritingRecords,
+  getWritingRecordsByQuestion
 } from '../../api/writingTraining.js'
 
 const props = defineProps({
@@ -382,6 +403,12 @@ const showQuestionManagementDialog = ref(false)
 const questionManagementPageNum = ref(1)
 const questionManagementPageSize = ref(20)
 const questionManagementTotal = ref(0)
+
+// 题目详情弹窗（示例 + 用户作答）
+const questionDetailVisible = ref(false)
+const questionDetailLoading = ref(false)
+const questionDetailExamples = ref([])
+const questionDetailUserRecords = ref([])
 
 const difficultyOptions = [
   { value: 'primary_low', label: '小学1-3年级' },
@@ -415,7 +442,7 @@ const modules = {
       '做 3 句替换练习：同一句子替换不同表达，保持语义不变'
     ],
     templates: [
-      { label: '词串模版', text: '情绪/状态 + 外在表现 + 场景：兴奋—眼睛发亮—跑向操场' },
+      { label: '词串模版', text: '加量词,加地点,加形容词,加拟声词,加动词,加场景,加比喻,加拟人,加排比,加对偶,加夸张,加拟声,加设问,加反问' },
       { label: '替换句', text: '原句：我很开心。→ 我兴奋得眼睛发亮，恨不得马上跑出去。' }
     ],
     tips: [
@@ -787,7 +814,7 @@ const fetchRecords = async () => {
       pageNum: 1,
       pageSize: 50
     })
-    const rows = res?.data?.rows || res?.rows
+    const rows = res?.data?.rows
     if (res?.code === 200 && Array.isArray(rows)) {
       trainingRecords.value = rows
     } else {
@@ -805,48 +832,23 @@ const generateQuestions = async () => {
   generatedQuestions.value = []
   const count = Math.min(Math.max(Number(questionCount.value) || 1, 1), 10)
   questionCount.value = count
-  const moduleTitle = moduleData.value.title || '写作训练'
-
-  const systemPrompt = `你是一名语文写作教练，请为${moduleTitle}提供${count}道训练题。根据学生年级调整难度：${difficultyLabel.value}。输出简洁的题目列表，每题单独成行，不要附加答案。`
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    {
-      role: 'user',
-      content: `请生成${count}道与「${moduleTitle}」相关的写作练习题，难度：${difficultyLabel.value}，题目简洁、具体、可直接写作。`
-    }
-  ]
-
   try {
-    const res = await chatWithMessages(messages)
-    if (res?.code !== 200 || !res.data) throw new Error(res?.msg || '出题失败')
-    const content = res.data?.choices?.[0]?.message?.content || ''
-    const lines = content
-      .split(/\n+/)
-      .map(item => item.replace(/^\d+[.)]\s*/, '').trim())
-      .filter(Boolean)
-    const questionsToSave = lines.slice(0, questionCount.value)
-    if (!questionsToSave.length) throw new Error('未解析到有效题目')
-
-    // 保存到后端
-    const saveRes = await saveWritingQuestions({
+    const res = await generateWritingQuestions({
       moduleKey: activeRoute.value,
       moduleTitle: moduleData.value.title,
       difficulty: selectedDifficulty.value,
-      questions: questionsToSave
+      count,
+      templates: moduleData.value.templates 
     })
 
-    // 期望后端返回 {code, data: [{id, content, ...}]}
-    if (saveRes?.code === 200 && Array.isArray(saveRes.data)) {
-      generatedQuestions.value = saveRes.data
+    if (res?.code === 200 && Array.isArray(res.data)) {
+      generatedQuestions.value = res.data
+    } else if (Array.isArray(res)) {
+      generatedQuestions.value = res
     } else {
-      // 回退：前端构造临时对象（无 id）
-      generatedQuestions.value = questionsToSave.map((q, idx) => ({
-        id: Date.now() + idx,
-        content: q
-      }))
+      throw new Error(res?.msg || '出题失败')
     }
 
-    // 默认选中第一题
     if (generatedQuestions.value.length > 0) {
       selectQuestion(generatedQuestions.value[0].id || 0, generatedQuestions.value[0])
     } else {
@@ -859,6 +861,14 @@ const generateQuestions = async () => {
   } finally {
     generating.value = false
   }
+}
+
+const handleViewExamples = async () => {
+  if (!selectedQuestionId.value) {
+    alert('请先选择一道训练题目。')
+    return
+  }
+  await openQuestionDetail(selectedQuestion.value, null)
 }
 
 const handleSubmitAnswer = () => {
@@ -944,29 +954,50 @@ const loadRandomQuestions = async () => {
 const selectQuestion = async (questionId, question) => {
   selectedQuestionId.value = questionId
   selectedQuestion.value = question
-  // 加载该题目的训练记录
-  await loadQuestionRecords(questionId)
+}
+
+const openQuestionDetail = async (question, idx) => {
+  if (!question || !question.id) return
+  selectedQuestionId.value = question.id
+  selectedQuestion.value = question
+  if( idx === null ) {
+    questionDetailVisible.value = true
+    questionDetailLoading.value = true
+  }
+  questionDetailExamples.value = []
+  questionDetailUserRecords.value = []
+  try {
+    const res = await getWritingRecordsByQuestion({ questionId: question.id })
+    if (res?.code === 200 && Array.isArray(res.data)) {
+      const all = res.data
+      selectedQuestionRecords.value = all
+      questionDetailExamples.value = all.filter(r => r.isExample)
+      questionDetailUserRecords.value = all.filter(r => !r.isExample)
+    } else {
+      selectedQuestionRecords.value = []
+      questionDetailExamples.value = []
+      questionDetailUserRecords.value = []
+    }
+  } catch (e) {
+    console.error('加载题目训练记录失败', e)
+    selectedQuestionRecords.value = []
+    questionDetailExamples.value = []
+    questionDetailUserRecords.value = []
+  } finally {
+    questionDetailLoading.value = false
+  }
+}
+
+const handleQuestionClick = async (question, idx) => {
+  if (!question) return
+  await openQuestionDetail(question, idx)
 }
 
 const loadQuestionRecords = async (questionId) => {
   try {
-    const res = await getWritingRecords({
-      moduleKey: activeRoute.value,
-      pageNum: 1,
-      pageSize: 100
-    })
-    const rows = res?.data?.rows || res?.rows
-    if (res?.code === 200 && Array.isArray(rows)) {
-      // 筛选出当前题目的记录
-      const targetId = questionId?.toString() || selectedQuestion.value?.id?.toString()
-      if (targetId) {
-        selectedQuestionRecords.value = rows.filter(record => {
-          const recordQid = record.questionId?.toString()
-          return recordQid && recordQid === targetId
-        })
-      } else {
-        selectedQuestionRecords.value = []
-      }
+    const res = await getWritingRecordsByQuestion({ questionId })
+    if (res?.code === 200 && Array.isArray(res.data)) {
+      selectedQuestionRecords.value = res.data
     } else {
       selectedQuestionRecords.value = []
     }
@@ -985,20 +1016,12 @@ const loadQuestionManagement = async (page = 1) => {
       pageNum: page,
       pageSize: questionManagementPageSize.value
     })
-    // 兼容多种返回结构，优先使用标准 AjaxResult.data.rows
-    const rows = res?.data?.rows || res?.rows || res?.data
+    const rows = res?.data?.rows || res?.rows
     questionManagementList.value = Array.isArray(rows) ? rows : []
-
-    // 更新分页信息，优先使用 AjaxResult.data.total
-    if (typeof res?.data?.total === 'number') {
-      questionManagementTotal.value = res.data.total
-    } else if (typeof res?.total === 'number') {
-      questionManagementTotal.value = res.total
-    } else if (typeof res?.data?.total === 'string' && !Number.isNaN(Number(res.data.total))) {
-      questionManagementTotal.value = Number(res.data.total)
-    } else {
-      questionManagementTotal.value = questionManagementList.value.length
-    }
+    const total =
+      (typeof res?.data?.total === 'number' ? res.data.total : undefined) ??
+      (typeof res?.total === 'number' ? res.total : 0)
+    questionManagementTotal.value = total
     questionManagementPageNum.value = page
   } catch (e) {
     console.error('加载题目管理列表失败', e)
@@ -1010,6 +1033,11 @@ const loadQuestionManagement = async (page = 1) => {
 
 const handlePageChange = (page) => {
   loadQuestionManagement(page)
+}
+
+const handleManagementItemClick = async (item) => {
+  if (!item) return
+  await openQuestionDetail(item, null)
 }
 
 watch(
@@ -1673,6 +1701,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  cursor: pointer;
 }
 
 .management-content {
@@ -1698,6 +1727,10 @@ onMounted(() => {
   color: #c5c5c5;
 }
 
+.management-records {
+  margin-top: 8px;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1710,6 +1743,11 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 20px;
+}
+
+/* 题目详情弹窗：叠加在管理列表弹窗之上 */
+.modal-overlay-detail {
+  z-index: 1100;
 }
 
 .modal-content {
