@@ -401,7 +401,7 @@ const questionManagementList = ref([])
 const loadingQuestionManagement = ref(false)
 const showQuestionManagementDialog = ref(false)
 const questionManagementPageNum = ref(1)
-const questionManagementPageSize = ref(20)
+const questionManagementPageSize = ref(10)
 const questionManagementTotal = ref(0)
 
 // 题目详情弹窗（示例 + 用户作答）
